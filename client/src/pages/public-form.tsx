@@ -196,10 +196,10 @@ export default function PublicForm() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-12 flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
-          <p className="text-slate-600">Loading form...</p>
+          <p className="text-slate-600 dark:text-slate-400">Loading form...</p>
         </div>
       </div>
     );
@@ -207,12 +207,12 @@ export default function PublicForm() {
 
   if (error || !form) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12 flex items-center justify-center">
-        <Card className="max-w-md mx-4">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-12 flex items-center justify-center">
+        <Card className="max-w-md mx-4 border border-slate-200 dark:border-slate-600">
           <CardContent className="p-8 text-center">
             <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-slate-900 mb-2">Form Not Found</h2>
-            <p className="text-slate-600">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">Form Not Found</h2>
+            <p className="text-slate-600 dark:text-slate-400">
               The form you're looking for doesn't exist or has been removed.
             </p>
           </CardContent>
@@ -223,12 +223,12 @@ export default function PublicForm() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12 flex items-center justify-center">
-        <Card className="max-w-md mx-4">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-12 flex items-center justify-center">
+        <Card className="max-w-md mx-4 border border-slate-200 dark:border-slate-600">
           <CardContent className="p-8 text-center">
             <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-slate-900 mb-2">Thank You!</h2>
-            <p className="text-slate-600">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">Thank You!</h2>
+            <p className="text-slate-600 dark:text-slate-400">
               Your response has been submitted successfully. We appreciate your time!
             </p>
           </CardContent>
@@ -238,9 +238,9 @@ export default function PublicForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-12">
       <div className="max-w-2xl mx-auto px-4">
-        <Card className="shadow-xl border-0 overflow-hidden">
+        <Card className="shadow-xl border border-slate-200 dark:border-slate-600 overflow-hidden">
           <div 
             className="px-8 py-6 text-white"
             style={{ backgroundColor: form.themeColor }}

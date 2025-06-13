@@ -177,21 +177,21 @@ export default function Responses() {
             {responsesLoading ? (
               <div className="space-y-4">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="flex items-center space-x-4 p-4 border border-slate-200 rounded-lg animate-pulse">
-                    <div className="w-8 h-8 bg-slate-200 rounded-lg" />
+                  <div key={i} className="flex items-center space-x-4 p-4 border border-slate-200 dark:border-slate-600 rounded-lg animate-pulse">
+                    <div className="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded-lg" />
                     <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-slate-200 rounded w-1/4" />
-                      <div className="h-4 bg-slate-200 rounded w-1/2" />
+                      <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/4" />
+                      <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2" />
                     </div>
-                    <div className="h-4 bg-slate-200 rounded w-20" />
+                    <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-20" />
                   </div>
                 ))}
               </div>
             ) : responses.length === 0 ? (
               <div className="text-center py-12">
-                <Users className="mx-auto h-12 w-12 text-slate-400 mb-4" />
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">No responses yet</h3>
-                <p className="text-slate-600 mb-4">
+                <Users className="mx-auto h-12 w-12 text-slate-400 dark:text-slate-500 mb-4" />
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">No responses yet</h3>
+                <p className="text-slate-600 dark:text-slate-400 mb-4">
                   Responses will appear here once people start submitting your forms
                 </p>
                 <Button onClick={() => setLocation("/forms")}>
@@ -201,40 +201,40 @@ export default function Responses() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-slate-50 border-b border-slate-200">
+                  <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-600">
                     <tr>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">
+                      <th className="text-left py-3 px-6 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                         Form
                       </th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">
+                      <th className="text-left py-3 px-6 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                         Response Data
                       </th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">
+                      <th className="text-left py-3 px-6 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                         Submitted
                       </th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">
+                      <th className="text-left py-3 px-6 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-slate-500 uppercase tracking-wider">
+                      <th className="text-left py-3 px-6 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-200">
+                  <tbody className="divide-y divide-slate-200 dark:divide-slate-600">
                     {responses.map((response) => (
-                      <tr key={response.id} className="hover:bg-slate-50">
+                      <tr key={response.id} className="hover:bg-slate-50 dark:hover:bg-slate-800">
                         <td className="py-4 px-6">
                           <div className="flex items-center">
-                            <div className="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center mr-3">
-                              <FileText className="text-primary-600" size={16} />
+                            <div className="w-8 h-8 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center mr-3">
+                              <FileText className="text-primary-600 dark:text-primary-400" size={16} />
                             </div>
-                            <span className="font-medium text-slate-900">
+                            <span className="font-medium text-slate-900 dark:text-slate-100">
                               {response.formTitle}
                             </span>
                           </div>
                         </td>
                         <td className="py-4 px-6 max-w-xs">
-                          <div className="text-sm text-slate-600 truncate">
+                          <div className="text-sm text-slate-600 dark:text-slate-400 truncate">
                             {Object.entries(response.responses).map(([key, value], index) => (
                               <div key={key}>
                                 {index < 2 && (
@@ -245,13 +245,13 @@ export default function Responses() {
                               </div>
                             ))}
                             {Object.keys(response.responses).length > 2 && (
-                              <span className="text-slate-400">
+                              <span className="text-slate-400 dark:text-slate-500">
                                 +{Object.keys(response.responses).length - 2} more fields
                               </span>
                             )}
                           </div>
                         </td>
-                        <td className="py-4 px-6 text-slate-600">
+                        <td className="py-4 px-6 text-slate-600 dark:text-slate-400">
                           {formatDistanceToNow(new Date(response.submittedAt), { addSuffix: true })}
                         </td>
                         <td className="py-4 px-6">
