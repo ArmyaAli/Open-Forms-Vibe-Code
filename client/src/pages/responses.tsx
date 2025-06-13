@@ -178,9 +178,9 @@ export default function Responses() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-background">
       {/* Header */}
-      <header className="bg-white dark:bg-card border-b border-slate-200 dark:border-slate-600 px-6 py-4 sticky top-0 z-50">
+      <header className="bg-white dark:bg-card border-b border-slate-200 dark:border-slate-600 px-4 lg:px-6 py-4 sticky top-0 z-50">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-8">
+          <div className="flex items-center space-x-4 lg:space-x-8">
             <button 
               onClick={() => setLocation("/")}
               className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
@@ -188,7 +188,7 @@ export default function Responses() {
               <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary-500 rounded-lg flex items-center justify-center">
                 <Box className="text-white" size={16} />
               </div>
-              <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Open Forms</h1>
+              <h1 className="text-lg lg:text-xl font-bold text-slate-900 dark:text-slate-100">Open Forms</h1>
             </button>
             <nav className="hidden md:flex space-x-6 border-l border-slate-200 dark:border-slate-600 pl-6">
               <button
