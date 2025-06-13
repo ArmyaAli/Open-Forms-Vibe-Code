@@ -521,6 +521,7 @@ export default function FormBuilder() {
                     const newForm = await createFormMutation.mutateAsync(currentForm);
                     setCurrentFormId(newForm.id);
                     setCurrentForm(prev => ({ ...prev, shareId: newForm.shareId }));
+                    // Use the shareId from the server response
                     window.open(`/f/${newForm.shareId}`, '_blank');
                   } catch (error) {
                     toast({
@@ -532,8 +533,9 @@ export default function FormBuilder() {
                 } else {
                   // Update existing form first
                   try {
-                    await updateFormMutation.mutateAsync(currentForm);
-                    window.open(`/f/${currentForm.shareId}`, '_blank');
+                    const updatedForm = await updateFormMutation.mutateAsync(currentForm);
+                    setCurrentForm(prev => ({ ...prev, shareId: updatedForm.shareId }));
+                    window.open(`/f/${updatedForm.shareId}`, '_blank');
                   } catch (error) {
                     toast({
                       title: "Error", 

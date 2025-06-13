@@ -123,31 +123,15 @@ export default function RowBasedCanvas({
     const fieldType = e.dataTransfer.getData("application/x-field-type");
     const fieldId = e.dataTransfer.getData("application/x-field-id") || e.dataTransfer.getData("text/plain");
     
-    console.log('🎯 DROP EVENT:', { 
-      rowId, 
-      columnIndex, 
-      fieldType, 
-      fieldId, 
-      draggedField,
-      availableTypes: Array.from(e.dataTransfer.types)
-    });
-    
     if (fieldType && !fieldId) {
       // Adding new field from palette
-      console.log('➕ Adding new field:', fieldType);
       onAddField(fieldType, rowId, columnIndex);
     } else if (fieldId) {
       // Moving existing field
       const currentField = fields.find(f => f.id === fieldId);
-      console.log('🔄 Moving field:', fieldId, 'current:', currentField?.rowId, currentField?.columnIndex, 'to:', rowId, columnIndex);
       if (currentField && (currentField.rowId !== rowId || currentField.columnIndex !== columnIndex)) {
-        console.log('✅ Updating field position');
         onUpdateField(fieldId, { rowId, columnIndex });
-      } else {
-        console.log('❌ Field position unchanged or field not found');
       }
-    } else {
-      console.log('⚠️ No valid drag data found');
     }
     
     setDragOverRow(null);
@@ -156,198 +140,184 @@ export default function RowBasedCanvas({
   };
 
   const getFieldIcon = (type: string) => {
-    const iconMap: Record<string, JSX.Element> = {
-      text: <Edit size={16} />,
-      email: <Edit size={16} />,
-      number: <Edit size={16} />,
-      textarea: <Edit size={16} />,
-      select: <Settings size={16} />,
-      radio: <Settings size={16} />,
-      checkbox: <Checkbox className="w-4 h-4" />,
-      phone: <Edit size={16} />,
-      date: <Calendar size={16} />,
-      time: <Clock size={16} />,
-      rating: <Star size={16} />,
-      file: <Upload size={16} />,
-      address: <MapPin size={16} />,
-      range: <Sliders size={16} />,
-      toggle: <ToggleLeft size={16} />
-    };
-    return iconMap[type] || <Edit size={16} />;
+    switch (type) {
+      case 'text': case 'email': case 'phone': return '📝';
+      case 'textarea': return '📄';
+      case 'select': case 'radio': return '📋';
+      case 'checkbox': return '☑️';
+      case 'number': case 'range': return '🔢';
+      case 'date': return <Calendar size={16} />;
+      case 'time': return <Clock size={16} />;
+      case 'rating': return <Star size={16} />;
+      case 'file': return <Upload size={16} />;
+      case 'address': return <MapPin size={16} />;
+      case 'toggle': return <ToggleLeft size={16} />;
+      default: return '📝';
+    }
   };
 
   const renderField = (field: FormField) => {
     const isEditing = editingField === field.id;
-    
+    const isDragging = draggedField === field.id;
+
     return (
-      <Card 
+      <div
         key={field.id}
-        className={`mb-3 transition-all duration-200 ${
-          draggedField === field.id ? 'opacity-50 scale-95' : ''
-        } ${isEditing ? 'ring-2 ring-primary' : ''} border border-slate-200 dark:border-slate-600`}
+        className={`group relative bg-white dark:bg-card border border-slate-200 dark:border-slate-600 rounded p-3 transition-all ${
+          isDragging ? 'opacity-50' : 'hover:border-blue-300 dark:hover:border-blue-600'
+        }`}
         draggable
         onDragStart={(e) => handleFieldDragStart(e, field)}
         onDragEnd={handleFieldDragEnd}
       >
-        <CardContent className="p-4">
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <GripVertical className="cursor-grab text-slate-400" size={16} />
-              {getFieldIcon(field.type)}
-              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                {field.label || `${field.type} field`}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center space-x-2">
+            <span className="text-xs">{getFieldIcon(field.type)}</span>
+            {isEditing ? (
+              <Input
+                value={field.label}
+                onChange={(e) => onUpdateField(field.id, { label: e.target.value })}
+                onBlur={() => setEditingField(null)}
+                onKeyDown={(e) => e.key === 'Enter' && setEditingField(null)}
+                className="text-sm font-medium h-6 py-0"
+                autoFocus
+              />
+            ) : (
+              <span className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                {field.label || field.type}
               </span>
-              {field.required && <Badge variant="secondary" className="text-xs">Required</Badge>}
-            </div>
-            <div className="flex gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0"
-                onClick={() => setEditingField(isEditing ? null : field.id)}
-              >
-                <Edit className="text-slate-500 dark:text-slate-400" size={12} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900/30"
-                onClick={() => onRemoveField(field.id)}
-              >
-                <Trash2 className="text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400" size={12} />
-              </Button>
+            )}
+          </div>
+          <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0"
+              onClick={() => setEditingField(field.id)}
+            >
+              <Edit size={12} />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0 text-red-500 hover:text-red-700"
+              onClick={() => onRemoveField(field.id)}
+            >
+              <Trash2 size={12} />
+            </Button>
+            <div className="cursor-move">
+              <GripVertical size={12} className="text-slate-400" />
             </div>
           </div>
+        </div>
 
-          {isEditing ? (
-            <div className="space-y-3 pt-3 border-t border-slate-200 dark:border-slate-600">
-              <div>
-                <Label className="text-xs text-slate-600 dark:text-slate-400">Label</Label>
-                <Input
-                  value={field.label}
-                  onChange={(e) => onUpdateField(field.id, { label: e.target.value })}
-                  className="mt-1"
-                  placeholder="Field label"
-                />
-              </div>
-              <div>
-                <Label className="text-xs text-slate-600 dark:text-slate-400">Placeholder</Label>
-                <Input
-                  value={field.placeholder || ""}
-                  onChange={(e) => onUpdateField(field.id, { placeholder: e.target.value })}
-                  className="mt-1"
-                  placeholder="Placeholder text"
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id={`required-${field.id}`}
-                  checked={field.required}
-                  onCheckedChange={(checked) => onUpdateField(field.id, { required: !!checked })}
-                />
-                <Label htmlFor={`required-${field.id}`} className="text-xs text-slate-600 dark:text-slate-400">
-                  Required field
-                </Label>
-              </div>
-              <div>
-                <Label className="text-xs text-slate-600 dark:text-slate-400">Width</Label>
-                <Select 
-                  value={field.width?.toString() || "1"} 
-                  onValueChange={(value) => onUpdateField(field.id, { width: parseInt(value) })}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="1">1 Column</SelectItem>
-                    <SelectItem value="2">2 Columns</SelectItem>
-                    <SelectItem value="3">3 Columns</SelectItem>
-                    <SelectItem value="4">4 Columns</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              {(field.type === 'select' || field.type === 'radio' || field.type === 'checkbox') && (
-                <div>
-                  <Label className="text-xs text-slate-600 dark:text-slate-400">Options (one per line)</Label>
-                  <Textarea
-                    value={(field.options || []).join('\n')}
-                    onChange={(e) => onUpdateField(field.id, { 
-                      options: e.target.value.split('\n').filter(opt => opt.trim()) 
-                    })}
-                    className="mt-1"
-                    placeholder="Option 1\nOption 2\nOption 3"
-                    rows={3}
-                  />
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {renderFieldPreview(field)}
-            </div>
+        <div className="text-xs text-slate-500 dark:text-slate-400 space-y-1">
+          <div className="flex space-x-3">
+            <label className="flex items-center space-x-1">
+              <Checkbox
+                checked={field.required}
+                onCheckedChange={(checked) => onUpdateField(field.id, { required: !!checked })}
+              />
+              <span>Required</span>
+            </label>
+            <label className="flex items-center space-x-1">
+              <Checkbox
+                checked={field.placeholder !== undefined}
+                onCheckedChange={(checked) => 
+                  onUpdateField(field.id, { placeholder: checked ? '' : undefined })
+                }
+              />
+              <span>Placeholder</span>
+            </label>
+          </div>
+          {field.placeholder !== undefined && (
+            <Input
+              value={field.placeholder || ''}
+              onChange={(e) => onUpdateField(field.id, { placeholder: e.target.value })}
+              placeholder="Enter placeholder text..."
+              className="text-xs h-6"
+            />
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   };
 
   const renderFieldPreview = (field: FormField) => {
-    const baseClasses = "w-full text-sm";
-    
+    const commonProps = {
+      className: "w-full text-sm",
+      placeholder: field.placeholder,
+      required: field.required,
+    };
+
     switch (field.type) {
+      case 'text': case 'email': case 'phone':
+        return <Input {...commonProps} type={field.type} />;
       case 'textarea':
-        return (
-          <Textarea 
-            placeholder={field.placeholder || field.label}
-            className={baseClasses}
-            disabled
-            rows={3}
-          />
-        );
+        return <Textarea {...commonProps} rows={3} />;
       case 'select':
         return (
-          <Select disabled>
-            <SelectTrigger className={baseClasses}>
-              <SelectValue placeholder={field.placeholder || field.label} />
+          <Select>
+            <SelectTrigger className="w-full text-sm">
+              <SelectValue placeholder="Select an option..." />
             </SelectTrigger>
             <SelectContent>
-              {(field.options || ['Option 1', 'Option 2']).map((option, idx) => (
-                <SelectItem key={idx} value={option}>{option}</SelectItem>
-              ))}
+              <SelectItem value="option1">Option 1</SelectItem>
+              <SelectItem value="option2">Option 2</SelectItem>
             </SelectContent>
           </Select>
         );
-      case 'radio':
-        return (
-          <RadioGroup disabled className="space-y-2">
-            {(field.options || ['Option 1', 'Option 2']).map((option, idx) => (
-              <div key={idx} className="flex items-center space-x-2">
-                <RadioGroupItem value={option} id={`${field.id}-${idx}`} />
-                <Label htmlFor={`${field.id}-${idx}`} className="text-sm">{option}</Label>
-              </div>
-            ))}
-          </RadioGroup>
-        );
+      case 'number': case 'range':
+        return <Input {...commonProps} type="number" />;
+      case 'date':
+        return <Input {...commonProps} type="date" />;
+      case 'time':
+        return <Input {...commonProps} type="time" />;
       case 'checkbox':
         return (
           <div className="space-y-2">
-            {(field.options || ['Option 1', 'Option 2']).map((option, idx) => (
-              <div key={idx} className="flex items-center space-x-2">
-                <Checkbox id={`${field.id}-${idx}`} disabled />
-                <Label htmlFor={`${field.id}-${idx}`} className="text-sm">{option}</Label>
-              </div>
+            <label className="flex items-center space-x-2">
+              <Checkbox />
+              <span className="text-sm">Option 1</span>
+            </label>
+            <label className="flex items-center space-x-2">
+              <Checkbox />
+              <span className="text-sm">Option 2</span>
+            </label>
+          </div>
+        );
+      case 'radio':
+        return (
+          <RadioGroup defaultValue="option1">
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="option1" id="r1" />
+              <Label htmlFor="r1" className="text-sm">Option 1</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="option2" id="r2" />
+              <Label htmlFor="r2" className="text-sm">Option 2</Label>
+            </div>
+          </RadioGroup>
+        );
+      case 'rating':
+        return (
+          <div className="flex space-x-1">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star key={star} size={20} className="text-yellow-400 fill-current" />
             ))}
           </div>
         );
-      default:
+      case 'file':
+        return <Input type="file" className="text-sm" />;
+      case 'toggle':
         return (
-          <Input 
-            type={field.type === 'email' ? 'email' : field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : field.type === 'time' ? 'time' : 'text'}
-            placeholder={field.placeholder || field.label}
-            className={baseClasses}
-            disabled
-          />
+          <div className="flex items-center space-x-2">
+            <input type="checkbox" className="toggle" />
+            <span className="text-sm">Toggle option</span>
+          </div>
         );
+      default:
+        return <Input {...commonProps} />;
     }
   };
 
@@ -364,138 +334,119 @@ export default function RowBasedCanvas({
         /* Add Row Button - Centered when no rows exist */
         <div className="absolute inset-0 flex items-center justify-center">
           <Button
-            variant="outline"
             onClick={onAddRow}
-            className="flex items-center gap-2 h-10 px-4 text-sm font-medium"
+            variant="outline"
+            className="border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
           >
-            <Plus size={16} />
-            Add Row
+            <Plus size={16} className="mr-2" />
+            Add Your First Row
           </Button>
         </div>
       ) : (
-        /* Rows container */
         <div className="space-y-4">
-          {/* Add Row Button at top */}
-          <div className="flex justify-center">
+          {sortedRows.map((row, rowIndex) => {
+            const rowFields = fieldsByRow[row.id] || [];
+            
+            return (
+              <Card key={row.id} className="border border-slate-200 dark:border-slate-600">
+                <CardContent className="p-4">
+                  {/* Row Header */}
+                  <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-200 dark:border-slate-600">
+                    <div className="flex items-center space-x-3">
+                      <Badge variant="secondary" className="text-xs">
+                        Row {rowIndex + 1}
+                      </Badge>
+                      <div className="flex items-center space-x-2">
+                        <Columns size={14} />
+                        <select
+                          value={row.columns}
+                          onChange={(e) => onUpdateRow(row.id, { columns: parseInt(e.target.value) })}
+                          className="text-xs border border-slate-200 dark:border-slate-600 rounded px-2 py-1 bg-white dark:bg-slate-800"
+                        >
+                          <option value={1}>1 Column</option>
+                          <option value={2}>2 Columns</option>
+                          <option value={3}>3 Columns</option>
+                          <option value={4}>4 Columns</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => onMoveRow(row.id, 'up')}
+                        disabled={rowIndex === 0}
+                      >
+                        <ArrowUp size={14} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => onMoveRow(row.id, 'down')}
+                        disabled={rowIndex === sortedRows.length - 1}
+                      >
+                        <ArrowDown size={14} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                        onClick={() => onRemoveRow(row.id)}
+                      >
+                        <Trash2 size={14} />
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Row Columns */}
+                  <div className={`grid gap-3 grid-cols-${row.columns}`}>
+                    {Array.from({ length: row.columns }, (_, columnIndex) => {
+                      const columnFields = rowFields.filter(f => f.columnIndex === columnIndex);
+                      const isDropTarget = dragOverRow === row.id && dragOverColumn === columnIndex;
+                      
+                      return (
+                        <div
+                          key={`${row.id}-${columnIndex}`}
+                          className={`min-h-[100px] border-2 border-dashed rounded-lg p-3 transition-colors ${
+                            isDropTarget 
+                              ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20' 
+                              : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500'
+                          }`}
+                          onDragOver={(e) => handleColumnDragOver(e, row.id, columnIndex)}
+                          onDragLeave={handleColumnDragLeave}
+                          onDrop={(e) => handleColumnDrop(e, row.id, columnIndex)}
+                        >
+                          {columnFields.length === 0 ? (
+                            <div className="text-center text-slate-400 dark:text-slate-500 text-sm py-8">
+                              Drop a field here or click to add
+                            </div>
+                          ) : (
+                            <div className="space-y-3">
+                              {columnFields.map(renderField)}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+
+          {/* Add Row Button - Below existing rows */}
+          <div className="flex justify-center pt-4">
             <Button
-              variant="outline"
               onClick={onAddRow}
-              className="flex items-center gap-2 h-9 px-3 text-xs font-medium"
+              variant="outline"
+              className="border-dashed border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700"
             >
-              <Plus size={14} />
+              <Plus size={16} className="mr-2" />
               Add Row
             </Button>
           </div>
-
-          {/* Rows */}
-          {sortedRows.map((row, rowIndex) => (
-            <Card key={row.id} className="border-2 border-dashed border-slate-300 dark:border-slate-600">
-              <CardContent className="p-4">
-                {/* Row Header */}
-                <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-200 dark:border-slate-600">
-                  <div className="flex items-center gap-3">
-                    <Columns className="text-slate-600 dark:text-slate-400" size={16} />
-                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                      Row {rowIndex + 1}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <Label className="text-xs text-slate-600 dark:text-slate-400">Columns:</Label>
-                      <Select 
-                        value={row.columns.toString()} 
-                        onValueChange={(value) => onUpdateRow(row.id, { columns: parseInt(value) })}
-                      >
-                        <SelectTrigger className="w-16 h-8">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="1">1</SelectItem>
-                          <SelectItem value="2">2</SelectItem>
-                          <SelectItem value="3">3</SelectItem>
-                          <SelectItem value="4">4</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div className="flex gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                      onClick={() => onMoveRow(row.id, 'up')}
-                      disabled={rowIndex === 0}
-                    >
-                      <ArrowUp size={12} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0"
-                      onClick={() => onMoveRow(row.id, 'down')}
-                      disabled={rowIndex === sortedRows.length - 1}
-                    >
-                      <ArrowDown size={12} />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/30"
-                      onClick={() => onRemoveRow(row.id)}
-                      disabled={sortedRows.length === 1}
-                    >
-                      <Trash2 className="text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400" size={12} />
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Row Columns */}
-                <div 
-                  className={`grid gap-4 overflow-x-auto ${
-                    row.columns > 3 ? 'grid-flow-col auto-cols-fr' : ''
-                  }`}
-                  style={{ 
-                    gridTemplateColumns: row.columns <= 3 
-                      ? `repeat(${row.columns}, minmax(200px, 1fr))`
-                      : `repeat(${row.columns}, minmax(250px, 300px))`,
-                    maxWidth: '100%'
-                  }}
-                >
-                  {Array.from({ length: row.columns }, (_, columnIndex) => {
-                    const columnsFields = fieldsByRow[row.id]?.filter(f => f.columnIndex === columnIndex) || [];
-                    
-                    return (
-                      <div
-                        key={columnIndex}
-                        className={`min-h-32 p-3 border-2 border-dashed rounded-lg transition-colors ${
-                          dragOverRow === row.id && dragOverColumn === columnIndex
-                            ? 'border-primary bg-primary/5' 
-                            : 'border-slate-300 dark:border-slate-600 bg-slate-50/50 dark:bg-slate-800/50'
-                        }`}
-                        onDragOver={(e) => handleColumnDragOver(e, row.id, columnIndex)}
-                        onDragLeave={handleColumnDragLeave}
-                        onDrop={(e) => handleColumnDrop(e, row.id, columnIndex)}
-                      >
-                        <div className="text-center mb-3">
-                          <span className="text-xs text-slate-500 dark:text-slate-500">
-                            Column {columnIndex + 1}
-                          </span>
-                        </div>
-                        
-                        {columnsFields.map(field => renderField(field))}
-                        
-                        {columnsFields.length === 0 && (
-                          <div className="flex justify-center items-center h-20">
-                            <span className="text-xs text-slate-400 dark:text-slate-500">
-                              Drag fields here
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
         </div>
       )}
     </div>
