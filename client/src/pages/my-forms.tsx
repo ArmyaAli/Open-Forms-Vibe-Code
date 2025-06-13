@@ -32,6 +32,10 @@ export default function MyForms() {
     queryKey: ["/api/forms"],
   });
 
+  const { data: responses = [] } = useQuery<any[]>({
+    queryKey: ["/api/responses"],
+  });
+
   const deleteFormMutation = useMutation({
     mutationFn: async (formId: number) => {
       await apiRequest(`/api/forms/${formId}`, {
@@ -57,6 +61,10 @@ export default function MyForms() {
   const handleShareForm = (form: Form) => {
     setShareUrl(`${window.location.origin}/f/${form.shareId}`);
     setShareModalOpen(true);
+  };
+
+  const getResponseCount = (formId: number) => {
+    return (responses as any[]).filter((response: any) => response.formId === formId).length;
   };
 
   const handleDeleteForm = (formId: number) => {
@@ -204,7 +212,7 @@ export default function MyForms() {
                   <div className="flex items-center justify-between text-sm text-slate-500 dark:text-slate-400 mb-4">
                     <span className="flex items-center gap-1">
                       <Users size={14} />
-                      0 responses
+                      {getResponseCount(form.id)} responses
                     </span>
                     <span className="flex items-center gap-1">
                       <Calendar size={14} />
