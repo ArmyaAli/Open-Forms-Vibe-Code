@@ -229,34 +229,69 @@ export default function FormBuilder() {
     }));
   };
 
-  const handleReorderFields = (dragIndex: number, hoverIndex: number, fromColumn: number, toColumn: number) => {
+  const handleUpdateRow = (rowId: string, updates: Partial<FormRow>) => {
+    setCurrentForm(prev => ({
+      ...prev,
+      rows: prev.rows.map(row => 
+        row.id === rowId ? { ...row, ...updates } : row
+      ),
+    }));
+  };
+
+  const handleAddRow = () => {
+    const newRow: FormRow = {
+      id: nanoid(),
+      order: currentForm.rows.length,
+      columns: 1,
+    };
+
+    setCurrentForm(prev => ({
+      ...prev,
+      rows: [...prev.rows, newRow],
+    }));
+  };
+
+  const handleRemoveRow = (rowId: string) => {
+    setCurrentForm(prev => ({
+      ...prev,
+      rows: prev.rows.filter(row => row.id !== rowId),
+      fields: prev.fields.filter(field => field.rowId !== rowId),
+    }));
+  };
+
+  const handleMoveRow = (rowId: string, direction: 'up' | 'down') => {
     setCurrentForm(prev => {
-      const newFields = [...prev.fields];
-      const draggedField = newFields[dragIndex];
+      const rows = [...prev.rows].sort((a, b) => a.order - b.order);
+      const currentIndex = rows.findIndex(row => row.id === rowId);
       
-      // Update field's column and order
-      draggedField.column = toColumn;
-      draggedField.order = hoverIndex;
+      if (
+        (direction === 'up' && currentIndex === 0) ||
+        (direction === 'down' && currentIndex === rows.length - 1)
+      ) {
+        return prev;
+      }
       
-      // Update order of other fields in the target column
-      newFields.forEach(field => {
-        if (field.id !== draggedField.id && (field.column || 0) === toColumn && (field.order || 0) >= hoverIndex) {
-          field.order = (field.order || 0) + 1;
+      const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+      
+      // Swap orders
+      const currentRow = rows[currentIndex];
+      const targetRow = rows[targetIndex];
+      
+      const updatedRows = prev.rows.map(row => {
+        if (row.id === currentRow.id) {
+          return { ...row, order: targetRow.order };
         }
+        if (row.id === targetRow.id) {
+          return { ...row, order: currentRow.order };
+        }
+        return row;
       });
       
       return {
         ...prev,
-        fields: newFields,
+        rows: updatedRows,
       };
     });
-  };
-
-  const handleColumnCountChange = (count: number) => {
-    setCurrentForm(prev => ({
-      ...prev,
-      columnCount: count,
-    }));
   };
 
   const handleExportPDF = () => {
@@ -439,7 +474,13 @@ export default function FormBuilder() {
       <main className="flex h-[calc(100vh-73px)]">
         {/* Sidebar */}
         <FieldPalette 
-          onAddField={handleAddField}
+          onAddField={(fieldType) => {
+            // Add to first row, first column by default
+            const firstRow = currentForm.rows[0];
+            if (firstRow) {
+              handleAddField(fieldType, firstRow.id, 0);
+            }
+          }}
           currentForm={currentForm}
           onUpdateForm={(updates) => setCurrentForm(prev => ({ ...prev, ...updates }))}
         />
@@ -477,14 +518,16 @@ export default function FormBuilder() {
                   </div>
                 </div>
                 
-                <MultiColumnCanvas
+                <RowBasedCanvas
                   fields={currentForm.fields}
+                  rows={currentForm.rows}
                   onUpdateField={handleUpdateField}
                   onRemoveField={handleRemoveField}
                   onAddField={handleAddField}
-                  onReorderFields={handleReorderFields}
-                  columnCount={currentForm.columnCount || 1}
-                  onColumnCountChange={handleColumnCountChange}
+                  onUpdateRow={handleUpdateRow}
+                  onAddRow={handleAddRow}
+                  onRemoveRow={handleRemoveRow}
+                  onMoveRow={handleMoveRow}
                   themeColor={currentForm.themeColor}
                 />
 

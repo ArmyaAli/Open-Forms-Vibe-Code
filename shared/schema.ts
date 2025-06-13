@@ -7,6 +7,7 @@ export const forms = pgTable("forms", {
   title: text("title").notNull(),
   description: text("description"),
   fields: jsonb("fields").notNull().$type<FormField[]>(),
+  rows: jsonb("rows").notNull().$type<FormRow[]>(),
   themeColor: text("theme_color").default("#6366F1"),
   isPublished: boolean("is_published").default(false),
   shareId: text("share_id").notNull().unique(),
