@@ -118,16 +118,14 @@ export default function Landing() {
     },
     {
       name: "Enterprise",
-      price: "$99",
+      price: "$50",
       period: "/month",
       description: "For large organizations",
       features: [
         "Everything in Professional",
         "Unlimited responses",
         "API access",
-        "SSO integration",
-        "Dedicated support",
-        "Custom integrations"
+        "Dedicated support"
       ],
       popular: false
     }
