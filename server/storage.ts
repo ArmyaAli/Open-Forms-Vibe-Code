@@ -115,6 +115,7 @@ export class MemStorage implements IStorage {
       ...existingForm,
       ...updateData,
       fields: updateData.fields || existingForm.fields,
+      rows: updateData.rows || existingForm.rows,
       updatedAt: new Date(),
     };
     this.forms.set(id, updatedForm);
