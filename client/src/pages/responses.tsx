@@ -142,7 +142,7 @@ export default function Responses() {
           formId: response.formId,
           responses: response.responses,
           submittedAt: response.submittedAt,
-        }
+        } as any
       );
     } catch (error) {
       console.error('PDF export error:', error);
@@ -480,7 +480,20 @@ export default function Responses() {
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Response Details</DialogTitle>
+            <DialogTitle className="flex items-center justify-between">
+              Response Details
+              {selectedResponse && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleExportResponsePDF(selectedResponse)}
+                  className="ml-4"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Export PDF
+                </Button>
+              )}
+            </DialogTitle>
           </DialogHeader>
           {selectedResponse && (
             <div className="space-y-4">
