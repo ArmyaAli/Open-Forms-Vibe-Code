@@ -49,8 +49,8 @@ export const FormFieldSchema = z.object({
   placeholder: z.string().optional(),
   required: z.boolean().default(false),
   options: z.array(z.string()).optional(), // for select, radio, checkbox
-  rowId: z.string(), // ID of the row this field belongs to
-  columnIndex: z.number().min(0).max(3), // 0-3 for positions within the row
+  rowId: z.string().optional(), // ID of the row this field belongs to
+  columnIndex: z.number().min(0).max(3).optional(), // 0-3 for positions within the row
   width: z.number().min(1).max(4).optional().default(1), // how many columns this field spans
 });
 

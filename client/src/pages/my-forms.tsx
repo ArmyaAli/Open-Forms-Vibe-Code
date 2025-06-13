@@ -243,7 +243,7 @@ export default function MyForms() {
                         variant="ghost"
                         size="sm"
                         className="h-8 w-8 p-0"
-                        onClick={() => setLocation("/")}
+                        onClick={() => setLocation(`/builder?formId=${form.id}`)}
                       >
                         <Edit className="text-slate-600 dark:text-slate-400" size={14} />
                       </Button>

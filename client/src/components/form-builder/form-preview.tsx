@@ -168,15 +168,14 @@ export default function FormPreview({ form }: FormPreviewProps) {
                 // Group fields by row and column
                 const fieldsByRow: Record<string, Record<number, FormField[]>> = {};
                 form.fields.forEach(field => {
-                  const fieldWithMeta = field as any;
-                  if (fieldWithMeta.rowId && fieldWithMeta.columnIndex !== undefined) {
-                    if (!fieldsByRow[fieldWithMeta.rowId]) {
-                      fieldsByRow[fieldWithMeta.rowId] = {};
+                  if (field.rowId && field.columnIndex !== undefined) {
+                    if (!fieldsByRow[field.rowId]) {
+                      fieldsByRow[field.rowId] = {};
                     }
-                    if (!fieldsByRow[fieldWithMeta.rowId][fieldWithMeta.columnIndex]) {
-                      fieldsByRow[fieldWithMeta.rowId][fieldWithMeta.columnIndex] = [];
+                    if (!fieldsByRow[field.rowId][field.columnIndex]) {
+                      fieldsByRow[field.rowId][field.columnIndex] = [];
                     }
-                    fieldsByRow[fieldWithMeta.rowId][fieldWithMeta.columnIndex].push(field);
+                    fieldsByRow[field.rowId][field.columnIndex].push(field);
                   }
                 });
                 

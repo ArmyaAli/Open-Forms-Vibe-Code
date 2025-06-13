@@ -54,6 +54,53 @@ export default function FormBuilder() {
     queryKey: ["/api/auth/user"],
   });
 
+  // Load existing form if formId is in URL
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const formId = urlParams.get('formId');
+    
+    if (formId) {
+      fetch(`/api/forms/${formId}`, {
+        credentials: 'include',
+      })
+        .then(res => res.json())
+        .then((form: Form) => {
+          // Migrate form if it doesn't have rows
+          const migratedForm = {
+            title: form.title,
+            description: form.description || "",
+            fields: form.fields || [],
+            rows: form.rows && form.rows.length > 0 
+              ? form.rows 
+              : [{ id: nanoid(), order: 0, columns: 1 }],
+            themeColor: form.themeColor || "#6366F1",
+            isPublished: form.isPublished || false,
+            shareId: form.shareId,
+          };
+          
+          // Ensure fields have rowId and columnIndex for backward compatibility
+          if (migratedForm.fields.length > 0 && !migratedForm.fields[0].rowId) {
+            migratedForm.fields = migratedForm.fields.map((field, index) => ({
+              ...field,
+              rowId: migratedForm.rows[0].id,
+              columnIndex: index % (migratedForm.rows[0].columns || 1),
+            }));
+          }
+          
+          setCurrentForm(migratedForm);
+          setCurrentFormId(parseInt(formId));
+        })
+        .catch(error => {
+          console.error('Failed to load form:', error);
+          toast({
+            title: "Error",
+            description: "Failed to load form. Please try again.",
+            variant: "destructive",
+          });
+        });
+    }
+  }, [toast]);
+
   const createFormMutation = useMutation({
     mutationFn: async (formData: typeof currentForm) => {
       return await apiRequest("/api/forms", {
