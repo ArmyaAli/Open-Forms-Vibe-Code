@@ -14,21 +14,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use(updateSessionActivity);
 
   // Form routes (protected)
-  app.post("/api/forms", async (req, res) => {
+  app.post("/api/forms", requireAuth, async (req, res) => {
     try {
       const validatedData = insertFormSchema.parse(req.body);
       const form = await storage.createForm(validatedData);
       res.json(form);
     } catch (error) {
+      console.error("Form creation error:", error);
       res.status(400).json({ error: "Invalid form data" });
     }
   });
 
-  app.get("/api/forms", async (req, res) => {
+  app.get("/api/forms", requireAuth, async (req, res) => {
     try {
       const forms = await storage.getAllForms();
       res.json(forms);
     } catch (error) {
+      console.error("Forms fetch error:", error);
       res.status(500).json({ error: "Failed to fetch forms" });
     }
   });
@@ -59,7 +61,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put("/api/forms/:id", async (req, res) => {
+  app.put("/api/forms/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const validatedData = insertFormSchema.partial().parse(req.body);
@@ -69,11 +71,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json(updatedForm);
     } catch (error) {
+      console.error("Form update error:", error);
       res.status(400).json({ error: "Invalid form data" });
     }
   });
 
-  app.delete("/api/forms/:id", async (req, res) => {
+  app.delete("/api/forms/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const deleted = await storage.deleteForm(id);
@@ -82,6 +85,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       res.json({ success: true });
     } catch (error) {
+      console.error("Form deletion error:", error);
       res.status(500).json({ error: "Failed to delete form" });
     }
   });

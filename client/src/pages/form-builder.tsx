@@ -39,8 +39,10 @@ export default function FormBuilder() {
 
   const createFormMutation = useMutation({
     mutationFn: async (formData: typeof currentForm) => {
-      const response = await apiRequest("POST", "/api/forms", formData);
-      return response.json();
+      return await apiRequest("/api/forms", {
+        method: "POST",
+        body: JSON.stringify(formData),
+      });
     },
     onSuccess: (data: Form) => {
       setCurrentFormId(data.id);
@@ -63,8 +65,10 @@ export default function FormBuilder() {
   const updateFormMutation = useMutation({
     mutationFn: async (formData: typeof currentForm) => {
       if (!currentFormId) throw new Error("No form ID");
-      const response = await apiRequest("PUT", `/api/forms/${currentFormId}`, formData);
-      return response.json();
+      return await apiRequest(`/api/forms/${currentFormId}`, {
+        method: "PUT",
+        body: JSON.stringify(formData),
+      });
     },
     onSuccess: (data: Form) => {
       setShareUrl(`${window.location.origin}/f/${data.shareId}`);
@@ -87,18 +91,22 @@ export default function FormBuilder() {
     mutationFn: async () => {
       if (!currentFormId) {
         // Create form first if it doesn't exist
-        const response = await apiRequest("POST", "/api/forms", {
-          ...currentForm,
-          isPublished: true,
+        return await apiRequest("/api/forms", {
+          method: "POST",
+          body: JSON.stringify({
+            ...currentForm,
+            isPublished: true,
+          }),
         });
-        return response.json();
       } else {
         // Update existing form
-        const response = await apiRequest("PUT", `/api/forms/${currentFormId}`, {
-          ...currentForm,
-          isPublished: true,
+        return await apiRequest(`/api/forms/${currentFormId}`, {
+          method: "PUT",
+          body: JSON.stringify({
+            ...currentForm,
+            isPublished: true,
+          }),
         });
-        return response.json();
       }
     },
     onSuccess: (data: Form) => {
