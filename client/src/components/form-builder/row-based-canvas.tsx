@@ -99,14 +99,16 @@ export default function RowBasedCanvas({
 
   const handleColumnDrop = (e: React.DragEvent, rowId: string, columnIndex: number) => {
     e.preventDefault();
-    const fieldId = e.dataTransfer.getData("text/plain");
     const fieldType = e.dataTransfer.getData("application/x-field-type");
+    const fieldId = e.dataTransfer.getData("text/plain");
     
     if (fieldType) {
       // Adding new field from palette
+      console.log('Adding field type:', fieldType, 'to row:', rowId, 'column:', columnIndex);
       onAddField(fieldType, rowId, columnIndex);
     } else if (fieldId && draggedField) {
       // Moving existing field
+      console.log('Moving field:', fieldId, 'to row:', rowId, 'column:', columnIndex);
       onUpdateField(fieldId, { rowId, columnIndex });
     }
     

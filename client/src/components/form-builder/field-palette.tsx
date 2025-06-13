@@ -170,6 +170,7 @@ export default function FieldPalette({ onAddField, currentForm, onUpdateForm }: 
                     e.preventDefault();
                     return;
                   }
+                  console.log('Drag start for field type:', field.type);
                   e.dataTransfer.setData("application/x-field-type", field.type);
                   e.dataTransfer.effectAllowed = "copy";
                   
