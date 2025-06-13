@@ -156,13 +156,13 @@ export default function Landing() {
               <ThemeToggle />
               <Button 
                 variant="outline" 
-                onClick={() => setLocation("/")}
+                onClick={() => setLocation("/builder")}
                 className="hidden sm:inline-flex"
               >
                 Sign In
               </Button>
               <Button 
-                onClick={() => setLocation("/")}
+                onClick={() => setLocation("/builder")}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               >
                 Get Started
@@ -197,7 +197,7 @@ export default function Landing() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Button 
                 size="lg"
-                onClick={() => setLocation("/")}
+                onClick={() => setLocation("/builder")}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-4"
               >
                 Start Building for Free
@@ -399,7 +399,7 @@ export default function Landing() {
                         : ''
                     }`}
                     variant={plan.popular ? 'default' : 'outline'}
-                    onClick={() => setLocation("/")}
+                    onClick={() => setLocation("/builder")}
                   >
                     Get Started
                   </Button>
@@ -439,7 +439,7 @@ export default function Landing() {
                 <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                   <Box className="text-white" size={20} />
                 </div>
-                <span className="text-xl font-bold text-white">FormCraft</span>
+                <span className="text-xl font-bold text-white">OpenForms</span>
               </div>
               <p className="text-slate-400">
                 Build beautiful forms that convert. Simple, powerful, and designed for everyone.
@@ -479,7 +479,7 @@ export default function Landing() {
           
           <div className="border-t border-slate-700 mt-8 pt-8 text-center">
             <p className="text-slate-400">
-              © 2024 FormCraft. All rights reserved.
+              © 2024 OpenForms.ca. All rights reserved.
             </p>
           </div>
         </div>
