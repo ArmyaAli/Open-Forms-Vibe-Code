@@ -5,6 +5,69 @@ import { insertFormSchema, insertFormResponseSchema, FormFieldSchema } from "@sh
 import { setupSession, setupAuthRoutes, updateSessionActivity, requireAuth } from "./auth-routes";
 import { z } from "zod";
 
+// CSV generation helpers
+function escapeCSVField(field: string): string {
+  if (field.includes(',') || field.includes('"') || field.includes('\n')) {
+    return `"${field.replace(/"/g, '""')}"`;
+  }
+  return field;
+}
+
+function generateCSV(responses: any[]): string {
+  if (responses.length === 0) return '';
+  
+  // Get all unique field names across all responses
+  const allFields = new Set<string>();
+  responses.forEach(response => {
+    Object.keys(response.responses).forEach(field => allFields.add(field));
+  });
+  
+  // Create header row
+  const headers = ['Form Title', 'Submitted At', 'IP Address', ...Array.from(allFields)];
+  const csvRows = [headers.map(escapeCSVField).join(',')];
+  
+  // Add data rows
+  responses.forEach(response => {
+    const row = [
+      response.formTitle,
+      new Date(response.submittedAt).toLocaleString(),
+      response.ipAddress || '',
+      ...Array.from(allFields).map(field => 
+        response.responses[field] ? String(response.responses[field]) : ''
+      )
+    ];
+    csvRows.push(row.map(escapeCSVField).join(','));
+  });
+  
+  return csvRows.join('\n');
+}
+
+function generateFormCSV(responses: any[], form: any): string {
+  if (responses.length === 0) return '';
+  
+  // Get field names from form definition
+  const formFields = form.fields.map((field: any) => field.label || field.id);
+  
+  // Create header row
+  const headers = ['Submitted At', 'IP Address', ...formFields];
+  const csvRows = [headers.map(escapeCSVField).join(',')];
+  
+  // Add data rows
+  responses.forEach(response => {
+    const row = [
+      new Date(response.submittedAt).toLocaleString(),
+      response.ipAddress || '',
+      ...form.fields.map((field: any) => {
+        const fieldKey = field.label || field.id;
+        return response.responses[fieldKey] ? String(response.responses[fieldKey]) : '';
+      })
+    ];
+    csvRows.push(row.map(escapeCSVField).join(','));
+  });
+  
+  return csvRows.join('\n');
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup session and authentication
   setupSession(app);
@@ -163,6 +226,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Stats endpoint error:", error);
       res.status(500).json({ error: "Failed to fetch stats" });
+    }
+  });
+
+  // CSV export endpoints
+  app.get("/api/responses/export/csv", requireAuth, async (req, res) => {
+    try {
+      const responses = await storage.getAllFormResponses();
+      const forms = await storage.getAllForms();
+      
+      if (responses.length === 0) {
+        return res.status(404).json({ error: "No responses to export" });
+      }
+      
+      // Enrich responses with form data
+      const enrichedResponses = responses.map(response => {
+        const form = forms.find(f => f.id === response.formId);
+        return {
+          ...response,
+          formTitle: form?.title || "Unknown Form",
+          formDescription: form?.description || "",
+        };
+      });
+      
+      // Generate CSV content
+      const csvContent = generateCSV(enrichedResponses);
+      
+      // Set headers for file download
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename="form-responses.csv"');
+      res.send(csvContent);
+    } catch (error) {
+      console.error("CSV export error:", error);
+      res.status(500).json({ error: "Failed to export CSV" });
+    }
+  });
+
+  app.get("/api/forms/:id/responses/export/csv", requireAuth, async (req, res) => {
+    try {
+      const formId = parseInt(req.params.id);
+      const form = await storage.getForm(formId);
+      if (!form) {
+        return res.status(404).json({ error: "Form not found" });
+      }
+      
+      const responses = await storage.getFormResponses(formId);
+      
+      if (responses.length === 0) {
+        return res.status(404).json({ error: "No responses to export for this form" });
+      }
+      
+      // Generate CSV content for specific form
+      const csvContent = generateFormCSV(responses, form);
+      
+      // Set headers for file download
+      const filename = `${form.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-responses.csv`;
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send(csvContent);
+    } catch (error) {
+      console.error("Form CSV export error:", error);
+      res.status(500).json({ error: "Failed to export form CSV" });
     }
   });
 

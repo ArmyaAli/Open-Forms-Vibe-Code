@@ -85,6 +85,54 @@ export default function Responses() {
     };
   };
 
+  const handleExportAllCSV = async () => {
+    try {
+      const response = await fetch('/api/responses/export/csv', {
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Export failed');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'form-responses.csv';
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Export error:', error);
+    }
+  };
+
+  const handleExportFormCSV = async (formId: number, formTitle: string) => {
+    try {
+      const response = await fetch(`/api/forms/${formId}/responses/export/csv`, {
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Export failed');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${formTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-responses.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Export error:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-background">
       {/* Header */}
@@ -125,9 +173,13 @@ export default function Responses() {
             </nav>
           </div>
           <div className="flex items-center space-x-4">
-            <Button variant="outline" size="sm">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleExportAllCSV}
+            >
               <Download className="mr-2" size={16} />
-              Export CSV
+              Export All CSV
             </Button>
             <div className="w-8 h-8 bg-slate-300 rounded-full" />
           </div>
@@ -268,23 +320,34 @@ export default function Responses() {
                           {formData.formDescription || "No description"}
                         </p>
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
-                        <div className="text-center">
-                          <div className="font-semibold text-slate-900 dark:text-slate-100">{formStats.total}</div>
-                          <div>Total</div>
-                        </div>
-                        <div className="text-center">
-                          <div className="font-semibold text-green-600 dark:text-green-400">{formStats.today}</div>
-                          <div>Today</div>
-                        </div>
-                        {formStats.latest && (
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
                           <div className="text-center">
-                            <div className="font-semibold text-slate-900 dark:text-slate-100">
-                              {formatDistanceToNow(new Date(formStats.latest), { addSuffix: true })}
-                            </div>
-                            <div>Latest</div>
+                            <div className="font-semibold text-slate-900 dark:text-slate-100">{formStats.total}</div>
+                            <div>Total</div>
                           </div>
-                        )}
+                          <div className="text-center">
+                            <div className="font-semibold text-green-600 dark:text-green-400">{formStats.today}</div>
+                            <div>Today</div>
+                          </div>
+                          {formStats.latest && (
+                            <div className="text-center">
+                              <div className="font-semibold text-slate-900 dark:text-slate-100">
+                                {formatDistanceToNow(new Date(formStats.latest), { addSuffix: true })}
+                              </div>
+                              <div>Latest</div>
+                            </div>
+                          )}
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleExportFormCSV(parseInt(formId), formData.formTitle)}
+                          className="ml-4"
+                        >
+                          <Download className="mr-2" size={14} />
+                          Export CSV
+                        </Button>
                       </div>
                     </div>
                   </CardHeader>
