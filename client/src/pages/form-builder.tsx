@@ -512,14 +512,44 @@ export default function FormBuilder() {
           <div className="flex items-center space-x-4">
             <ThemeToggle />
             <Button 
-              onClick={() => window.open(`/f/${currentForm.shareId}`, '_blank')} 
+              onClick={async () => {
+                if (!currentForm.title.trim()) return;
+                
+                // Save form first if not saved
+                if (!currentFormId) {
+                  try {
+                    const newForm = await createFormMutation.mutateAsync(currentForm);
+                    setCurrentFormId(newForm.id);
+                    setCurrentForm(prev => ({ ...prev, shareId: newForm.shareId }));
+                    window.open(`/f/${newForm.shareId}`, '_blank');
+                  } catch (error) {
+                    toast({
+                      title: "Error",
+                      description: "Failed to save form. Please try again.",
+                      variant: "destructive",
+                    });
+                  }
+                } else {
+                  // Update existing form first
+                  try {
+                    await updateFormMutation.mutateAsync(currentForm);
+                    window.open(`/f/${currentForm.shareId}`, '_blank');
+                  } catch (error) {
+                    toast({
+                      title: "Error", 
+                      description: "Failed to update form. Please try again.",
+                      variant: "destructive",
+                    });
+                  }
+                }
+              }} 
               variant="outline" 
               size="sm" 
               className="rounded-sm"
-              disabled={!currentForm.title.trim()}
+              disabled={!currentForm.title.trim() || createFormMutation.isPending || updateFormMutation.isPending}
             >
               <Eye className="mr-2" size={16} />
-              Live Preview
+              {createFormMutation.isPending || updateFormMutation.isPending ? "Saving..." : "Live Preview"}
             </Button>
             <Button 
               onClick={async () => {
