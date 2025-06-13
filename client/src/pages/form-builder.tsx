@@ -686,7 +686,7 @@ export default function FormBuilder() {
         {/* Form Builder */}
         <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
           <div className="flex-1 p-4 lg:p-6 overflow-y-auto">
-            <div className="max-w-2xl mx-auto">
+            <div className="w-full max-w-3xl lg:max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto">
               <Card className="min-h-96 shadow-sm rounded-sm border border-slate-200 dark:border-slate-600">
                 <div className="p-6 border-b border-slate-200 dark:border-slate-600">
                   <div className="space-y-1">
