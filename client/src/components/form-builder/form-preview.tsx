@@ -28,13 +28,13 @@ export default function FormPreview({ form }: FormPreviewProps) {
       case "number":
         return (
           <div key={field.id} className="space-y-1">
-            <Label className="text-xs font-medium text-slate-700">
+            <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
               {field.label}
             </Label>
             <Input
               type={field.type}
               placeholder={field.placeholder}
-              className="text-xs"
+              className="text-xs rounded-sm"
               disabled
             />
           </div>
@@ -42,12 +42,12 @@ export default function FormPreview({ form }: FormPreviewProps) {
       case "textarea":
         return (
           <div key={field.id} className="space-y-1">
-            <Label className="text-xs font-medium text-slate-700">
+            <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
               {field.label}
             </Label>
             <Textarea
               placeholder={field.placeholder}
-              className="text-xs resize-none"
+              className="text-xs resize-none rounded-sm"
               rows={2}
               disabled
             />
@@ -56,11 +56,11 @@ export default function FormPreview({ form }: FormPreviewProps) {
       case "select":
         return (
           <div key={field.id} className="space-y-1">
-            <Label className="text-xs font-medium text-slate-700">
+            <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
               {field.label}
             </Label>
             <Select disabled>
-              <SelectTrigger className="text-xs">
+              <SelectTrigger className="text-xs rounded-sm">
                 <SelectValue placeholder={field.placeholder} />
               </SelectTrigger>
               <SelectContent>
@@ -76,14 +76,14 @@ export default function FormPreview({ form }: FormPreviewProps) {
       case "radio":
         return (
           <div key={field.id} className="space-y-1">
-            <Label className="text-xs font-medium text-slate-700">
+            <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
               {field.label}
             </Label>
             <div className="space-y-1">
               {field.options?.map((option) => (
                 <div key={option} className="flex items-center space-x-2">
                   <input type="radio" disabled className="w-3 h-3" />
-                  <span className="text-xs">{option}</span>
+                  <span className="text-xs dark:text-slate-400">{option}</span>
                 </div>
               ))}
             </div>
@@ -92,14 +92,14 @@ export default function FormPreview({ form }: FormPreviewProps) {
       case "checkbox":
         return (
           <div key={field.id} className="space-y-1">
-            <Label className="text-xs font-medium text-slate-700">
+            <Label className="text-xs font-medium text-slate-700 dark:text-slate-300">
               {field.label}
             </Label>
             <div className="space-y-1">
               {field.options?.map((option) => (
                 <div key={option} className="flex items-center space-x-2">
                   <Checkbox disabled className="w-3 h-3" />
-                  <span className="text-xs">{option}</span>
+                  <span className="text-xs dark:text-slate-400">{option}</span>
                 </div>
               ))}
             </div>
@@ -111,13 +111,14 @@ export default function FormPreview({ form }: FormPreviewProps) {
   };
 
   return (
-    <div className="w-80 bg-white border-l border-slate-200 p-6">
+    <div className="w-80 bg-white dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 p-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-slate-900">Live Preview</h3>
+        <h3 className="font-semibold text-slate-900 dark:text-slate-100">Live Preview</h3>
         <div className="flex space-x-1">
           <Button
             variant={viewMode === "mobile" ? "default" : "ghost"}
             size="sm"
+            className="rounded-sm"
             className="h-6 w-6 p-0"
             onClick={() => setViewMode("mobile")}
           >

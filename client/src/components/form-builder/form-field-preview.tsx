@@ -111,13 +111,13 @@ export default function FormFieldPreview({ field, onUpdate, onRemove }: FormFiel
   };
 
   return (
-    <Card className="relative group hover:shadow-md transition-shadow">
+    <Card className="relative group hover:shadow-md transition-shadow rounded-sm">
       <CardContent className="p-4">
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
           <Button
             variant="ghost"
             size="sm"
-            className="h-6 w-6 p-0"
+            className="h-6 w-6 p-0 rounded-sm"
             onClick={() => setShowSettings(!showSettings)}
           >
             <Settings size={14} />
@@ -125,7 +125,7 @@ export default function FormFieldPreview({ field, onUpdate, onRemove }: FormFiel
           <Button
             variant="ghost"
             size="sm"
-            className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
+            className="h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900 hover:text-red-600 dark:hover:text-red-400 rounded-sm"
             onClick={() => onRemove(field.id)}
           >
             <X size={14} />
@@ -147,13 +147,14 @@ export default function FormFieldPreview({ field, onUpdate, onRemove }: FormFiel
           </Label>
           
           {showSettings ? (
-            <div className="space-y-3 border-t pt-3 mt-3">
+            <div className="space-y-3 border-t dark:border-slate-700 pt-3 mt-3">
               <div className="space-y-2">
                 <Label className="text-xs">Placeholder</Label>
                 <Input
                   value={field.placeholder || ""}
                   onChange={(e) => handlePlaceholderChange(e.target.value)}
                   placeholder="Enter placeholder text"
+                  className="rounded-sm"
                 />
               </div>
               
@@ -173,7 +174,7 @@ export default function FormFieldPreview({ field, onUpdate, onRemove }: FormFiel
                       variant="ghost"
                       size="sm"
                       onClick={handleAddOption}
-                      className="h-6 w-6 p-0"
+                      className="h-6 w-6 p-0 rounded-sm"
                     >
                       <Plus size={12} />
                     </Button>
@@ -184,14 +185,14 @@ export default function FormFieldPreview({ field, onUpdate, onRemove }: FormFiel
                         <Input
                           value={option}
                           onChange={(e) => handleOptionChange(index, e.target.value)}
-                          className="text-xs"
+                          className="text-xs rounded-sm"
                         />
                         {field.options && field.options.length > 1 && (
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleRemoveOption(index)}
-                            className="h-6 w-6 p-0 hover:bg-red-100 hover:text-red-600"
+                            className="h-6 w-6 p-0 hover:bg-red-100 dark:hover:bg-red-900 hover:text-red-600 dark:hover:text-red-400 rounded-sm"
                           >
                             <Minus size={12} />
                           </Button>
