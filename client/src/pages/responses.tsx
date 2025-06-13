@@ -22,6 +22,7 @@ import { formatDistanceToNow } from "date-fns";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserProfileMenu } from "@/components/user-profile-menu";
 import { User } from "@shared/schema";
+import { exportResponseAsPDF } from "@/lib/pdf-export";
 
 interface ResponseWithForm {
   id: number;
@@ -113,6 +114,39 @@ export default function Responses() {
       document.body.removeChild(a);
     } catch (error) {
       console.error('Export error:', error);
+    }
+  };
+
+  const handleExportResponsePDF = async (response: ResponseWithForm) => {
+    try {
+      // We need to get the form structure to properly export the response
+      const formResponse = await fetch(`/api/forms/${response.formId}`, {
+        credentials: 'include',
+      });
+      
+      if (!formResponse.ok) {
+        throw new Error('Failed to fetch form structure');
+      }
+      
+      const form = await formResponse.json();
+      
+      exportResponseAsPDF(
+        {
+          title: response.formTitle,
+          description: response.formDescription,
+          fields: form.fields,
+          themeColor: form.themeColor || '#6366F1',
+        },
+        {
+          id: response.id,
+          formId: response.formId,
+          responses: response.responses,
+          submittedAt: response.submittedAt,
+        }
+      );
+    } catch (error) {
+      console.error('PDF export error:', error);
+      // Could add toast notification here if needed
     }
   };
 
@@ -408,15 +442,26 @@ export default function Responses() {
                                 </Badge>
                               </td>
                               <td className="py-3 px-4">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-primary hover:text-primary-700"
-                                  onClick={() => handleViewDetails(response)}
-                                >
-                                  <Eye className="w-4 h-4 mr-1" />
-                                  View Details
-                                </Button>
+                                <div className="flex items-center gap-2">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-primary hover:text-primary-700"
+                                    onClick={() => handleViewDetails(response)}
+                                  >
+                                    <Eye className="w-4 h-4 mr-1" />
+                                    View Details
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-slate-600 hover:text-slate-900"
+                                    onClick={() => handleExportResponsePDF(response)}
+                                  >
+                                    <Download className="w-4 h-4 mr-1" />
+                                    PDF
+                                  </Button>
+                                </div>
                               </td>
                             </tr>
                           ))}

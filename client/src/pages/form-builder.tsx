@@ -12,7 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Save, Share, Eye, Box, List, BarChart } from "lucide-react";
+import { Plus, Save, Share, Eye, Box, List, BarChart, Download } from "lucide-react";
+import { exportFormAsPDF } from "@/lib/pdf-export";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserProfileMenu } from "@/components/user-profile-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -241,6 +242,27 @@ export default function FormBuilder() {
     });
   };
 
+  const handleExportPDF = () => {
+    try {
+      exportFormAsPDF({
+        title: currentForm.title,
+        description: currentForm.description,
+        fields: currentForm.fields,
+        themeColor: currentForm.themeColor,
+      });
+      toast({
+        title: "PDF exported successfully",
+        description: "Your form has been exported as a PDF file.",
+      });
+    } catch (error) {
+      toast({
+        title: "Export failed",
+        description: "There was an error exporting your form as PDF.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const renderPreviewField = (field: FormField) => {
     switch (field.type) {
       case "text":
@@ -456,6 +478,15 @@ export default function FormBuilder() {
                     >
                       <Eye className="mr-2" size={16} />
                       Preview
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="rounded-sm"
+                      onClick={handleExportPDF}
+                    >
+                      <Download className="mr-2" size={16} />
+                      Export PDF
                     </Button>
                     <Tooltip>
                       <TooltipTrigger asChild>
