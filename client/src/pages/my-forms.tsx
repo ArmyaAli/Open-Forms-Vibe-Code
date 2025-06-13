@@ -74,6 +74,47 @@ export default function MyForms() {
     }
   };
 
+  const handleExportFormCSV = async (formId: number, formTitle: string) => {
+    try {
+      const response = await fetch(`/api/forms/${formId}/responses/export/csv`, {
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        if (response.status === 404) {
+          toast({
+            title: "No Responses",
+            description: "This form has no responses to export yet.",
+            variant: "destructive",
+          });
+          return;
+        }
+        throw new Error('Export failed');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${formTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-responses.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast({
+        title: "CSV Exported",
+        description: "Form responses have been exported successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Export Failed",
+        description: "Could not export CSV. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-background">
       {/* Header */}
@@ -194,6 +235,15 @@ export default function MyForms() {
                         onClick={() => handleShareForm(form)}
                       >
                         <Share className="text-slate-600 dark:text-slate-400" size={14} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 w-8 p-0"
+                        onClick={() => handleExportFormCSV(form.id, form.title)}
+                        title="Export CSV"
+                      >
+                        <Download className="text-slate-600 dark:text-slate-400" size={14} />
                       </Button>
                       <Button
                         variant="ghost"
