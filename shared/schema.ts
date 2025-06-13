@@ -42,17 +42,19 @@ export const FormFieldSchema = z.object({
   options: z.array(z.string()).optional(), // for select, radio, checkbox
 });
 
-export const insertFormSchema = createInsertSchema(forms, {
+export const insertFormSchema = z.object({
+  title: z.string(),
+  description: z.string().optional(),
   fields: z.array(FormFieldSchema),
-}).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+  themeColor: z.string().optional(),
+  isPublished: z.boolean().optional(),
 });
 
-export const insertFormResponseSchema = createInsertSchema(formResponses).omit({
-  id: true,
-  submittedAt: true,
+export const insertFormResponseSchema = z.object({
+  formId: z.number(),
+  responses: z.record(z.any()),
+  ipAddress: z.string().optional(),
+  userAgent: z.string().optional(),
 });
 
 export type FormField = z.infer<typeof FormFieldSchema>;
@@ -68,9 +70,9 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
+export const insertUserSchema = z.object({
+  username: z.string(),
+  password: z.string(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

@@ -55,9 +55,13 @@ export class MemStorage implements IStorage {
     );
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
+  async createUser(insertUser: any): Promise<User> {
     const id = this.currentUserId++;
-    const user: User = { ...insertUser, id } as User;
+    const user: User = { 
+      id,
+      username: insertUser.username || 'user',
+      password: insertUser.password || 'password'
+    };
     this.users.set(id, user);
     return user;
   }
@@ -98,14 +102,14 @@ export class MemStorage implements IStorage {
     );
   }
 
-  async updateForm(id: number, updateData: Partial<InsertForm>): Promise<Form | undefined> {
+  async updateForm(id: number, updateData: any): Promise<Form | undefined> {
     const existingForm = this.forms.get(id);
     if (!existingForm) return undefined;
 
     const updatedForm: Form = {
       ...existingForm,
       ...updateData,
-      fields: updateData.fields as any || existingForm.fields,
+      fields: updateData.fields || existingForm.fields,
       updatedAt: new Date(),
     };
     this.forms.set(id, updatedForm);
@@ -124,15 +128,15 @@ export class MemStorage implements IStorage {
   }
 
   // Form response methods
-  async createFormResponse(response: InsertFormResponse): Promise<FormResponse> {
+  async createFormResponse(response: any): Promise<FormResponse> {
     const id = this.currentResponseId++;
     const newResponse: FormResponse = {
       id,
-      formId: response.formId,
-      responses: response.responses,
+      formId: response.formId || 0,
+      responses: response.responses || {},
       submittedAt: new Date(),
-      ipAddress: response.ipAddress ?? null,
-      userAgent: response.userAgent ?? null,
+      ipAddress: response.ipAddress || null,
+      userAgent: response.userAgent || null,
     };
     this.formResponses.set(id, newResponse);
     return newResponse;
