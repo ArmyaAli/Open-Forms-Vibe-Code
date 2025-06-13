@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Save, Share, Eye, Box, List, BarChart, Download, ChevronRight } from "lucide-react";
+import { Plus, Save, Share, Eye, Box, List, BarChart, Download, ChevronRight, ChevronLeft } from "lucide-react";
 import { exportFormAsPDF } from "@/lib/pdf-export";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserProfileMenu } from "@/components/user-profile-menu";

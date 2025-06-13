@@ -9,7 +9,8 @@ import {
   Mail, 
   AlignLeft, 
   ChevronDown,
-  ChevronUp, 
+  ChevronUp,
+  ChevronLeft, 
   Circle, 
   CheckSquare, 
   Hash,
@@ -174,7 +175,7 @@ export default function FieldPalette({ onAddField, currentForm, onUpdateForm, on
               className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-slate-800"
               title="Collapse panel"
             >
-              <ChevronDown className="h-4 w-4 text-slate-600 dark:text-slate-400 rotate-90" />
+              <ChevronLeft className="h-4 w-4 text-slate-600 dark:text-slate-400" />
             </Button>
           </div>
         </div>
