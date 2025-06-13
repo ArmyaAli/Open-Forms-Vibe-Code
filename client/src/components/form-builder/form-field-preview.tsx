@@ -179,16 +179,17 @@ export default function FormFieldPreview({ field, onUpdate, onRemove, onDragStar
   };
 
   return (
-    <Card className="relative group hover:shadow-md transition-all duration-300 hover:scale-[1.02] rounded-sm border border-slate-200 dark:border-slate-600">
+    <Card className="relative group hover:shadow-md transition-all duration-300 hover:scale-[1.02] rounded-sm border border-slate-200 dark:border-slate-600 cursor-pointer">
       <CardContent className="p-4">
-        <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-2 left-2 opacity-30 group-hover:opacity-100 transition-opacity">
           <div 
             draggable
             onDragStart={onDragStart}
             onDragEnd={onDragEnd}
-            className="cursor-move p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded"
+            className="cursor-move p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded flex items-center justify-center"
+            title="Drag to reorder"
           >
-            <GripVertical size={14} className="text-slate-400 dark:text-slate-500" />
+            <GripVertical size={16} className="text-slate-500 dark:text-slate-400" />
           </div>
         </div>
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
