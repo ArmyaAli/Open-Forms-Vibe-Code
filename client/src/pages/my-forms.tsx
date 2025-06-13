@@ -6,6 +6,17 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserProfileMenu } from "@/components/user-profile-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { 
   Plus, 
   Box, 
@@ -75,9 +86,7 @@ export default function MyForms() {
   };
 
   const handleDeleteForm = (formId: number) => {
-    if (confirm("Are you sure you want to delete this form? This action cannot be undone.")) {
-      deleteFormMutation.mutate(formId);
-    }
+    deleteFormMutation.mutate(formId);
   };
 
   const handleExportFormCSV = async (formId: number, formTitle: string) => {
@@ -252,15 +261,35 @@ export default function MyForms() {
                       >
                         <Download className="text-slate-600 dark:text-slate-400" size={14} />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/30"
-                        onClick={() => handleDeleteForm(form.id)}
-                        disabled={deleteFormMutation.isPending}
-                      >
-                        <Trash2 className="text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400" size={14} />
-                      </Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/30"
+                            disabled={deleteFormMutation.isPending}
+                          >
+                            <Trash2 className="text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400" size={14} />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Form</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete "{form.title}"? This action cannot be undone and will permanently remove the form and all its responses.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDeleteForm(form.id)}
+                              className="bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </div>
                   <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">{form.title}</h3>
