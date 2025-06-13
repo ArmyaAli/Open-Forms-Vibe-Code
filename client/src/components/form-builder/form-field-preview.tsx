@@ -147,7 +147,7 @@ export default function FormFieldPreview({ field, onUpdate, onRemove }: FormFiel
           </Label>
           
           {showSettings ? (
-            <div className="space-y-3 border-t dark:border-slate-800 pt-3 mt-3">
+            <div className="space-y-3 border-t dark:border-border pt-3 mt-3">
               <div className="space-y-2">
                 <Label className="text-xs">Placeholder</Label>
                 <Input
