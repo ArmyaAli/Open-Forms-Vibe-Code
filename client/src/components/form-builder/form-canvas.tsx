@@ -108,9 +108,6 @@ export default function FormCanvas({
       {fields.map((field, index) => (
         <div
           key={field.id}
-          draggable
-          onDragStart={() => handleFieldDragStart(index)}
-          onDragEnd={handleFieldDragEnd}
           onDragOver={(e) => handleFieldDragOver(e, index)}
           onDrop={(e) => handleFieldDrop(e, index)}
           className={`${
@@ -123,13 +120,15 @@ export default function FormCanvas({
               : dragOverIndex === index 
               ? 'border-primary border-2 border-dashed bg-primary/5' 
               : ''
-          } transition-all duration-200 cursor-move`}
+          } transition-all duration-200`}
           style={{ animationDelay: newFieldIds.has(field.id) ? '0ms' : `${index * 50}ms` }}
         >
           <FormFieldPreview
             field={field}
             onUpdate={onUpdateField}
             onRemove={onRemoveField}
+            onDragStart={() => handleFieldDragStart(index)}
+            onDragEnd={handleFieldDragEnd}
           />
         </div>
       ))}

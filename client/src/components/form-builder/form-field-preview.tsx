@@ -9,15 +9,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
-import { X, Settings, Plus, Minus, Star, Upload } from "lucide-react";
+import { X, Settings, Plus, Minus, Star, Upload, GripVertical } from "lucide-react";
 
 interface FormFieldPreviewProps {
   field: FormField;
   onUpdate: (fieldId: string, updates: Partial<FormField>) => void;
   onRemove: (fieldId: string) => void;
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
 }
 
-export default function FormFieldPreview({ field, onUpdate, onRemove }: FormFieldPreviewProps) {
+export default function FormFieldPreview({ field, onUpdate, onRemove, onDragStart, onDragEnd }: FormFieldPreviewProps) {
   const [showSettings, setShowSettings] = useState(false);
 
   const handleLabelChange = (label: string) => {
@@ -179,6 +181,16 @@ export default function FormFieldPreview({ field, onUpdate, onRemove }: FormFiel
   return (
     <Card className="relative group hover:shadow-md transition-all duration-300 hover:scale-[1.02] rounded-sm border border-slate-200 dark:border-slate-600">
       <CardContent className="p-4">
+        <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div 
+            draggable
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
+            className="cursor-move p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded"
+          >
+            <GripVertical size={14} className="text-slate-400 dark:text-slate-500" />
+          </div>
+        </div>
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex space-x-1">
           <Button
             variant="ghost"
