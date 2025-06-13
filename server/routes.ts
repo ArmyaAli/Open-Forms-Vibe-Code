@@ -45,9 +45,6 @@ function generateCSV(responses: any[]): string {
 function generateFormCSV(responses: any[], form: any): string {
   if (responses.length === 0) return '';
   
-  console.log('Form fields:', form.fields);
-  console.log('Sample response:', responses[0]?.responses);
-  
   // Get field names from form definition
   const formFields = form.fields.map((field: any) => field.label || field.id);
   
@@ -57,19 +54,12 @@ function generateFormCSV(responses: any[], form: any): string {
   
   // Add data rows
   responses.forEach(response => {
-    console.log('Processing response:', JSON.stringify(response.responses));
-    console.log('Available response keys:', Object.keys(response.responses));
     const row = [
       new Date(response.submittedAt).toLocaleString(),
       response.ipAddress || '',
       ...form.fields.map((field: any) => {
-        const fieldLabel = field.label;
-        const fieldId = field.id;
-        
-        // Try both field label and field ID as keys
-        let value = response.responses[fieldLabel] || response.responses[fieldId];
-        
-        console.log(`Field label: ${fieldLabel}, ID: ${fieldId}, Value: ${value}`);
+        // Form responses are stored using field IDs as keys
+        const value = response.responses[field.id];
         return value ? String(value) : '';
       })
     ];
