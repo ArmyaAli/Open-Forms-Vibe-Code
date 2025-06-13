@@ -30,7 +30,15 @@ export const FormFieldType = z.enum([
   "textarea",
   "select",
   "radio",
-  "checkbox"
+  "checkbox",
+  "phone",
+  "date",
+  "time",
+  "rating",
+  "file",
+  "address",
+  "range",
+  "toggle"
 ]);
 
 export const FormFieldSchema = z.object({

@@ -8,7 +8,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent } from "@/components/ui/card";
-import { X, Settings, Plus, Minus } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { X, Settings, Plus, Minus, Star, Upload } from "lucide-react";
 
 interface FormFieldPreviewProps {
   field: FormField;
@@ -60,12 +61,34 @@ export default function FormFieldPreview({ field, onUpdate, onRemove }: FormFiel
             disabled
           />
         );
+      case "phone":
+        return (
+          <Input
+            type="tel"
+            placeholder={field.placeholder || "Enter phone number"}
+            disabled
+          />
+        );
       case "textarea":
         return (
           <Textarea
             placeholder={field.placeholder}
             disabled
             rows={3}
+          />
+        );
+      case "date":
+        return (
+          <Input
+            type="date"
+            disabled
+          />
+        );
+      case "time":
+        return (
+          <Input
+            type="time"
+            disabled
           />
         );
       case "select":
@@ -99,11 +122,54 @@ export default function FormFieldPreview({ field, onUpdate, onRemove }: FormFiel
           <div className="space-y-2">
             {field.options?.map((option) => (
               <div key={option} className="flex items-center space-x-2">
-                <Checkbox disabled />
+                <Checkbox disabled className="rounded-full" />
                 <span className="text-sm">{option}</span>
               </div>
             ))}
           </div>
+        );
+      case "rating":
+        return (
+          <div className="flex space-x-1">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star key={star} className="w-6 h-6 text-yellow-400 fill-yellow-400" />
+            ))}
+          </div>
+        );
+      case "file":
+        return (
+          <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-sm p-6 text-center">
+            <Upload className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+            <p className="text-sm text-slate-500 dark:text-slate-400">Click to upload or drag and drop</p>
+          </div>
+        );
+      case "address":
+        return (
+          <div className="space-y-3">
+            <Input placeholder="Street Address" disabled />
+            <div className="grid grid-cols-2 gap-3">
+              <Input placeholder="City" disabled />
+              <Input placeholder="State" disabled />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Input placeholder="ZIP Code" disabled />
+              <Input placeholder="Country" disabled />
+            </div>
+          </div>
+        );
+      case "range":
+        return (
+          <div className="space-y-2">
+            <Slider value={[50]} max={100} step={1} disabled className="w-full" />
+            <div className="flex justify-between text-xs text-slate-500">
+              <span>0</span>
+              <span>100</span>
+            </div>
+          </div>
+        );
+      case "toggle":
+        return (
+          <Switch disabled />
         );
       default:
         return null;

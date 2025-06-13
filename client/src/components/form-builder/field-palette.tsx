@@ -8,7 +8,15 @@ import {
   ChevronDown, 
   Circle, 
   CheckSquare, 
-  Hash 
+  Hash,
+  Phone,
+  Calendar,
+  Star,
+  Upload,
+  Clock,
+  MapPin,
+  Sliders,
+  ToggleLeft
 } from "lucide-react";
 
 interface FieldPaletteProps {
@@ -68,6 +76,62 @@ const fieldTypes = [
     description: "Numeric input field",
     icon: Hash,
     color: "bg-indigo-100 text-indigo-600",
+  },
+  {
+    type: "phone",
+    label: "Phone Number",
+    description: "Phone number with validation",
+    icon: Phone,
+    color: "bg-cyan-100 text-cyan-600",
+  },
+  {
+    type: "date",
+    label: "Date Picker",
+    description: "Date selection field",
+    icon: Calendar,
+    color: "bg-pink-100 text-pink-600",
+  },
+  {
+    type: "time",
+    label: "Time Picker",
+    description: "Time selection field",
+    icon: Clock,
+    color: "bg-yellow-100 text-yellow-600",
+  },
+  {
+    type: "rating",
+    label: "Star Rating",
+    description: "5-star rating system",
+    icon: Star,
+    color: "bg-amber-100 text-amber-600",
+  },
+  {
+    type: "file",
+    label: "File Upload",
+    description: "File attachment field",
+    icon: Upload,
+    color: "bg-emerald-100 text-emerald-600",
+  },
+  {
+    type: "address",
+    label: "Address",
+    description: "Full address input",
+    icon: MapPin,
+    color: "bg-violet-100 text-violet-600",
+  },
+  {
+    type: "range",
+    label: "Range Slider",
+    description: "Numeric range selector",
+    icon: Sliders,
+    color: "bg-rose-100 text-rose-600",
+  },
+  {
+    type: "toggle",
+    label: "Toggle Switch",
+    description: "On/off toggle control",
+    icon: ToggleLeft,
+    color: "bg-lime-100 text-lime-600",
   },
 ];
 
