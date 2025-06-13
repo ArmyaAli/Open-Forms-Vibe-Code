@@ -1,8 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { 
   Plus, 
   Box, 
@@ -13,7 +15,8 @@ import {
   Calendar,
   TrendingUp,
   Clock,
-  Users
+  Users,
+  Eye
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -37,6 +40,8 @@ interface ResponseStats {
 
 export default function Responses() {
   const [, setLocation] = useLocation();
+  const [selectedResponse, setSelectedResponse] = useState<ResponseWithForm | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   const { data: responses = [], isLoading: responsesLoading } = useQuery<ResponseWithForm[]>({
     queryKey: ["/api/responses"],
@@ -45,6 +50,11 @@ export default function Responses() {
   const { data: stats, isLoading: statsLoading } = useQuery<ResponseStats>({
     queryKey: ["/api/responses/stats"],
   });
+
+  const handleViewDetails = (response: ResponseWithForm) => {
+    setSelectedResponse(response);
+    setIsDetailsOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-background">
@@ -267,7 +277,9 @@ export default function Responses() {
                             variant="ghost"
                             size="sm"
                             className="text-primary hover:text-primary-700"
+                            onClick={() => handleViewDetails(response)}
                           >
+                            <Eye className="w-4 h-4 mr-1" />
                             View Details
                           </Button>
                         </td>
@@ -280,6 +292,53 @@ export default function Responses() {
           </CardContent>
         </Card>
       </main>
+
+      {/* Response Details Modal */}
+      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Response Details</DialogTitle>
+          </DialogHeader>
+          {selectedResponse && (
+            <div className="space-y-4">
+              <div className="border-b pb-4">
+                <h3 className="font-semibold text-lg">{selectedResponse.formTitle}</h3>
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  Submitted {formatDistanceToNow(new Date(selectedResponse.submittedAt), { addSuffix: true })}
+                </p>
+              </div>
+              
+              <div className="space-y-3">
+                <h4 className="font-medium">Form Data:</h4>
+                {Object.entries(selectedResponse.responses).map(([key, value]) => (
+                  <div key={key} className="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg">
+                    <div className="flex justify-between items-start">
+                      <span className="font-medium text-sm text-slate-700 dark:text-slate-300">
+                        {key}
+                      </span>
+                      <span className="text-sm text-slate-900 dark:text-slate-100 ml-4">
+                        {Array.isArray(value) ? value.join(', ') : String(value)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {selectedResponse.ipAddress && (
+                <div className="pt-4 border-t">
+                  <h4 className="font-medium mb-2">Submission Info:</h4>
+                  <div className="text-sm text-slate-600 dark:text-slate-400 space-y-1">
+                    <p><strong>IP Address:</strong> {selectedResponse.ipAddress}</p>
+                    {selectedResponse.userAgent && (
+                      <p><strong>User Agent:</strong> {selectedResponse.userAgent}</p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
