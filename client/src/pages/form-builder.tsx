@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Save, Share, Eye, Box, List, BarChart, Download } from "lucide-react";
+import { Plus, Save, Share, Eye, Box, List, BarChart, Download, ChevronRight } from "lucide-react";
 import { exportFormAsPDF } from "@/lib/pdf-export";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserProfileMenu } from "@/components/user-profile-menu";
@@ -50,6 +50,7 @@ export default function FormBuilder() {
   const [currentFormId, setCurrentFormId] = useState<number | null>(null);
   const [shareUrl, setShareUrl] = useState("");
   const [loadedFormData, setLoadedFormData] = useState<Form | null>(null);
+  const [isPaletteCollapsed, setIsPaletteCollapsed] = useState(false);
 
   const { data: user } = useQuery<User>({
     queryKey: ["/api/auth/user"],
@@ -647,19 +648,39 @@ export default function FormBuilder() {
           />
         </div>
 
-        {/* Desktop Field Palette - Sidebar */}
-        <div className="hidden lg:block">
-          <FieldPalette 
-            onAddField={(fieldType) => {
-              // Add to first row, first column by default
-              const firstRow = currentForm.rows[0];
-              if (firstRow) {
-                handleAddField(fieldType, firstRow.id, 0);
-              }
-            }}
-            currentForm={currentForm}
-            onUpdateForm={(updates) => setCurrentForm(prev => ({ ...prev, ...updates }))}
-          />
+        {/* Collapsible Field Palette - Desktop */}
+        <div className={`hidden lg:block transition-all duration-300 ${isPaletteCollapsed ? 'w-12' : 'w-80'} relative`}>
+          {isPaletteCollapsed ? (
+            /* Collapsed state - show toggle button */
+            <div className="w-12 h-full bg-white dark:bg-background border-r border-slate-200 dark:border-slate-600 flex items-start justify-center pt-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsPaletteCollapsed(false)}
+                className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-slate-800"
+                title="Expand Form Elements"
+              >
+                <ChevronRight className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+              </Button>
+            </div>
+          ) : (
+            /* Expanded state - show full palette */
+            <div className="relative">
+              <FieldPalette 
+                onAddField={(fieldType) => {
+                  // Add to first row, first column by default
+                  const firstRow = currentForm.rows[0];
+                  if (firstRow) {
+                    handleAddField(fieldType, firstRow.id, 0);
+                  }
+                }}
+                currentForm={currentForm}
+                onUpdateForm={(updates) => setCurrentForm(prev => ({ ...prev, ...updates }))}
+                isPaletteCollapsed={isPaletteCollapsed}
+                onToggleCollapse={setIsPaletteCollapsed}
+              />
+            </div>
+          )}
         </div>
 
         {/* Form Builder */}

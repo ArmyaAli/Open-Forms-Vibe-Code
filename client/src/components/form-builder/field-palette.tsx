@@ -30,6 +30,8 @@ interface FieldPaletteProps {
     fields: Array<{ type?: string }>;
   };
   onUpdateForm: (updates: { themeColor: string }) => void;
+  isPaletteCollapsed?: boolean;
+  onToggleCollapse?: (collapsed: boolean) => void;
 }
 
 const fieldTypes = [
@@ -140,7 +142,7 @@ const fieldTypes = [
   },
 ];
 
-export default function FieldPalette({ onAddField, currentForm, onUpdateForm }: FieldPaletteProps) {
+export default function FieldPalette({ onAddField, currentForm, onUpdateForm, onToggleCollapse }: FieldPaletteProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   
   // Get list of field types already added to the form
@@ -151,18 +153,30 @@ export default function FieldPalette({ onAddField, currentForm, onUpdateForm }: 
       <div className="p-4 lg:p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Form Elements</h2>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-slate-800"
-          >
-            {isExpanded ? (
-              <ChevronUp className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-            ) : (
-              <ChevronDown className="h-4 w-4 text-slate-600 dark:text-slate-400" />
-            )}
-          </Button>
+          <div className="flex items-center gap-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-slate-800"
+              title={isExpanded ? "Collapse elements" : "Expand elements"}
+            >
+              {isExpanded ? (
+                <ChevronUp className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+              )}
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onToggleCollapse?.(true)}
+              className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-slate-800"
+              title="Collapse panel"
+            >
+              <ChevronDown className="h-4 w-4 text-slate-600 dark:text-slate-400 rotate-90" />
+            </Button>
+          </div>
         </div>
         
         {isExpanded && (
