@@ -34,7 +34,7 @@ export function UserProfileMenu({ user }: UserProfileMenuProps) {
         title: "Signed out successfully",
         description: "You have been logged out of your account.",
       });
-      setLocation("/");
+      setLocation("/login");
     } catch (error) {
       toast({
         title: "Error",
