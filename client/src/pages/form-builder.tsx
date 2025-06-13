@@ -20,7 +20,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { FormField, Form, User } from "@shared/schema";
 import FieldPalette from "@/components/form-builder/field-palette";
-import FormCanvas from "@/components/form-builder/form-canvas";
+import MultiColumnCanvas from "@/components/form-builder/multi-column-canvas";
 import FormPreview from "@/components/form-builder/form-preview";
 import ShareModal from "@/components/form-builder/share-modal";
 import { nanoid } from "nanoid";
@@ -200,6 +200,8 @@ export default function FormBuilder() {
       label: `${fieldType.charAt(0).toUpperCase() + fieldType.slice(1)} Field`,
       placeholder: `Enter ${fieldType}`,
       required: false,
+      column: column,
+      order: fieldsInColumn.length,
       options: fieldType === "select" || fieldType === "radio" || fieldType === "checkbox" 
         ? ["Option 1", "Option 2", "Option 3"] 
         : undefined,
@@ -227,22 +229,34 @@ export default function FormBuilder() {
     }));
   };
 
-  const handleReorderFields = (dragIndex: number, hoverIndex: number) => {
+  const handleReorderFields = (dragIndex: number, hoverIndex: number, fromColumn: number, toColumn: number) => {
     setCurrentForm(prev => {
       const newFields = [...prev.fields];
       const draggedField = newFields[dragIndex];
       
-      // Remove the dragged field
-      newFields.splice(dragIndex, 1);
+      // Update field's column and order
+      draggedField.column = toColumn;
+      draggedField.order = hoverIndex;
       
-      // Insert it at the new position
-      newFields.splice(hoverIndex, 0, draggedField);
+      // Update order of other fields in the target column
+      newFields.forEach(field => {
+        if (field.id !== draggedField.id && (field.column || 0) === toColumn && (field.order || 0) >= hoverIndex) {
+          field.order = (field.order || 0) + 1;
+        }
+      });
       
       return {
         ...prev,
         fields: newFields,
       };
     });
+  };
+
+  const handleColumnCountChange = (count: number) => {
+    setCurrentForm(prev => ({
+      ...prev,
+      columnCount: count,
+    }));
   };
 
   const handleExportPDF = () => {
@@ -463,12 +477,15 @@ export default function FormBuilder() {
                   </div>
                 </div>
                 
-                <FormCanvas
+                <MultiColumnCanvas
                   fields={currentForm.fields}
                   onUpdateField={handleUpdateField}
                   onRemoveField={handleRemoveField}
                   onAddField={handleAddField}
                   onReorderFields={handleReorderFields}
+                  columnCount={currentForm.columnCount || 1}
+                  onColumnCountChange={handleColumnCountChange}
+                  themeColor={currentForm.themeColor}
                 />
 
                 <div className="p-6 border-t border-slate-200 dark:border-slate-600 flex justify-between items-center">
