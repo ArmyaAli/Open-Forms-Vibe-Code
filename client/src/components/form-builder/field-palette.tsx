@@ -69,9 +69,9 @@ const fieldTypes = [
 
 export default function FieldPalette({ onAddField }: FieldPaletteProps) {
   return (
-    <aside className="w-80 bg-white border-r border-slate-200 h-full overflow-y-auto">
+    <aside className="w-80 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 h-full overflow-y-auto">
       <div className="p-6">
-        <h2 className="text-lg font-semibold text-slate-900 mb-4">Form Elements</h2>
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Form Elements</h2>
         
         <div className="space-y-3">
           {fieldTypes.map((field) => {
@@ -79,16 +79,21 @@ export default function FieldPalette({ onAddField }: FieldPaletteProps) {
             return (
               <div
                 key={field.type}
-                className="bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg p-3 cursor-pointer transition-all form-field-hover"
+                draggable
+                className="bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-sm p-3 cursor-move transition-all"
                 onClick={() => onAddField(field.type)}
+                onDragStart={(e) => {
+                  e.dataTransfer.setData("text/plain", field.type);
+                  e.dataTransfer.effectAllowed = "copy";
+                }}
               >
                 <div className="flex items-center space-x-3">
                   <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${field.color}`}>
                     <IconComponent size={16} />
                   </div>
                   <div>
-                    <h3 className="font-medium text-slate-900">{field.label}</h3>
-                    <p className="text-xs text-slate-500">{field.description}</p>
+                    <h3 className="font-medium text-slate-900 dark:text-slate-100">{field.label}</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{field.description}</p>
                   </div>
                 </div>
               </div>
@@ -97,14 +102,14 @@ export default function FieldPalette({ onAddField }: FieldPaletteProps) {
         </div>
 
         <div className="mt-8">
-          <h3 className="text-sm font-semibold text-slate-900 mb-3">Form Settings</h3>
+          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Form Settings</h3>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label className="text-sm text-slate-700">Theme Color</Label>
+              <Label className="text-sm text-slate-700 dark:text-slate-300">Theme Color</Label>
               <div className="flex space-x-1">
-                <div className="w-6 h-6 bg-primary rounded-full cursor-pointer border-2 border-primary" />
-                <div className="w-6 h-6 bg-green-500 rounded-full cursor-pointer border-2 border-transparent hover:border-green-600" />
-                <div className="w-6 h-6 bg-purple-500 rounded-full cursor-pointer border-2 border-transparent hover:border-purple-600" />
+                <div className="w-6 h-6 bg-primary rounded-sm cursor-pointer border-2 border-primary" />
+                <div className="w-6 h-6 bg-green-500 rounded-sm cursor-pointer border-2 border-transparent hover:border-green-600" />
+                <div className="w-6 h-6 bg-purple-500 rounded-sm cursor-pointer border-2 border-transparent hover:border-purple-600" />
               </div>
             </div>
           </div>

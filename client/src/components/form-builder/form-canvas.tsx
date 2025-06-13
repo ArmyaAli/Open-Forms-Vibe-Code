@@ -49,10 +49,10 @@ export default function FormCanvas({
       ))}
       
       <div
-        className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+        className={`border-2 border-dashed rounded-sm p-8 text-center transition-colors ${
           dragOver 
-            ? 'border-primary bg-blue-50 text-primary' 
-            : 'border-slate-300 text-slate-400 hover:border-blue-400 hover:text-primary'
+            ? 'border-primary bg-blue-50 dark:bg-blue-950 text-primary' 
+            : 'border-slate-300 dark:border-slate-600 text-slate-400 dark:text-slate-500 hover:border-blue-400 hover:text-primary'
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
