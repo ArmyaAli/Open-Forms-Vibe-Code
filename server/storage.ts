@@ -1,5 +1,6 @@
 import { forms, formResponses, type Form, type InsertForm, type FormResponse, type InsertFormResponse, users, type User, type InsertUser } from "@shared/schema";
 import { nanoid } from "nanoid";
+import { SQLiteStorage } from "./database";
 
 export interface IStorage {
   // User methods (existing)
@@ -177,4 +178,8 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Use SQLite database for persistent storage
+export const storage = new SQLiteStorage();
+
+// Keep MemStorage class for reference but use SQLite by default
+// export const storage = new MemStorage();
