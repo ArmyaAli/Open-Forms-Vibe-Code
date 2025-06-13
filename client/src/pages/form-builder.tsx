@@ -170,7 +170,7 @@ export default function FormBuilder() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       {/* Header */}
-      <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4 sticky top-0 z-50">
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 sticky top-0 z-50">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-8">
             <div className="flex items-center space-x-2">
@@ -248,7 +248,7 @@ export default function FormBuilder() {
                   onAddField={handleAddField}
                 />
 
-                <div className="p-6 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                <div className="p-6 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
                   <div className="flex space-x-3">
                     <Button variant="outline" size="sm" className="rounded-sm">
                       <Eye className="mr-2" size={16} />

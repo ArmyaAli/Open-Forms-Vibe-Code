@@ -111,7 +111,7 @@ export default function FormPreview({ form }: FormPreviewProps) {
   };
 
   return (
-    <div className="w-80 bg-white dark:bg-slate-800 border-l border-slate-200 dark:border-slate-700 p-6">
+    <div className="w-80 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-slate-900 dark:text-slate-100">Live Preview</h3>
         <div className="flex space-x-1">
@@ -134,7 +134,7 @@ export default function FormPreview({ form }: FormPreviewProps) {
         </div>
       </div>
       
-      <div className="bg-slate-100 dark:bg-slate-700 rounded-sm p-4 max-h-96 overflow-y-auto">
+      <div className="bg-slate-100 dark:bg-slate-800 rounded-sm p-4 max-h-96 overflow-y-auto">
         <Card className="shadow-sm rounded-sm">
           <CardHeader 
             className="p-4 text-white rounded-t-sm"
