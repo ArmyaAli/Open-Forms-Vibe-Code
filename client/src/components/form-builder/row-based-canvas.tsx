@@ -63,17 +63,20 @@ export default function RowBasedCanvas({
 
   // Group fields by row
   const fieldsByRow = fields.reduce((acc, field) => {
-    if (!acc[field.rowId]) acc[field.rowId] = [];
-    acc[field.rowId].push(field);
+    if (field.rowId) {
+      if (!acc[field.rowId]) acc[field.rowId] = [];
+      acc[field.rowId].push(field);
+    }
     return acc;
   }, {} as Record<string, FormField[]>);
 
   // Sort fields within each row by columnIndex
   Object.keys(fieldsByRow).forEach(rowId => {
-    fieldsByRow[rowId].sort((a, b) => a.columnIndex - b.columnIndex);
+    fieldsByRow[rowId].sort((a, b) => (a.columnIndex || 0) - (b.columnIndex || 0));
   });
 
   const handleFieldDragStart = (e: React.DragEvent, field: FormField) => {
+    console.log('🏗️ Starting drag for field:', field.id, 'from row:', field.rowId, 'column:', field.columnIndex);
     setDraggedField(field.id);
     e.dataTransfer.setData("text/plain", field.id);
     e.dataTransfer.setData("application/x-field-id", field.id);
@@ -81,17 +84,25 @@ export default function RowBasedCanvas({
   };
 
   const handleFieldDragEnd = () => {
-    setDraggedField(null);
-    setDragOverRow(null);
-    setDragOverColumn(null);
+    setTimeout(() => {
+      setDraggedField(null);
+      setDragOverRow(null);
+      setDragOverColumn(null);
+    }, 50);
   };
 
   const handleColumnDragOver = (e: React.DragEvent, rowId: string, columnIndex: number) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = "copy";
-    console.log('Drag over row:', rowId, 'column:', columnIndex);
-    setDragOverRow(rowId);
-    setDragOverColumn(columnIndex);
+    e.stopPropagation();
+    
+    const fieldType = e.dataTransfer.types.includes("application/x-field-type");
+    const fieldId = e.dataTransfer.types.includes("application/x-field-id") || e.dataTransfer.types.includes("text/plain");
+    
+    if (fieldType || fieldId) {
+      e.dataTransfer.dropEffect = fieldId ? "move" : "copy";
+      setDragOverRow(rowId);
+      setDragOverColumn(columnIndex);
+    }
   };
 
   const handleColumnDragLeave = (e: React.DragEvent) => {
@@ -113,15 +124,31 @@ export default function RowBasedCanvas({
     const fieldType = e.dataTransfer.getData("application/x-field-type");
     const fieldId = e.dataTransfer.getData("application/x-field-id") || e.dataTransfer.getData("text/plain");
     
+    console.log('🎯 DROP EVENT:', { 
+      rowId, 
+      columnIndex, 
+      fieldType, 
+      fieldId, 
+      draggedField,
+      availableTypes: Array.from(e.dataTransfer.types)
+    });
+    
     if (fieldType && !fieldId) {
       // Adding new field from palette
+      console.log('➕ Adding new field:', fieldType);
       onAddField(fieldType, rowId, columnIndex);
     } else if (fieldId) {
       // Moving existing field
       const currentField = fields.find(f => f.id === fieldId);
+      console.log('🔄 Moving field:', fieldId, 'current:', currentField?.rowId, currentField?.columnIndex, 'to:', rowId, columnIndex);
       if (currentField && (currentField.rowId !== rowId || currentField.columnIndex !== columnIndex)) {
+        console.log('✅ Updating field position');
         onUpdateField(fieldId, { rowId, columnIndex });
+      } else {
+        console.log('❌ Field position unchanged or field not found');
       }
+    } else {
+      console.log('⚠️ No valid drag data found');
     }
     
     setDragOverRow(null);
