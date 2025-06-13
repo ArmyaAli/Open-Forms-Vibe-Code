@@ -5,18 +5,18 @@ export interface IStorage {
   // User methods (existing)
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  createUser(user: any): Promise<User>;
   
   // Form methods
-  createForm(form: Omit<InsertForm, 'shareId'>): Promise<Form>;
+  createForm(form: any): Promise<Form>;
   getForm(id: number): Promise<Form | undefined>;
   getFormByShareId(shareId: string): Promise<Form | undefined>;
   getAllForms(): Promise<Form[]>;
-  updateForm(id: number, form: Partial<InsertForm>): Promise<Form | undefined>;
+  updateForm(id: number, form: any): Promise<Form | undefined>;
   deleteForm(id: number): Promise<boolean>;
   
   // Form response methods
-  createFormResponse(response: InsertFormResponse): Promise<FormResponse>;
+  createFormResponse(response: any): Promise<FormResponse>;
   getFormResponses(formId: number): Promise<FormResponse[]>;
   getAllFormResponses(): Promise<FormResponse[]>;
   getFormResponseStats(): Promise<{
@@ -57,23 +57,23 @@ export class MemStorage implements IStorage {
 
   async createUser(insertUser: InsertUser): Promise<User> {
     const id = this.currentUserId++;
-    const user: User = { ...insertUser, id };
+    const user: User = { ...insertUser, id } as User;
     this.users.set(id, user);
     return user;
   }
 
   // Form methods
-  async createForm(form: Omit<InsertForm, 'shareId'>): Promise<Form> {
+  async createForm(form: any): Promise<Form> {
     const id = this.currentFormId++;
     const shareId = nanoid(12);
     const now = new Date();
     const newForm: Form = {
       id,
-      title: form.title,
-      description: form.description ?? null,
-      fields: form.fields as any,
-      themeColor: form.themeColor ?? null,
-      isPublished: form.isPublished ?? false,
+      title: form.title || "Untitled Form",
+      description: form.description || null,
+      fields: form.fields || [],
+      themeColor: form.themeColor || "#6366F1",
+      isPublished: form.isPublished || false,
       shareId,
       createdAt: now,
       updatedAt: now,
@@ -94,7 +94,7 @@ export class MemStorage implements IStorage {
 
   async getAllForms(): Promise<Form[]> {
     return Array.from(this.forms.values()).sort(
-      (a, b) => (b.updatedAt?.getTime() || 0) - (a.updatedAt?.getTime() || 0)
+      (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
     );
   }
 
@@ -141,12 +141,12 @@ export class MemStorage implements IStorage {
   async getFormResponses(formId: number): Promise<FormResponse[]> {
     return Array.from(this.formResponses.values())
       .filter((response) => response.formId === formId)
-      .sort((a, b) => (b.submittedAt?.getTime() || 0) - (a.submittedAt?.getTime() || 0));
+      .sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime());
   }
 
   async getAllFormResponses(): Promise<FormResponse[]> {
     return Array.from(this.formResponses.values()).sort(
-      (a, b) => (b.submittedAt?.getTime() || 0) - (a.submittedAt?.getTime() || 0)
+      (a, b) => b.submittedAt.getTime() - a.submittedAt.getTime()
     );
   }
 
@@ -161,7 +161,7 @@ export class MemStorage implements IStorage {
     today.setHours(0, 0, 0, 0);
     
     const todayResponses = responses.filter(
-      (response) => response.submittedAt && response.submittedAt >= today
+      (response) => response.submittedAt >= today
     ).length;
 
     return {

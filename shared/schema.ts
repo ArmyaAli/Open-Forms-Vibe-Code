@@ -18,7 +18,7 @@ export const formResponses = pgTable("form_responses", {
   id: serial("id").primaryKey(),
   formId: integer("form_id").notNull(),
   responses: jsonb("responses").notNull().$type<Record<string, any>>(),
-  submittedAt: timestamp("submitted_at").defaultNow(),
+  submittedAt: timestamp("submitted_at").defaultNow().notNull(),
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
 });
@@ -42,7 +42,9 @@ export const FormFieldSchema = z.object({
   options: z.array(z.string()).optional(), // for select, radio, checkbox
 });
 
-export const insertFormSchema = createInsertSchema(forms).omit({
+export const insertFormSchema = createInsertSchema(forms, {
+  fields: z.array(FormFieldSchema),
+}).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
