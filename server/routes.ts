@@ -1,11 +1,19 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
+import { storage } from "./auth-storage";
 import { insertFormSchema, insertFormResponseSchema, FormFieldSchema } from "@shared/schema";
+import { setupSession, setupAuthRoutes, updateSessionActivity, requireAuth } from "./auth-routes";
 import { z } from "zod";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Form routes
+  // Setup session and authentication
+  setupSession(app);
+  setupAuthRoutes(app);
+  
+  // Add session activity middleware to all routes
+  app.use(updateSessionActivity);
+
+  // Form routes (protected)
   app.post("/api/forms", async (req, res) => {
     try {
       const validatedData = insertFormSchema.parse(req.body);
