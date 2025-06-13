@@ -337,127 +337,133 @@ export default function RowBasedCanvas({
   };
 
   return (
-    <div className="space-y-4">
-      {/* Add Row Button */}
-      <div className="flex justify-center items-center min-h-[60px]">
-        <Button
-          variant="outline"
-          onClick={onAddRow}
-          className="flex items-center gap-2 h-10 px-4 text-sm font-medium"
-        >
-          <Plus size={16} />
-          Add Row
-        </Button>
-      </div>
-
-      {/* Rows */}
-      {sortedRows.map((row, rowIndex) => (
-        <Card key={row.id} className="border-2 border-dashed border-slate-300 dark:border-slate-600">
-          <CardContent className="p-4">
-            {/* Row Header */}
-            <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-200 dark:border-slate-600">
-              <div className="flex items-center gap-3">
-                <Columns className="text-slate-600 dark:text-slate-400" size={16} />
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Row {rowIndex + 1}
-                </span>
-                <div className="flex items-center gap-2">
-                  <Label className="text-xs text-slate-600 dark:text-slate-400">Columns:</Label>
-                  <Select 
-                    value={row.columns.toString()} 
-                    onValueChange={(value) => onUpdateRow(row.id, { columns: parseInt(value) })}
-                  >
-                    <SelectTrigger className="w-16 h-8">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">1</SelectItem>
-                      <SelectItem value="2">2</SelectItem>
-                      <SelectItem value="3">3</SelectItem>
-                      <SelectItem value="4">4</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0"
-                  onClick={() => onMoveRow(row.id, 'up')}
-                  disabled={rowIndex === 0}
-                >
-                  <ArrowUp size={12} />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0"
-                  onClick={() => onMoveRow(row.id, 'down')}
-                  disabled={rowIndex === sortedRows.length - 1}
-                >
-                  <ArrowDown size={12} />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/30"
-                  onClick={() => onRemoveRow(row.id)}
-                  disabled={sortedRows.length === 1}
-                >
-                  <Trash2 className="text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400" size={12} />
-                </Button>
-              </div>
-            </div>
-
-            {/* Row Columns */}
-            <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${row.columns}, 1fr)` }}>
-              {Array.from({ length: row.columns }, (_, columnIndex) => {
-                const columnsFields = fieldsByRow[row.id]?.filter(f => f.columnIndex === columnIndex) || [];
-                
-                return (
-                  <div
-                    key={columnIndex}
-                    className={`min-h-32 p-3 border-2 border-dashed rounded-lg transition-colors ${
-                      dragOverRow === row.id && dragOverColumn === columnIndex
-                        ? 'border-primary bg-primary/5' 
-                        : 'border-slate-300 dark:border-slate-600 bg-slate-50/50 dark:bg-slate-800/50'
-                    }`}
-                    onDragOver={(e) => handleColumnDragOver(e, row.id, columnIndex)}
-                    onDragLeave={handleColumnDragLeave}
-                    onDrop={(e) => handleColumnDrop(e, row.id, columnIndex)}
-                  >
-                    <div className="text-center mb-3">
-                      <span className="text-xs text-slate-500 dark:text-slate-500">
-                        Column {columnIndex + 1}
-                      </span>
-                    </div>
-                    
-                    {columnsFields.map(field => renderField(field))}
-                    
-                    {columnsFields.length === 0 && (
-                      <div className="flex justify-center items-center h-20">
-                        <span className="text-xs text-slate-400 dark:text-slate-500">
-                          Drag fields here
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-
-      {/* Empty State */}
-      {sortedRows.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-slate-500 dark:text-slate-400 mb-4">
-            <Columns size={48} className="mx-auto mb-4 opacity-50" />
-            <p className="text-lg font-medium">No rows yet</p>
-            <p className="text-sm">Add your first row to start building your form</p>
+    <div className="relative min-h-[200px] p-6">
+      {sortedRows.length === 0 ? (
+        /* Add Row Button - Centered when no rows exist */
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Button
+            variant="outline"
+            onClick={onAddRow}
+            className="flex items-center gap-2 h-10 px-4 text-sm font-medium"
+          >
+            <Plus size={16} />
+            Add Row
+          </Button>
+        </div>
+      ) : (
+        /* Rows container */
+        <div className="space-y-4">
+          {/* Add Row Button at top */}
+          <div className="flex justify-center">
+            <Button
+              variant="outline"
+              onClick={onAddRow}
+              className="flex items-center gap-2 h-9 px-3 text-xs font-medium"
+            >
+              <Plus size={14} />
+              Add Row
+            </Button>
           </div>
+
+          {/* Rows */}
+          {sortedRows.map((row, rowIndex) => (
+            <Card key={row.id} className="border-2 border-dashed border-slate-300 dark:border-slate-600">
+              <CardContent className="p-4">
+                {/* Row Header */}
+                <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-200 dark:border-slate-600">
+                  <div className="flex items-center gap-3">
+                    <Columns className="text-slate-600 dark:text-slate-400" size={16} />
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Row {rowIndex + 1}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <Label className="text-xs text-slate-600 dark:text-slate-400">Columns:</Label>
+                      <Select 
+                        value={row.columns.toString()} 
+                        onValueChange={(value) => onUpdateRow(row.id, { columns: parseInt(value) })}
+                      >
+                        <SelectTrigger className="w-16 h-8">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1">1</SelectItem>
+                          <SelectItem value="2">2</SelectItem>
+                          <SelectItem value="3">3</SelectItem>
+                          <SelectItem value="4">4</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={() => onMoveRow(row.id, 'up')}
+                      disabled={rowIndex === 0}
+                    >
+                      <ArrowUp size={12} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={() => onMoveRow(row.id, 'down')}
+                      disabled={rowIndex === sortedRows.length - 1}
+                    >
+                      <ArrowDown size={12} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/30"
+                      onClick={() => onRemoveRow(row.id)}
+                      disabled={sortedRows.length === 1}
+                    >
+                      <Trash2 className="text-slate-500 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400" size={12} />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Row Columns */}
+                <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${row.columns}, 1fr)` }}>
+                  {Array.from({ length: row.columns }, (_, columnIndex) => {
+                    const columnsFields = fieldsByRow[row.id]?.filter(f => f.columnIndex === columnIndex) || [];
+                    
+                    return (
+                      <div
+                        key={columnIndex}
+                        className={`min-h-32 p-3 border-2 border-dashed rounded-lg transition-colors ${
+                          dragOverRow === row.id && dragOverColumn === columnIndex
+                            ? 'border-primary bg-primary/5' 
+                            : 'border-slate-300 dark:border-slate-600 bg-slate-50/50 dark:bg-slate-800/50'
+                        }`}
+                        onDragOver={(e) => handleColumnDragOver(e, row.id, columnIndex)}
+                        onDragLeave={handleColumnDragLeave}
+                        onDrop={(e) => handleColumnDrop(e, row.id, columnIndex)}
+                      >
+                        <div className="text-center mb-3">
+                          <span className="text-xs text-slate-500 dark:text-slate-500">
+                            Column {columnIndex + 1}
+                          </span>
+                        </div>
+                        
+                        {columnsFields.map(field => renderField(field))}
+                        
+                        {columnsFields.length === 0 && (
+                          <div className="flex justify-center items-center h-20">
+                            <span className="text-xs text-slate-400 dark:text-slate-500">
+                              Drag fields here
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       )}
     </div>
