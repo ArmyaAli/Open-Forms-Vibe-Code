@@ -668,15 +668,50 @@ export default function FormBuilder() {
                     No fields added yet. Add some fields to see the preview.
                   </p>
                 ) : (
-                  currentForm.fields.map((field) => (
-                    <div key={field.id} className="space-y-2">
-                      <Label className="text-sm font-medium">
-                        {field.label}
-                        {field.required && <span className="text-red-500 ml-1">*</span>}
-                      </Label>
-                      {renderPreviewField(field)}
-                    </div>
-                  ))
+                  (() => {
+                    // Sort rows by order
+                    const sortedRows = [...currentForm.rows].sort((a, b) => a.order - b.order);
+                    
+                    // Group fields by row
+                    const fieldsByRow = currentForm.fields.reduce((acc, field) => {
+                      if (!acc[field.rowId]) acc[field.rowId] = [];
+                      acc[field.rowId].push(field);
+                      return acc;
+                    }, {} as Record<string, FormField[]>);
+                    
+                    // Sort fields within each row by columnIndex
+                    Object.keys(fieldsByRow).forEach(rowId => {
+                      fieldsByRow[rowId].sort((a, b) => a.columnIndex - b.columnIndex);
+                    });
+                    
+                    return sortedRows.map((row) => {
+                      const rowFields = fieldsByRow[row.id] || [];
+                      
+                      return (
+                        <div key={row.id} className="space-y-4">
+                          <div className={`grid gap-4 grid-cols-${row.columns}`}>
+                            {Array.from({ length: row.columns }, (_, columnIndex) => {
+                              const columnsFields = rowFields.filter(field => field.columnIndex === columnIndex);
+                              
+                              return (
+                                <div key={columnIndex} className="space-y-4">
+                                  {columnsFields.map((field) => (
+                                    <div key={field.id} className="space-y-2">
+                                      <Label className="text-sm font-medium">
+                                        {field.label}
+                                        {field.required && <span className="text-red-500 ml-1">*</span>}
+                                      </Label>
+                                      {renderPreviewField(field)}
+                                    </div>
+                                  ))}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()
                 )}
                 
                 {currentForm.fields.length > 0 && (

@@ -153,7 +153,42 @@ export default function FormPreview({ form }: FormPreviewProps) {
                 No fields added yet
               </p>
             ) : (
-              form.fields.map(renderPreviewField)
+              (() => {
+                // Sort rows by order
+                const sortedRows = [...(form as any).rows].sort((a: any, b: any) => a.order - b.order);
+                
+                // Group fields by row
+                const fieldsByRow = form.fields.reduce((acc, field) => {
+                  if (!acc[(field as any).rowId]) acc[(field as any).rowId] = [];
+                  acc[(field as any).rowId].push(field);
+                  return acc;
+                }, {} as Record<string, FormField[]>);
+                
+                // Sort fields within each row by columnIndex
+                Object.keys(fieldsByRow).forEach(rowId => {
+                  fieldsByRow[rowId].sort((a, b) => (a as any).columnIndex - (b as any).columnIndex);
+                });
+                
+                return sortedRows.map((row: any) => {
+                  const rowFields = fieldsByRow[row.id] || [];
+                  
+                  return (
+                    <div key={row.id} className="space-y-2">
+                      <div className={`grid gap-2 grid-cols-${row.columns}`}>
+                        {Array.from({ length: row.columns }, (_, columnIndex) => {
+                          const columnsFields = rowFields.filter(field => (field as any).columnIndex === columnIndex);
+                          
+                          return (
+                            <div key={columnIndex} className="space-y-2">
+                              {columnsFields.map(renderPreviewField)}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                });
+              })()
             )}
             
             {form.fields.length > 0 && (
