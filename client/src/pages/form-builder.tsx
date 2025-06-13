@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Save, Share, Eye, Box, List, BarChart } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { FormField, Form } from "@shared/schema";
 import FieldPalette from "@/components/form-builder/field-palette";
@@ -167,16 +168,16 @@ export default function FormBuilder() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-50">
+      <header className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 px-6 py-4 sticky top-0 z-50">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-8">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary-500 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary-500 rounded-sm flex items-center justify-center">
                 <Box className="text-white" size={16} />
               </div>
-              <h1 className="text-xl font-bold text-slate-900">FormCraft</h1>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">FormCraft</h1>
             </div>
             <nav className="hidden md:flex space-x-6">
               <button
@@ -188,14 +189,14 @@ export default function FormBuilder() {
               </button>
               <button
                 onClick={() => setLocation("/forms")}
-                className="text-sm font-medium text-slate-600 hover:text-slate-900 pb-2 flex items-center gap-2"
+                className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 pb-2 flex items-center gap-2"
               >
                 <List size={16} />
                 My Forms
               </button>
               <button
                 onClick={() => setLocation("/responses")}
-                className="text-sm font-medium text-slate-600 hover:text-slate-900 pb-2 flex items-center gap-2"
+                className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 pb-2 flex items-center gap-2"
               >
                 <BarChart size={16} />
                 Responses
@@ -203,11 +204,12 @@ export default function FormBuilder() {
             </nav>
           </div>
           <div className="flex items-center space-x-4">
-            <Button onClick={() => setLocation("/forms")} variant="outline" size="sm">
+            <ThemeToggle />
+            <Button onClick={() => setLocation("/forms")} variant="outline" size="sm" className="rounded-sm">
               <Plus className="mr-2" size={16} />
               New Form
             </Button>
-            <div className="w-8 h-8 bg-slate-300 rounded-full" />
+            <div className="w-8 h-8 bg-slate-300 dark:bg-slate-600 rounded-sm" />
           </div>
         </div>
       </header>
@@ -221,19 +223,19 @@ export default function FormBuilder() {
         <div className="flex-1 flex">
           <div className="flex-1 p-6">
             <div className="max-w-2xl mx-auto">
-              <Card className="min-h-96 shadow-sm">
-                <div className="p-6 border-b border-slate-200">
+              <Card className="min-h-96 shadow-sm rounded-sm">
+                <div className="p-6 border-b border-slate-200 dark:border-slate-700">
                   <Input
                     type="text"
                     value={currentForm.title}
                     onChange={(e) => setCurrentForm(prev => ({ ...prev, title: e.target.value }))}
-                    className="text-2xl font-bold border-none p-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+                    className="text-2xl font-bold border-none p-0 focus-visible:ring-0 focus-visible:ring-offset-0 dark:text-slate-100"
                     placeholder="Untitled Form"
                   />
                   <Textarea
                     value={currentForm.description}
                     onChange={(e) => setCurrentForm(prev => ({ ...prev, description: e.target.value }))}
-                    className="text-slate-600 border-none p-0 mt-2 resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                    className="text-slate-600 dark:text-slate-400 border-none p-0 mt-2 resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
                     placeholder="Add a description..."
                     rows={2}
                   />
@@ -246,15 +248,16 @@ export default function FormBuilder() {
                   onAddField={handleAddField}
                 />
 
-                <div className="p-6 border-t border-slate-200 flex justify-between items-center">
+                <div className="p-6 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
                   <div className="flex space-x-3">
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" className="rounded-sm">
                       <Eye className="mr-2" size={16} />
                       Preview
                     </Button>
                     <Button 
                       variant="outline" 
                       size="sm"
+                      className="rounded-sm"
                       onClick={handleSaveForm}
                       disabled={createFormMutation.isPending || updateFormMutation.isPending}
                     >
@@ -266,6 +269,7 @@ export default function FormBuilder() {
                     onClick={handlePublishForm}
                     disabled={publishFormMutation.isPending}
                     size="sm"
+                    className="rounded-sm"
                   >
                     <Share className="mr-2" size={16} />
                     {publishFormMutation.isPending ? "Publishing..." : "Publish & Share"}
