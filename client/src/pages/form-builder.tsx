@@ -130,6 +130,15 @@ export default function FormBuilder() {
   });
 
   const handleSaveForm = () => {
+    if (!currentForm.title.trim()) {
+      toast({
+        title: "Title Required",
+        description: "Please enter a title for your form before saving.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (currentFormId) {
       updateFormMutation.mutate(currentForm);
     } else {
@@ -138,6 +147,15 @@ export default function FormBuilder() {
   };
 
   const handlePublishForm = () => {
+    if (!currentForm.title.trim()) {
+      toast({
+        title: "Title Required",
+        description: "Please enter a title for your form before publishing.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     publishFormMutation.mutate();
   };
 
@@ -206,7 +224,7 @@ export default function FormBuilder() {
               <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary-500 rounded-sm flex items-center justify-center">
                 <Box className="text-white" size={16} />
               </div>
-              <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">OpenForms</h1>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Open Forms</h1>
             </button>
             <nav className="hidden md:flex space-x-6 border-l border-slate-200 dark:border-slate-600 pl-6">
               <button

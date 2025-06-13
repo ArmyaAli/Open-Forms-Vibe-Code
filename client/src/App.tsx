@@ -78,7 +78,7 @@ function Router() {
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="openforms-ui-theme">
+    <ThemeProvider defaultTheme="light" storageKey="open-forms-ui-theme">
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <Toaster />
