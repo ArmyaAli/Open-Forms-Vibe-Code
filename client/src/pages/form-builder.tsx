@@ -591,6 +591,9 @@ export default function FormBuilder() {
                   isPublished: !currentForm.isPublished 
                 };
                 
+                // Update the local state immediately for instant UI feedback
+                setCurrentForm(updatedForm);
+                
                 if (currentFormId) {
                   await updateFormMutation.mutateAsync(updatedForm);
                 } else {
