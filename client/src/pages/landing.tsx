@@ -69,14 +69,14 @@ export default function Landing() {
       name: "Sarah Chen",
       role: "Product Manager",
       company: "TechStart Inc.",
-      content: "OpenForms transformed how we collect user feedback. The drag-and-drop interface is incredibly intuitive.",
+      content: "Open Forms transformed how we collect user feedback. The drag-and-drop interface is incredibly intuitive.",
       rating: 5
     },
     {
       name: "Marcus Rodriguez",
       role: "Marketing Director", 
       company: "Growth Co.",
-      content: "We increased our survey completion rates by 40% after switching to OpenForms. The mobile experience is flawless.",
+      content: "We increased our survey completion rates by 40% after switching to Open Forms. The mobile experience is flawless.",
       rating: 5
     },
     {
@@ -177,7 +177,7 @@ export default function Landing() {
           <div className="text-center">
             <Badge className="mb-6 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-4 py-2">
               <Zap className="mr-2" size={16} />
-              Now Live: OpenForms.ca
+              Now Live: Open Forms
             </Badge>
             
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-slate-900 dark:text-slate-100 mb-6">
@@ -188,7 +188,7 @@ export default function Landing() {
             </h1>
             
             <p className="text-xl text-slate-600 dark:text-slate-300 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Create stunning, responsive forms with our intuitive drag-and-drop builder at OpenForms.ca. 
+              Create stunning, responsive forms with our intuitive drag-and-drop builder. 
               Collect responses, analyze data, and grow your business faster than ever.
             </p>
             
@@ -242,7 +242,7 @@ export default function Landing() {
                       className="bg-white/90 text-slate-900 hover:bg-white shadow-lg"
                     >
                       <Play className="mr-2" size={24} />
-                      Watch OpenForms in Action
+                      Watch Open Forms in Action
                     </Button>
                   </div>
                 ) : (
