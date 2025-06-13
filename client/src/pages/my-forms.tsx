@@ -133,9 +133,9 @@ export default function MyForms() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-background">
       {/* Header */}
-      <header className="bg-white dark:bg-card border-b border-slate-200 dark:border-slate-600 px-6 py-4 sticky top-0 z-50">
+      <header className="bg-white dark:bg-card border-b border-slate-200 dark:border-slate-600 px-4 lg:px-6 py-4 sticky top-0 z-50">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-8">
+          <div className="flex items-center space-x-4 lg:space-x-8">
             <button 
               onClick={() => setLocation("/")}
               className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
@@ -143,7 +143,7 @@ export default function MyForms() {
               <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary-500 rounded-lg flex items-center justify-center">
                 <Box className="text-white" size={16} />
               </div>
-              <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Open Forms</h1>
+              <h1 className="text-lg lg:text-xl font-bold text-slate-900 dark:text-slate-100">Open Forms</h1>
             </button>
             <nav className="hidden md:flex space-x-6 border-l border-slate-200 dark:border-slate-600 pl-6">
               <button
@@ -169,10 +169,13 @@ export default function MyForms() {
               </button>
             </nav>
           </div>
-          <div className="flex items-center space-x-4">
-            <Button onClick={() => setLocation("/builder")} size="sm">
+          <div className="flex items-center space-x-2 lg:space-x-4">
+            <Button onClick={() => setLocation("/builder")} size="sm" className="hidden sm:flex">
               <Plus className="mr-2" size={16} />
               Create New Form
+            </Button>
+            <Button onClick={() => setLocation("/builder")} size="sm" className="sm:hidden">
+              <Plus size={16} />
             </Button>
             <ThemeToggle />
             {user && <UserProfileMenu user={user} />}
@@ -181,16 +184,16 @@ export default function MyForms() {
       </header>
 
       {/* Main Content */}
-      <main className="p-6">
+      <main className="p-4 lg:p-6">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">My Forms</h2>
-            <p className="text-slate-600 dark:text-slate-400">Manage and organize your forms</p>
+            <h2 className="text-xl lg:text-2xl font-bold text-slate-900 dark:text-slate-100">My Forms</h2>
+            <p className="text-sm lg:text-base text-slate-600 dark:text-slate-400">Manage and organize your forms</p>
           </div>
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
               <Card key={i} className="animate-pulse border border-slate-200 dark:border-slate-600">
                 <CardContent className="p-6">
@@ -227,7 +230,7 @@ export default function MyForms() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
             {forms.map((form) => (
               <Card key={form.id} className="hover:shadow-lg transition-shadow border border-slate-200 dark:border-slate-600">
                 <CardContent className="p-6">

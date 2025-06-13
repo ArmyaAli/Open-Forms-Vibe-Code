@@ -425,12 +425,14 @@ export default function PublicForm() {
       <div key={row.id} className="space-y-4">
         <div 
           className={`grid gap-4 ${
-            (row.columns || 1) > 3 ? 'overflow-x-auto grid-flow-col auto-cols-fr' : ''
+            (row.columns || 1) > 2 ? 'overflow-x-auto grid-flow-col auto-cols-fr lg:grid-flow-row lg:auto-cols-auto' : ''
           }`}
           style={{ 
-            gridTemplateColumns: (row.columns || 1) <= 3 
-              ? `repeat(${row.columns || 1}, minmax(200px, 1fr))`
-              : `repeat(${row.columns || 1}, minmax(250px, 300px))`,
+            gridTemplateColumns: (row.columns || 1) <= 2 
+              ? `repeat(${Math.min(row.columns || 1, 2)}, minmax(0, 1fr))`
+              : window.innerWidth >= 1024 
+                ? `repeat(${row.columns || 1}, minmax(200px, 1fr))`
+                : `repeat(${row.columns || 1}, minmax(280px, 320px))`,
             maxWidth: '100%'
           }}
         >
@@ -492,20 +494,20 @@ export default function PublicForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-12">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-6 lg:py-12">
       <div className="max-w-4xl mx-auto px-4">
         <Card className="shadow-xl border border-slate-200 dark:border-slate-600 overflow-hidden">
           <div 
-            className="px-8 py-6 text-white"
+            className="px-6 lg:px-8 py-6 text-white"
             style={{ backgroundColor: form.themeColor }}
           >
-            <h1 className="text-2xl font-bold">{form.title}</h1>
+            <h1 className="text-xl lg:text-2xl font-bold">{form.title}</h1>
             {form.description && (
-              <p className="mt-2 opacity-90">{form.description}</p>
+              <p className="mt-2 opacity-90 text-sm lg:text-base">{form.description}</p>
             )}
           </div>
           
-          <form onSubmit={handleSubmit} className="p-8 space-y-6">
+          <form onSubmit={handleSubmit} className="p-6 lg:p-8 space-y-6">
             {renderFormContent()}
             
             <Button 
