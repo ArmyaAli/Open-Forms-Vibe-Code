@@ -1,12 +1,15 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ColorPicker } from "@/components/ui/color-picker";
+import { Button } from "@/components/ui/button";
 import { 
   Type, 
   Mail, 
   AlignLeft, 
-  ChevronDown, 
+  ChevronDown,
+  ChevronUp, 
   Circle, 
   CheckSquare, 
   Hash,
@@ -138,16 +141,33 @@ const fieldTypes = [
 ];
 
 export default function FieldPalette({ onAddField, currentForm, onUpdateForm }: FieldPaletteProps) {
+  const [isExpanded, setIsExpanded] = useState(true);
+  
   // Get list of field types already added to the form
   const existingFieldTypes = currentForm?.fields?.map(field => field.type).filter(Boolean) || [];
   
   return (
     <aside className="w-full lg:w-80 bg-white dark:bg-background border-r lg:border-r border-b lg:border-b-0 border-slate-200 dark:border-slate-600 h-auto lg:h-full overflow-y-auto">
       <div className="p-4 lg:p-6">
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Form Elements</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Form Elements</h2>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-slate-800"
+          >
+            {isExpanded ? (
+              <ChevronUp className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+            ) : (
+              <ChevronDown className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+            )}
+          </Button>
+        </div>
         
-        <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 lg:space-y-0">
-          {fieldTypes.map((field) => {
+        {isExpanded && (
+          <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 lg:space-y-0">
+            {fieldTypes.map((field) => {
             const IconComponent = field.icon;
             const isAlreadyAdded = existingFieldTypes.includes(field.type);
             
@@ -221,20 +241,23 @@ export default function FieldPalette({ onAddField, currentForm, onUpdateForm }: 
               </div>
             );
           })}
-        </div>
+          </div>
+        )}
 
-        <div className="mt-8">
-          <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Form Settings</h3>
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm text-slate-700 dark:text-slate-300">Theme Color</Label>
-              <ColorPicker
-                value={currentForm?.themeColor || '#6366F1'}
-                onChange={(color) => onUpdateForm({ themeColor: color })}
-              />
+        {isExpanded && (
+          <div className="mt-8">
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Form Settings</h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm text-slate-700 dark:text-slate-300">Theme Color</Label>
+                <ColorPicker
+                  value={currentForm?.themeColor || '#6366F1'}
+                  onChange={(color) => onUpdateForm({ themeColor: color })}
+                />
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </aside>
   );
