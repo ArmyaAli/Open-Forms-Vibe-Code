@@ -48,17 +48,24 @@ export const FormFieldSchema = z.object({
   placeholder: z.string().optional(),
   required: z.boolean().default(false),
   options: z.array(z.string()).optional(), // for select, radio, checkbox
-  column: z.number().min(0).max(3).optional().default(0), // 0-3 for columns 1-4
-  order: z.number().optional().default(0), // order within column
+  rowId: z.string(), // ID of the row this field belongs to
+  columnIndex: z.number().min(0).max(3), // 0-3 for positions within the row
+  width: z.number().min(1).max(4).optional().default(1), // how many columns this field spans
+});
+
+export const FormRowSchema = z.object({
+  id: z.string(),
+  order: z.number(), // order of rows in the form
+  columns: z.number().min(1).max(4).default(1), // number of columns in this row
 });
 
 export const insertFormSchema = z.object({
   title: z.string(),
   description: z.string().optional(),
   fields: z.array(FormFieldSchema),
+  rows: z.array(FormRowSchema),
   themeColor: z.string().optional(),
   isPublished: z.boolean().optional(),
-  columnCount: z.number().min(1).max(4).optional().default(1),
 });
 
 export const insertFormResponseSchema = z.object({
@@ -69,6 +76,7 @@ export const insertFormResponseSchema = z.object({
 });
 
 export type FormField = z.infer<typeof FormFieldSchema>;
+export type FormRow = z.infer<typeof FormRowSchema>;
 export type Form = typeof forms.$inferSelect;
 export type InsertForm = z.infer<typeof insertFormSchema>;
 export type FormResponse = typeof formResponses.$inferSelect;

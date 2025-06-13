@@ -18,9 +18,9 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { UserProfileMenu } from "@/components/user-profile-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { FormField, Form, User } from "@shared/schema";
+import { FormField, FormRow, Form, User } from "@shared/schema";
 import FieldPalette from "@/components/form-builder/field-palette";
-import MultiColumnCanvas from "@/components/form-builder/multi-column-canvas";
+import RowBasedCanvas from "@/components/form-builder/row-based-canvas";
 import FormPreview from "@/components/form-builder/form-preview";
 import ShareModal from "@/components/form-builder/share-modal";
 import { nanoid } from "nanoid";
@@ -32,16 +32,16 @@ export default function FormBuilder() {
     title: string;
     description: string;
     fields: FormField[];
+    rows: FormRow[];
     themeColor: string;
     isPublished: boolean;
-    columnCount: number;
   }>({
     title: "Untitled Form",
     description: "",
     fields: [],
+    rows: [{ id: nanoid(), order: 0, columns: 1 }], // Start with one row
     themeColor: "#6366F1",
     isPublished: false,
-    columnCount: 1,
   });
   const [showShareModal, setShowShareModal] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
@@ -192,16 +192,16 @@ export default function FormBuilder() {
     publishFormMutation.mutate();
   };
 
-  const handleAddField = (fieldType: string, column: number = 0) => {
-    const fieldsInColumn = currentForm.fields.filter(f => (f.column || 0) === column);
+  const handleAddField = (fieldType: string, rowId: string, columnIndex: number) => {
     const newField: FormField = {
       id: nanoid(),
       type: fieldType as any,
       label: `${fieldType.charAt(0).toUpperCase() + fieldType.slice(1)} Field`,
       placeholder: `Enter ${fieldType}`,
       required: false,
-      column: column,
-      order: fieldsInColumn.length,
+      rowId,
+      columnIndex,
+      width: 1,
       options: fieldType === "select" || fieldType === "radio" || fieldType === "checkbox" 
         ? ["Option 1", "Option 2", "Option 3"] 
         : undefined,
