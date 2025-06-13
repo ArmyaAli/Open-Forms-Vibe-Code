@@ -224,7 +224,7 @@ export default function FormBuilder() {
           <div className="flex-1 p-6">
             <div className="max-w-2xl mx-auto">
               <Card className="min-h-96 shadow-sm rounded-sm">
-                <div className="p-6 border-b border-slate-200 dark:border-slate-700">
+                <div className="p-6 border-b border-slate-200 dark:border-slate-800">
                   <Input
                     type="text"
                     value={currentForm.title}
