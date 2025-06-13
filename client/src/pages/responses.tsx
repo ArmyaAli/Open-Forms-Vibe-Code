@@ -19,6 +19,9 @@ import {
   Eye
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { UserProfileMenu } from "@/components/user-profile-menu";
+import { User } from "@shared/schema";
 
 interface ResponseWithForm {
   id: number;
@@ -43,6 +46,10 @@ export default function Responses() {
   const [selectedResponse, setSelectedResponse] = useState<ResponseWithForm | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [selectedFormId, setSelectedFormId] = useState<number | null>(null);
+
+  const { data: user } = useQuery<User>({
+    queryKey: ["/api/auth/user"],
+  });
 
   const { data: responses = [], isLoading: responsesLoading } = useQuery<ResponseWithForm[]>({
     queryKey: ["/api/responses"],
@@ -181,7 +188,8 @@ export default function Responses() {
               <Download className="mr-2" size={16} />
               Export All CSV
             </Button>
-            <div className="w-8 h-8 bg-slate-300 rounded-full" />
+            <ThemeToggle />
+            {user && <UserProfileMenu user={user} />}
           </div>
         </div>
       </header>

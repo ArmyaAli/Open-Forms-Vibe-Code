@@ -9,9 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Save, Share, Eye, Box, List, BarChart } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { UserProfileMenu } from "@/components/user-profile-menu";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { FormField, Form } from "@shared/schema";
+import { FormField, Form, User } from "@shared/schema";
 import FieldPalette from "@/components/form-builder/field-palette";
 import FormCanvas from "@/components/form-builder/form-canvas";
 import FormPreview from "@/components/form-builder/form-preview";
@@ -37,6 +38,10 @@ export default function FormBuilder() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [currentFormId, setCurrentFormId] = useState<number | null>(null);
   const [shareUrl, setShareUrl] = useState("");
+
+  const { data: user } = useQuery<User>({
+    queryKey: ["/api/auth/user"],
+  });
 
   const createFormMutation = useMutation({
     mutationFn: async (formData: typeof currentForm) => {
@@ -275,7 +280,7 @@ export default function FormBuilder() {
               <Plus className="mr-2" size={16} />
               New Form
             </Button>
-            <div className="w-8 h-8 bg-slate-300 dark:bg-muted rounded-sm" />
+            {user && <UserProfileMenu user={user} />}
           </div>
         </div>
       </header>
