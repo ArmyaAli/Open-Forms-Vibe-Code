@@ -141,7 +141,7 @@ export default function Landing() {
               <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
                 <Box className="text-white" size={20} />
               </div>
-              <span className="text-xl font-bold text-slate-900 dark:text-slate-100">OpenForms</span>
+              <span className="text-xl font-bold text-slate-900 dark:text-slate-100">Open Forms</span>
             </div>
             
             <nav className="hidden md:flex space-x-8">
@@ -154,16 +154,16 @@ export default function Landing() {
               <ThemeToggle />
               <Button 
                 variant="outline" 
-                onClick={() => setLocation("/builder")}
+                onClick={() => setLocation("/login")}
                 className="hidden sm:inline-flex"
               >
                 Sign In
               </Button>
               <Button 
-                onClick={() => setLocation("/builder")}
+                onClick={() => setLocation("/register")}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               >
-                Get Started
+                Sign Up
                 <ArrowRight className="ml-2" size={16} />
               </Button>
             </div>
@@ -195,7 +195,7 @@ export default function Landing() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
               <Button 
                 size="lg"
-                onClick={() => setLocation("/builder")}
+                onClick={() => setLocation("/register")}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-lg px-8 py-4"
               >
                 Start Building for Free
@@ -397,7 +397,7 @@ export default function Landing() {
                         : ''
                     }`}
                     variant={plan.popular ? 'default' : 'outline'}
-                    onClick={() => setLocation("/builder")}
+                    onClick={() => setLocation("/register")}
                   >
                     Get Started
                   </Button>
@@ -415,11 +415,11 @@ export default function Landing() {
             Ready to build your first form?
           </h2>
           <p className="text-xl text-blue-100 mb-8">
-            Join thousands of users who trust OpenForms to collect their data efficiently.
+            Join thousands of users who trust Open Forms to collect their data efficiently.
           </p>
           <Button 
             size="lg"
-            onClick={() => setLocation("/builder")}
+            onClick={() => setLocation("/register")}
             className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4"
           >
             Start Building Now
