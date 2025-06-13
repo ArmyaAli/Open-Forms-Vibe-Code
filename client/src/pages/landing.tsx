@@ -421,7 +421,7 @@ export default function Landing() {
           </p>
           <Button 
             size="lg"
-            onClick={() => setLocation("/")}
+            onClick={() => setLocation("/builder")}
             className="bg-white text-blue-600 hover:bg-gray-100 text-lg px-8 py-4"
           >
             Start Building Now
