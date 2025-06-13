@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormField } from "@shared/schema";
-import { Smartphone, Monitor } from "lucide-react";
+import { Smartphone, Monitor, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
 interface FormPreviewProps {
@@ -17,9 +17,11 @@ interface FormPreviewProps {
     rows: Array<{ id: string; order?: number; columns?: number }>;
     themeColor: string;
   };
+  isPreviewCollapsed?: boolean;
+  onToggleCollapse?: (collapsed: boolean) => void;
 }
 
-export default function FormPreview({ form }: FormPreviewProps) {
+export default function FormPreview({ form, isPreviewCollapsed, onToggleCollapse }: FormPreviewProps) {
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
 
   const renderPreviewField = (field: FormField) => {
@@ -115,7 +117,7 @@ export default function FormPreview({ form }: FormPreviewProps) {
     <div className="hidden lg:block w-80 bg-white dark:bg-card border-l border-slate-200 dark:border-slate-600 p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-slate-900 dark:text-slate-100">Live Preview</h3>
-        <div className="flex space-x-1">
+        <div className="flex items-center space-x-1">
           <Button
             variant={viewMode === "mobile" ? "default" : "ghost"}
             size="sm"
@@ -132,6 +134,17 @@ export default function FormPreview({ form }: FormPreviewProps) {
           >
             <Monitor size={14} />
           </Button>
+          {onToggleCollapse && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onToggleCollapse(true)}
+              className="h-6 w-6 p-0 rounded-sm hover:bg-slate-100 dark:hover:bg-slate-800"
+              title="Collapse Preview"
+            >
+              <ChevronRight className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+            </Button>
+          )}
         </div>
       </div>
       

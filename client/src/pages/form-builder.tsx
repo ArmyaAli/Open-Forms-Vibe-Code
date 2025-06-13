@@ -51,6 +51,7 @@ export default function FormBuilder() {
   const [shareUrl, setShareUrl] = useState("");
   const [loadedFormData, setLoadedFormData] = useState<Form | null>(null);
   const [isPaletteCollapsed, setIsPaletteCollapsed] = useState(false);
+  const [isPreviewCollapsed, setIsPreviewCollapsed] = useState(false);
 
   const { data: user } = useQuery<User>({
     queryKey: ["/api/auth/user"],
@@ -792,8 +793,30 @@ export default function FormBuilder() {
             </div>
           </div>
 
-          {/* Live Preview */}
-          <FormPreview form={currentForm} />
+          {/* Collapsible Live Preview - Desktop */}
+          <div className={`hidden lg:block transition-all duration-300 ${isPreviewCollapsed ? 'w-12' : 'w-80'} relative`}>
+            {isPreviewCollapsed ? (
+              /* Collapsed state - show toggle button */
+              <div className="w-12 h-full bg-white dark:bg-background border-l border-slate-200 dark:border-slate-600 flex items-start justify-center pt-4">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsPreviewCollapsed(false)}
+                  className="h-8 w-8 p-0 hover:bg-slate-100 dark:hover:bg-slate-800"
+                  title="Expand Live Preview"
+                >
+                  <ChevronLeft className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                </Button>
+              </div>
+            ) : (
+              /* Expanded state - show full preview */
+              <FormPreview 
+                form={currentForm} 
+                isPreviewCollapsed={isPreviewCollapsed}
+                onToggleCollapse={setIsPreviewCollapsed}
+              />
+            )}
+          </div>
         </div>
       </main>
 
