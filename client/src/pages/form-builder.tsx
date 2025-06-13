@@ -261,6 +261,7 @@ export default function FormBuilder() {
                   onUpdateField={handleUpdateField}
                   onRemoveField={handleRemoveField}
                   onAddField={handleAddField}
+                  onReorderFields={handleReorderFields}
                 />
 
                 <div className="p-6 border-t border-slate-200 dark:border-slate-600 flex justify-between items-center">

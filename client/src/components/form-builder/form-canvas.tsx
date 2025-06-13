@@ -8,17 +8,21 @@ interface FormCanvasProps {
   onUpdateField: (fieldId: string, updates: Partial<FormField>) => void;
   onRemoveField: (fieldId: string) => void;
   onAddField: (fieldType: string) => void;
+  onReorderFields: (dragIndex: number, hoverIndex: number) => void;
 }
 
 export default function FormCanvas({ 
   fields, 
   onUpdateField, 
   onRemoveField, 
-  onAddField 
+  onAddField,
+  onReorderFields 
 }: FormCanvasProps) {
   const [dragOver, setDragOver] = useState(false);
   const [dropAnimation, setDropAnimation] = useState(false);
   const [newFieldIds, setNewFieldIds] = useState<Set<string>>(new Set());
+  const [draggedFieldIndex, setDraggedFieldIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const prevFieldCount = useRef(fields.length);
 
   useEffect(() => {
@@ -71,16 +75,55 @@ export default function FormCanvas({
     }
   };
 
+  const handleFieldDragStart = (index: number) => {
+    setDraggedFieldIndex(index);
+  };
+
+  const handleFieldDragEnd = () => {
+    setDraggedFieldIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleFieldDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedFieldIndex !== null && draggedFieldIndex !== index) {
+      setDragOverIndex(index);
+    }
+  };
+
+  const handleFieldDrop = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (draggedFieldIndex !== null && draggedFieldIndex !== index) {
+      onReorderFields(draggedFieldIndex, index);
+    }
+    
+    setDraggedFieldIndex(null);
+    setDragOverIndex(null);
+  };
+
   return (
     <div className="p-6 min-h-80 space-y-4">
       {fields.map((field, index) => (
         <div
           key={field.id}
+          draggable
+          onDragStart={() => handleFieldDragStart(index)}
+          onDragEnd={handleFieldDragEnd}
+          onDragOver={(e) => handleFieldDragOver(e, index)}
+          onDrop={(e) => handleFieldDrop(e, index)}
           className={`${
             newFieldIds.has(field.id) 
               ? 'field-entrance' 
               : 'animate-in slide-in-from-top-2 fade-in duration-300'
-          }`}
+          } ${
+            draggedFieldIndex === index 
+              ? 'opacity-50 scale-95 rotate-1' 
+              : dragOverIndex === index 
+              ? 'border-primary border-2 border-dashed bg-primary/5' 
+              : ''
+          } transition-all duration-200 cursor-move`}
           style={{ animationDelay: newFieldIds.has(field.id) ? '0ms' : `${index * 50}ms` }}
         >
           <FormFieldPreview
