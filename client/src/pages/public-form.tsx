@@ -13,7 +13,7 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, AlertCircle, Loader2, Star, Upload } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Form, FormField } from "@shared/schema";
 
 export default function PublicForm() {
@@ -37,6 +37,9 @@ export default function PublicForm() {
     },
     onSuccess: () => {
       setSubmitted(true);
+      // Invalidate responses cache to refresh the responses page
+      queryClient.invalidateQueries({ queryKey: ["/api/responses"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/responses/stats"] });
       toast({
         title: "Response submitted successfully",
         description: "Thank you for your submission!",
