@@ -14,7 +14,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, AlertCircle, Loader2, Star, Upload } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Form, FormField } from "@shared/schema";
+import { Form, FormField, FormRow } from "@shared/schema";
 
 export default function PublicForm() {
   const { shareId } = useParams<{ shareId: string }>();
@@ -177,16 +177,17 @@ export default function PublicForm() {
       case "select":
         return (
           <div key={field.id} className="space-y-2">
-            <Label htmlFor={field.id}>
+            <Label>
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </Label>
             <Select
               value={formData[field.id] || ""}
               onValueChange={(value) => handleInputChange(field.id, value)}
+              required={field.required}
             >
               <SelectTrigger>
-                <SelectValue placeholder={field.placeholder} />
+                <SelectValue placeholder={field.placeholder || "Select an option"} />
               </SelectTrigger>
               <SelectContent>
                 {field.options?.map((option) => (
@@ -209,6 +210,7 @@ export default function PublicForm() {
             <RadioGroup
               value={formData[field.id] || ""}
               onValueChange={(value) => handleInputChange(field.id, value)}
+              required={field.required}
             >
               {field.options?.map((option) => (
                 <div key={option} className="flex items-center space-x-2">
@@ -232,7 +234,7 @@ export default function PublicForm() {
                 <div key={option} className="flex items-center space-x-2">
                   <Checkbox
                     id={`${field.id}-${option}`}
-                    checked={formData[field.id]?.includes(option) || false}
+                    checked={(formData[field.id] || []).includes(option)}
                     onCheckedChange={(checked) => {
                       const currentValues = formData[field.id] || [];
                       if (checked) {
@@ -241,7 +243,6 @@ export default function PublicForm() {
                         handleInputChange(field.id, currentValues.filter((v: string) => v !== option));
                       }
                     }}
-                    className="rounded-full"
                   />
                   <Label htmlFor={`${field.id}-${option}`}>{option}</Label>
                 </div>
@@ -258,16 +259,19 @@ export default function PublicForm() {
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </Label>
             <div className="flex space-x-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star
-                  key={star}
-                  className={`w-6 h-6 cursor-pointer transition-colors ${
-                    (formData[field.id] || 0) >= star
-                      ? "text-yellow-400 fill-yellow-400"
-                      : "text-gray-300 hover:text-yellow-300"
+              {[1, 2, 3, 4, 5].map((rating) => (
+                <button
+                  key={rating}
+                  type="button"
+                  onClick={() => handleInputChange(field.id, rating)}
+                  className={`p-1 rounded transition-colors ${
+                    (formData[field.id] || 0) >= rating
+                      ? "text-yellow-400"
+                      : "text-slate-300 hover:text-yellow-300"
                   }`}
-                  onClick={() => handleInputChange(field.id, star)}
-                />
+                >
+                  <Star className="h-5 w-5 fill-current" />
+                </button>
               ))}
             </div>
           </div>
@@ -280,20 +284,24 @@ export default function PublicForm() {
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </Label>
-            <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-sm p-6 text-center">
-              <Upload className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+            <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-6 text-center">
+              <Upload className="h-8 w-8 mx-auto mb-2 text-slate-400" />
+              <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">
+                Click to upload or drag and drop
+              </p>
               <Input
                 id={field.id}
                 type="file"
+                className="hidden"
                 onChange={(e) => handleInputChange(field.id, e.target.files?.[0])}
                 required={field.required}
-                className="hidden"
               />
-              <label htmlFor={field.id} className="cursor-pointer">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Click to upload or drag and drop
-                </p>
-              </label>
+              <Label
+                htmlFor={field.id}
+                className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-3"
+              >
+                Choose File
+              </Label>
             </div>
           </div>
         );
@@ -390,6 +398,46 @@ export default function PublicForm() {
     }
   };
 
+  const renderFormContent = () => {
+    // If no rows exist, render fields in a simple list (backward compatibility)
+    if (!form?.rows || form.rows.length === 0) {
+      return form?.fields?.map(renderField);
+    }
+
+    // Sort rows by order
+    const sortedRows = [...form.rows].sort((a, b) => (a.order || 0) - (b.order || 0));
+    
+    // Group fields by row and column
+    const fieldsByRow: Record<string, Record<number, FormField[]>> = {};
+    form.fields.forEach(field => {
+      if (field.rowId && field.columnIndex !== undefined) {
+        if (!fieldsByRow[field.rowId]) {
+          fieldsByRow[field.rowId] = {};
+        }
+        if (!fieldsByRow[field.rowId][field.columnIndex]) {
+          fieldsByRow[field.rowId][field.columnIndex] = [];
+        }
+        fieldsByRow[field.rowId][field.columnIndex].push(field);
+      }
+    });
+
+    return sortedRows.map((row) => (
+      <div key={row.id} className="space-y-4">
+        <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${row.columns || 1}, 1fr)` }}>
+          {Array.from({ length: row.columns || 1 }, (_, columnIndex) => {
+            const columnFields = fieldsByRow[row.id]?.[columnIndex] || [];
+            
+            return (
+              <div key={columnIndex} className="space-y-4">
+                {columnFields.map(field => renderField(field))}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    ));
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-12 flex items-center justify-center">
@@ -435,7 +483,7 @@ export default function PublicForm() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-12">
-      <div className="max-w-2xl mx-auto px-4">
+      <div className="max-w-4xl mx-auto px-4">
         <Card className="shadow-xl border border-slate-200 dark:border-slate-600 overflow-hidden">
           <div 
             className="px-8 py-6 text-white"
@@ -448,7 +496,7 @@ export default function PublicForm() {
           </div>
           
           <form onSubmit={handleSubmit} className="p-8 space-y-6">
-            {form.fields.map(renderField)}
+            {renderFormContent()}
             
             <Button 
               type="submit" 
