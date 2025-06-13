@@ -11,10 +11,13 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, AlertCircle, Loader2, Star, Upload } from "lucide-react";
+import { CheckCircle, AlertCircle, Loader2, Star, Upload, CalendarIcon } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Form, FormField, FormRow } from "@shared/schema";
+import { format } from "date-fns";
 
 export default function PublicForm() {
   const { shareId } = useParams<{ shareId: string }>();
@@ -147,13 +150,39 @@ export default function PublicForm() {
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </Label>
-            <Input
-              id={field.id}
-              type="date"
-              value={formData[field.id] || ""}
-              onChange={(e) => handleInputChange(field.id, e.target.value)}
-              required={field.required}
-            />
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={`w-full justify-start text-left font-normal ${
+                    !formData[field.id] ? "text-muted-foreground" : ""
+                  }`}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {formData[field.id] 
+                    ? format(new Date(formData[field.id]), "PPP")
+                    : field.placeholder || "Pick a date"
+                  }
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={formData[field.id] ? new Date(formData[field.id]) : undefined}
+                  onSelect={(date) => {
+                    if (date) {
+                      handleInputChange(field.id, format(date, "yyyy-MM-dd"));
+                    } else {
+                      handleInputChange(field.id, "");
+                    }
+                  }}
+                  disabled={(date) =>
+                    date > new Date() || date < new Date("1900-01-01")
+                  }
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
           </div>
         );
 
