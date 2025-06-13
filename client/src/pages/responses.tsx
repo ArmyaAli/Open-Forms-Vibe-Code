@@ -42,6 +42,7 @@ export default function Responses() {
   const [, setLocation] = useLocation();
   const [selectedResponse, setSelectedResponse] = useState<ResponseWithForm | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [selectedFormId, setSelectedFormId] = useState<number | null>(null);
 
   const { data: responses = [], isLoading: responsesLoading } = useQuery<ResponseWithForm[]>({
     queryKey: ["/api/responses"],
@@ -51,9 +52,37 @@ export default function Responses() {
     queryKey: ["/api/responses/stats"],
   });
 
+  // Group responses by form
+  const responsesByForm = responses.reduce((acc, response) => {
+    if (!acc[response.formId]) {
+      acc[response.formId] = {
+        formTitle: response.formTitle,
+        formDescription: response.formDescription,
+        responses: []
+      };
+    }
+    acc[response.formId].responses.push(response);
+    return acc;
+  }, {} as Record<number, { formTitle: string; formDescription: string; responses: ResponseWithForm[] }>);
+
   const handleViewDetails = (response: ResponseWithForm) => {
     setSelectedResponse(response);
     setIsDetailsOpen(true);
+  };
+
+  const getFormStats = (formResponses: ResponseWithForm[]) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const todayCount = formResponses.filter(r => 
+      new Date(r.submittedAt) >= today
+    ).length;
+
+    return {
+      total: formResponses.length,
+      today: todayCount,
+      latest: formResponses.length > 0 ? formResponses[formResponses.length - 1].submittedAt : null
+    };
   };
 
   return (
@@ -171,9 +200,9 @@ export default function Responses() {
                   <Clock className="text-orange-600 dark:text-orange-400" size={24} />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm text-slate-600 dark:text-slate-400">Avg. Time</p>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">Active Forms</p>
                   <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                    {statsLoading ? "..." : stats?.averageTime || "0:00"}
+                    {Object.keys(responsesByForm).length}
                   </h3>
                 </div>
               </div>
@@ -181,116 +210,154 @@ export default function Responses() {
           </Card>
         </div>
 
-        {/* Responses Table */}
-        <Card className="border border-slate-200 dark:border-slate-600">
-          <CardHeader>
-            <CardTitle className="text-slate-900 dark:text-slate-100">Recent Responses</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {responsesLoading ? (
-              <div className="space-y-4">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <div key={i} className="flex items-center space-x-4 p-4 border border-slate-200 dark:border-slate-600 rounded-lg animate-pulse">
-                    <div className="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded-lg" />
-                    <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/4" />
-                      <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2" />
-                    </div>
-                    <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-20" />
-                  </div>
-                ))}
-              </div>
-            ) : responses.length === 0 ? (
-              <div className="text-center py-12">
-                <Users className="mx-auto h-12 w-12 text-slate-400 dark:text-slate-500 mb-4" />
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">No responses yet</h3>
-                <p className="text-slate-600 dark:text-slate-400 mb-4">
-                  Responses will appear here once people start submitting your forms
-                </p>
-                <Button onClick={() => setLocation("/forms")}>
-                  View My Forms
-                </Button>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-600">
-                    <tr>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                        Form
-                      </th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                        Response Data
-                      </th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                        Submitted
-                      </th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="text-left py-3 px-6 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200 dark:divide-slate-600">
-                    {responses.map((response) => (
-                      <tr key={response.id} className="hover:bg-slate-50 dark:hover:bg-slate-800">
-                        <td className="py-4 px-6">
-                          <div className="flex items-center">
-                            <div className="w-8 h-8 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center mr-3">
-                              <FileText className="text-primary-600 dark:text-primary-400" size={16} />
-                            </div>
-                            <span className="font-medium text-slate-900 dark:text-slate-100">
-                              {response.formTitle}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="py-4 px-6 max-w-xs">
-                          <div className="text-sm text-slate-600 dark:text-slate-400 truncate">
-                            {Object.entries(response.responses).map(([key, value], index) => (
-                              <div key={key}>
-                                {index < 2 && (
-                                  <span className="block">
-                                    <strong>{key}:</strong> {String(value)}
-                                  </span>
-                                )}
-                              </div>
-                            ))}
-                            {Object.keys(response.responses).length > 2 && (
-                              <span className="text-slate-400 dark:text-slate-500">
-                                +{Object.keys(response.responses).length - 2} more fields
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="py-4 px-6 text-slate-600 dark:text-slate-400">
-                          {formatDistanceToNow(new Date(response.submittedAt), { addSuffix: true })}
-                        </td>
-                        <td className="py-4 px-6">
-                          <Badge variant="secondary" className="bg-green-100 text-green-800">
-                            Complete
-                          </Badge>
-                        </td>
-                        <td className="py-4 px-6">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-primary hover:text-primary-700"
-                            onClick={() => handleViewDetails(response)}
-                          >
-                            <Eye className="w-4 h-4 mr-1" />
-                            View Details
-                          </Button>
-                        </td>
-                      </tr>
+        {/* Form Categories */}
+        {responsesLoading ? (
+          <div className="space-y-6">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <Card key={i} className="animate-pulse border border-slate-200 dark:border-slate-600">
+                <CardHeader>
+                  <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded w-1/3" />
+                  <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2" />
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {Array.from({ length: 3 }).map((_, j) => (
+                      <div key={j} className="flex items-center space-x-4 p-4 border border-slate-200 dark:border-slate-600 rounded-lg">
+                        <div className="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded-lg" />
+                        <div className="flex-1 space-y-2">
+                          <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/4" />
+                          <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2" />
+                        </div>
+                        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-20" />
+                      </div>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : Object.keys(responsesByForm).length === 0 ? (
+          <Card className="text-center py-12 border border-slate-200 dark:border-slate-600">
+            <CardContent>
+              <Users className="mx-auto h-12 w-12 text-slate-400 dark:text-slate-500 mb-4" />
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">No responses yet</h3>
+              <p className="text-slate-600 dark:text-slate-400 mb-4">
+                Responses will appear here once people start submitting your forms
+              </p>
+              <Button onClick={() => setLocation("/forms")}>
+                View My Forms
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-6">
+            {Object.entries(responsesByForm).map(([formId, formData]) => {
+              const formStats = getFormStats(formData.responses);
+              return (
+                <Card key={formId} className="border border-slate-200 dark:border-slate-600">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-slate-900 dark:text-slate-100 flex items-center gap-3">
+                          <div className="w-10 h-10 bg-gradient-to-r from-primary to-secondary-500 rounded-lg flex items-center justify-center">
+                            <FileText className="text-white" size={20} />
+                          </div>
+                          {formData.formTitle}
+                        </CardTitle>
+                        <p className="text-slate-600 dark:text-slate-400 mt-1">
+                          {formData.formDescription || "No description"}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400">
+                        <div className="text-center">
+                          <div className="font-semibold text-slate-900 dark:text-slate-100">{formStats.total}</div>
+                          <div>Total</div>
+                        </div>
+                        <div className="text-center">
+                          <div className="font-semibold text-green-600 dark:text-green-400">{formStats.today}</div>
+                          <div>Today</div>
+                        </div>
+                        {formStats.latest && (
+                          <div className="text-center">
+                            <div className="font-semibold text-slate-900 dark:text-slate-100">
+                              {formatDistanceToNow(new Date(formStats.latest), { addSuffix: true })}
+                            </div>
+                            <div>Latest</div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-600">
+                          <tr>
+                            <th className="text-left py-3 px-4 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                              Response Data
+                            </th>
+                            <th className="text-left py-3 px-4 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                              Submitted
+                            </th>
+                            <th className="text-left py-3 px-4 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                              Status
+                            </th>
+                            <th className="text-left py-3 px-4 text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                              Actions
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200 dark:divide-slate-600">
+                          {formData.responses.map((response) => (
+                            <tr key={response.id} className="hover:bg-slate-50 dark:hover:bg-slate-800">
+                              <td className="py-3 px-4 max-w-xs">
+                                <div className="text-sm text-slate-600 dark:text-slate-400">
+                                  {Object.entries(response.responses).map(([key, value], index) => (
+                                    <div key={key}>
+                                      {index < 2 && (
+                                        <span className="block truncate">
+                                          <strong>{key}:</strong> {String(value)}
+                                        </span>
+                                      )}
+                                    </div>
+                                  ))}
+                                  {Object.keys(response.responses).length > 2 && (
+                                    <span className="text-slate-400 dark:text-slate-500">
+                                      +{Object.keys(response.responses).length - 2} more fields
+                                    </span>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="py-3 px-4 text-slate-600 dark:text-slate-400">
+                                {formatDistanceToNow(new Date(response.submittedAt), { addSuffix: true })}
+                              </td>
+                              <td className="py-3 px-4">
+                                <Badge variant="secondary" className="bg-green-100 text-green-800">
+                                  Complete
+                                </Badge>
+                              </td>
+                              <td className="py-3 px-4">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-primary hover:text-primary-700"
+                                  onClick={() => handleViewDetails(response)}
+                                >
+                                  <Eye className="w-4 h-4 mr-1" />
+                                  View Details
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        )}
       </main>
 
       {/* Response Details Modal */}
