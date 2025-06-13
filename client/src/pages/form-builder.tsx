@@ -594,12 +594,23 @@ export default function FormBuilder() {
                 // Update the local state immediately for instant UI feedback
                 setCurrentForm(updatedForm);
                 
+                let formToShare = updatedForm;
+                
                 if (currentFormId) {
-                  await updateFormMutation.mutateAsync(updatedForm);
+                  formToShare = await updateFormMutation.mutateAsync(updatedForm);
                 } else {
                   const newForm = await createFormMutation.mutateAsync(updatedForm);
                   setCurrentFormId(newForm.id);
                   setCurrentForm(prev => ({ ...prev, shareId: newForm.shareId }));
+                  formToShare = { ...updatedForm, shareId: newForm.shareId };
+                }
+                
+                // If publishing, open new tab and show share modal
+                if (updatedForm.isPublished) {
+                  const shareUrl = `${window.location.origin}/f/${formToShare.shareId}`;
+                  setShareUrl(shareUrl);
+                  window.open(shareUrl, '_blank');
+                  setShowShareModal(true);
                 }
               }}
               variant={currentForm.isPublished ? "secondary" : "default"}
