@@ -76,7 +76,6 @@ export default function RowBasedCanvas({
   });
 
   const handleFieldDragStart = (e: React.DragEvent, field: FormField) => {
-    console.log('🏗️ Starting drag for field:', field.id, 'from row:', field.rowId, 'column:', field.columnIndex);
     setDraggedField(field.id);
     e.dataTransfer.setData("text/plain", field.id);
     e.dataTransfer.setData("application/x-field-id", field.id);

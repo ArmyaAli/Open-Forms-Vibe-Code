@@ -512,7 +512,7 @@ export default function FormBuilder() {
           <div className="flex items-center space-x-4">
             <ThemeToggle />
             <Button 
-              onClick={() => window.open(`/form/${currentForm.shareId}`, '_blank')} 
+              onClick={() => window.open(`/f/${currentForm.shareId}`, '_blank')} 
               variant="outline" 
               size="sm" 
               className="rounded-sm"
