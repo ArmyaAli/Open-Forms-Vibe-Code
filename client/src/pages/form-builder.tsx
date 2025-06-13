@@ -35,6 +35,7 @@ export default function FormBuilder() {
     rows: FormRow[];
     themeColor: string;
     isPublished: boolean;
+    shareId: string;
   }>({
     title: "Untitled Form",
     description: "",
@@ -42,6 +43,7 @@ export default function FormBuilder() {
     rows: [{ id: nanoid(), order: 0, columns: 1 }], // Start with one row
     themeColor: "#6366F1",
     isPublished: false,
+    shareId: nanoid(),
   });
   const [showShareModal, setShowShareModal] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
@@ -480,13 +482,12 @@ export default function FormBuilder() {
                   isPublished: !currentForm.isPublished 
                 };
                 
-                if (isEditing && formId) {
-                  await updateFormMutation.mutateAsync({ 
-                    id: parseInt(formId), 
-                    ...updatedForm 
-                  });
+                if (currentFormId) {
+                  await updateFormMutation.mutateAsync(updatedForm);
                 } else {
-                  await createFormMutation.mutateAsync(updatedForm);
+                  const newForm = await createFormMutation.mutateAsync(updatedForm);
+                  setCurrentFormId(newForm.id);
+                  setCurrentForm(prev => ({ ...prev, shareId: newForm.shareId }));
                 }
               }}
               variant={currentForm.isPublished ? "secondary" : "default"}
