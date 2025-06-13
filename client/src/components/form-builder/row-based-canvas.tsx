@@ -339,13 +339,13 @@ export default function RowBasedCanvas({
   return (
     <div className="space-y-6">
       {/* Add Row Button */}
-      <div className="flex justify-center py-8">
+      <div className="flex justify-center py-4">
         <Button
           variant="outline"
           onClick={onAddRow}
-          className="flex items-center gap-2 h-10 px-4 font-medium"
+          className="flex items-center gap-2 h-9 px-4 text-sm font-medium"
         >
-          <Plus size={16} />
+          <Plus size={14} />
           Add Row
         </Button>
       </div>
