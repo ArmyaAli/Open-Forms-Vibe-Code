@@ -175,6 +175,24 @@ export default function FormBuilder() {
     }));
   };
 
+  const handleReorderFields = (dragIndex: number, hoverIndex: number) => {
+    setCurrentForm(prev => {
+      const newFields = [...prev.fields];
+      const draggedField = newFields[dragIndex];
+      
+      // Remove the dragged field
+      newFields.splice(dragIndex, 1);
+      
+      // Insert it at the new position
+      newFields.splice(hoverIndex, 0, draggedField);
+      
+      return {
+        ...prev,
+        fields: newFields,
+      };
+    });
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-background">
       {/* Header */}
