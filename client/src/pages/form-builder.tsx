@@ -140,6 +140,15 @@ export default function FormBuilder() {
       return;
     }
 
+    if (currentForm.title.trim() === "Untitled Form") {
+      toast({
+        title: "Custom Title Required",
+        description: "Please change the form title from 'Untitled Form' before saving.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (currentFormId) {
       updateFormMutation.mutate(currentForm);
     } else {
@@ -152,6 +161,15 @@ export default function FormBuilder() {
       toast({
         title: "Title Required",
         description: "Please enter a title for your form before publishing.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (currentForm.title.trim() === "Untitled Form") {
+      toast({
+        title: "Custom Title Required",
+        description: "Please change the form title from 'Untitled Form' before publishing.",
         variant: "destructive",
       });
       return;
