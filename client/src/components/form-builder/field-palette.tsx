@@ -69,7 +69,7 @@ const fieldTypes = [
 
 export default function FieldPalette({ onAddField }: FieldPaletteProps) {
   return (
-    <aside className="w-80 bg-white dark:bg-background border-r border-slate-200 dark:border-border h-full overflow-y-auto">
+    <aside className="w-80 bg-white dark:bg-background border-r border-slate-200 dark:border-slate-600 h-full overflow-y-auto">
       <div className="p-6">
         <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Form Elements</h2>
         
@@ -80,7 +80,7 @@ export default function FieldPalette({ onAddField }: FieldPaletteProps) {
               <div
                 key={field.type}
                 draggable
-                className="bg-slate-50 hover:bg-slate-100 dark:bg-muted dark:hover:bg-accent border border-slate-200 dark:border-border rounded-sm p-3 cursor-move transition-all"
+                className="bg-slate-50 hover:bg-slate-100 dark:bg-muted dark:hover:bg-accent border border-slate-200 dark:border-slate-600 rounded-sm p-3 cursor-move transition-all"
                 onClick={() => onAddField(field.type)}
                 onDragStart={(e) => {
                   e.dataTransfer.setData("text/plain", field.type);

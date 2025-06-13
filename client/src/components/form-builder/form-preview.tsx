@@ -111,7 +111,7 @@ export default function FormPreview({ form }: FormPreviewProps) {
   };
 
   return (
-    <div className="w-80 bg-white dark:bg-card border-l border-slate-200 dark:border-border p-6">
+    <div className="w-80 bg-white dark:bg-card border-l border-slate-200 dark:border-slate-600 p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-slate-900 dark:text-slate-100">Live Preview</h3>
         <div className="flex space-x-1">
@@ -135,7 +135,7 @@ export default function FormPreview({ form }: FormPreviewProps) {
       </div>
       
       <div className="bg-slate-100 dark:bg-muted rounded-sm p-4 max-h-96 overflow-y-auto">
-        <Card className="shadow-sm rounded-sm">
+        <Card className="shadow-sm rounded-sm border border-slate-200 dark:border-slate-600">
           <CardHeader 
             className="p-4 text-white rounded-t-sm"
             style={{ backgroundColor: form.themeColor }}
