@@ -87,20 +87,34 @@ export default function RowBasedCanvas({
 
   const handleColumnDragOver = (e: React.DragEvent, rowId: string, columnIndex: number) => {
     e.preventDefault();
-    e.dataTransfer.dropEffect = "move";
+    e.dataTransfer.dropEffect = "copy";
+    console.log('Drag over row:', rowId, 'column:', columnIndex);
     setDragOverRow(rowId);
     setDragOverColumn(columnIndex);
   };
 
-  const handleColumnDragLeave = () => {
-    setDragOverRow(null);
-    setDragOverColumn(null);
+  const handleColumnDragLeave = (e: React.DragEvent) => {
+    // Only clear if we're actually leaving the drop zone
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX;
+    const y = e.clientY;
+    
+    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+      setDragOverRow(null);
+      setDragOverColumn(null);
+    }
   };
 
   const handleColumnDrop = (e: React.DragEvent, rowId: string, columnIndex: number) => {
     e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('Drop event triggered on row:', rowId, 'column:', columnIndex);
+    
     const fieldType = e.dataTransfer.getData("application/x-field-type");
     const fieldId = e.dataTransfer.getData("text/plain");
+    
+    console.log('Data transfer contents:', { fieldType, fieldId });
     
     if (fieldType) {
       // Adding new field from palette
@@ -110,6 +124,8 @@ export default function RowBasedCanvas({
       // Moving existing field
       console.log('Moving field:', fieldId, 'to row:', rowId, 'column:', columnIndex);
       onUpdateField(fieldId, { rowId, columnIndex });
+    } else {
+      console.log('No valid drag data found. fieldType:', fieldType, 'fieldId:', fieldId);
     }
     
     setDragOverRow(null);
@@ -323,11 +339,11 @@ export default function RowBasedCanvas({
   return (
     <div className="space-y-6">
       {/* Add Row Button */}
-      <div className="flex justify-center">
+      <div className="flex justify-center items-center py-4">
         <Button
           variant="outline"
           onClick={onAddRow}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 h-10"
         >
           <Plus size={16} />
           Add Row
