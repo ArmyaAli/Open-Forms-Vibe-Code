@@ -181,7 +181,7 @@ export default function FormFieldPreview({ field, onUpdate, onRemove, onDragStar
   return (
     <Card className="relative group hover:shadow-md transition-all duration-300 hover:scale-[1.02] rounded-sm border border-slate-200 dark:border-slate-600 cursor-pointer">
       <CardContent className="p-4">
-        <div className="absolute top-2 left-2 opacity-30 group-hover:opacity-100 transition-opacity">
+        <div className="absolute top-2 left-2 opacity-100 transition-opacity">
           <div 
             draggable
             onDragStart={onDragStart}

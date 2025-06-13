@@ -24,6 +24,7 @@ interface FieldPaletteProps {
   onAddField: (fieldType: string) => void;
   currentForm?: {
     themeColor: string;
+    fields: Array<{ type?: string }>;
   };
   onUpdateForm: (updates: { themeColor: string }) => void;
 }
@@ -137,6 +138,9 @@ const fieldTypes = [
 ];
 
 export default function FieldPalette({ onAddField, currentForm, onUpdateForm }: FieldPaletteProps) {
+  // Get list of field types already added to the form
+  const existingFieldTypes = currentForm?.fields?.map(field => field.type).filter(Boolean) || [];
+  
   return (
     <aside className="w-80 bg-white dark:bg-background border-r border-slate-200 dark:border-slate-600 h-full overflow-y-auto">
       <div className="p-6">
@@ -145,13 +149,23 @@ export default function FieldPalette({ onAddField, currentForm, onUpdateForm }: 
         <div className="space-y-3">
           {fieldTypes.map((field) => {
             const IconComponent = field.icon;
+            const isAlreadyAdded = existingFieldTypes.includes(field.type);
+            
             return (
               <div
                 key={field.type}
-                draggable
-                className="bg-slate-50 hover:bg-slate-100 dark:bg-muted dark:hover:bg-accent border border-slate-200 dark:border-slate-600 rounded-sm p-3 cursor-move transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.98]"
-                onClick={() => onAddField(field.type)}
+                draggable={!isAlreadyAdded}
+                className={`border border-slate-200 dark:border-slate-600 rounded-sm p-3 transition-all duration-200 ${
+                  isAlreadyAdded 
+                    ? "bg-slate-100 dark:bg-slate-800 opacity-50 cursor-not-allowed" 
+                    : "bg-slate-50 hover:bg-slate-100 dark:bg-muted dark:hover:bg-accent cursor-move hover:scale-[1.02] hover:shadow-md active:scale-[0.98]"
+                }`}
+                onClick={() => !isAlreadyAdded && onAddField(field.type)}
                 onDragStart={(e) => {
+                  if (isAlreadyAdded) {
+                    e.preventDefault();
+                    return;
+                  }
                   e.dataTransfer.setData("text/plain", field.type);
                   e.dataTransfer.effectAllowed = "copy";
                   
@@ -191,8 +205,12 @@ export default function FieldPalette({ onAddField, currentForm, onUpdateForm }: 
                     <IconComponent size={16} />
                   </div>
                   <div>
-                    <h3 className="font-medium text-slate-900 dark:text-slate-100">{field.label}</h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">{field.description}</p>
+                    <h3 className={`font-medium ${isAlreadyAdded ? "text-slate-500 dark:text-slate-500" : "text-slate-900 dark:text-slate-100"}`}>
+                      {field.label}
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {isAlreadyAdded ? "Already added" : field.description}
+                    </p>
                   </div>
                 </div>
               </div>
