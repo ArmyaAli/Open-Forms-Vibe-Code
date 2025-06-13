@@ -13,6 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Camera, Save, Box, List, BarChart } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { UserProfileMenu } from "@/components/user-profile-menu";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { updateUserProfileSchema, UpdateUserProfile, User } from "@shared/schema";
 
@@ -145,6 +146,7 @@ export default function Settings() {
               <ArrowLeft className="mr-2" size={16} />
               Back
             </Button>
+            {user && <UserProfileMenu user={user} />}
           </div>
         </div>
       </header>
