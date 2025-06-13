@@ -76,6 +76,7 @@ export default function RowBasedCanvas({
   const handleFieldDragStart = (e: React.DragEvent, field: FormField) => {
     setDraggedField(field.id);
     e.dataTransfer.setData("text/plain", field.id);
+    e.dataTransfer.setData("application/x-field-id", field.id);
     e.dataTransfer.effectAllowed = "move";
   };
 
@@ -109,23 +110,18 @@ export default function RowBasedCanvas({
     e.preventDefault();
     e.stopPropagation();
     
-    console.log('Drop event triggered on row:', rowId, 'column:', columnIndex);
-    
     const fieldType = e.dataTransfer.getData("application/x-field-type");
-    const fieldId = e.dataTransfer.getData("text/plain");
+    const fieldId = e.dataTransfer.getData("application/x-field-id") || e.dataTransfer.getData("text/plain");
     
-    console.log('Data transfer contents:', { fieldType, fieldId });
-    
-    if (fieldType) {
+    if (fieldType && !fieldId) {
       // Adding new field from palette
-      console.log('Adding field type:', fieldType, 'to row:', rowId, 'column:', columnIndex);
       onAddField(fieldType, rowId, columnIndex);
-    } else if (fieldId && draggedField) {
+    } else if (fieldId) {
       // Moving existing field
-      console.log('Moving field:', fieldId, 'to row:', rowId, 'column:', columnIndex);
-      onUpdateField(fieldId, { rowId, columnIndex });
-    } else {
-      console.log('No valid drag data found. fieldType:', fieldType, 'fieldId:', fieldId);
+      const currentField = fields.find(f => f.id === fieldId);
+      if (currentField && (currentField.rowId !== rowId || currentField.columnIndex !== columnIndex)) {
+        onUpdateField(fieldId, { rowId, columnIndex });
+      }
     }
     
     setDragOverRow(null);
