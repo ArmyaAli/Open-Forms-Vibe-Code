@@ -86,7 +86,7 @@
   }
   
   .drag-over {
-    @apply border-2 border-dashed border-primary bg-primary-50;
+    @apply border-2 border-dashed border-primary bg-primary/10;
   }
   
   .animate-fadeIn {

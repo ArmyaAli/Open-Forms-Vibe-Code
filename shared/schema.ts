@@ -10,8 +10,8 @@ export const forms = pgTable("forms", {
   themeColor: text("theme_color").default("#6366F1"),
   isPublished: boolean("is_published").default(false),
   shareId: text("share_id").notNull().unique(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const formResponses = pgTable("form_responses", {

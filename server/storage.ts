@@ -68,8 +68,12 @@ export class MemStorage implements IStorage {
     const shareId = nanoid(12);
     const now = new Date();
     const newForm: Form = {
-      ...form,
       id,
+      title: form.title,
+      description: form.description ?? null,
+      fields: form.fields as any,
+      themeColor: form.themeColor ?? null,
+      isPublished: form.isPublished ?? false,
       shareId,
       createdAt: now,
       updatedAt: now,
@@ -90,7 +94,7 @@ export class MemStorage implements IStorage {
 
   async getAllForms(): Promise<Form[]> {
     return Array.from(this.forms.values()).sort(
-      (a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()
+      (a, b) => (b.updatedAt?.getTime() || 0) - (a.updatedAt?.getTime() || 0)
     );
   }
 
@@ -101,6 +105,7 @@ export class MemStorage implements IStorage {
     const updatedForm: Form = {
       ...existingForm,
       ...updateData,
+      fields: updateData.fields as any || existingForm.fields,
       updatedAt: new Date(),
     };
     this.forms.set(id, updatedForm);
@@ -122,9 +127,12 @@ export class MemStorage implements IStorage {
   async createFormResponse(response: InsertFormResponse): Promise<FormResponse> {
     const id = this.currentResponseId++;
     const newResponse: FormResponse = {
-      ...response,
       id,
+      formId: response.formId,
+      responses: response.responses,
       submittedAt: new Date(),
+      ipAddress: response.ipAddress ?? null,
+      userAgent: response.userAgent ?? null,
     };
     this.formResponses.set(id, newResponse);
     return newResponse;
@@ -133,12 +141,12 @@ export class MemStorage implements IStorage {
   async getFormResponses(formId: number): Promise<FormResponse[]> {
     return Array.from(this.formResponses.values())
       .filter((response) => response.formId === formId)
-      .sort((a, b) => b.submittedAt.getTime() - a.submittedAt.getTime());
+      .sort((a, b) => (b.submittedAt?.getTime() || 0) - (a.submittedAt?.getTime() || 0));
   }
 
   async getAllFormResponses(): Promise<FormResponse[]> {
     return Array.from(this.formResponses.values()).sort(
-      (a, b) => b.submittedAt.getTime() - a.submittedAt.getTime()
+      (a, b) => (b.submittedAt?.getTime() || 0) - (a.submittedAt?.getTime() || 0)
     );
   }
 
@@ -153,7 +161,7 @@ export class MemStorage implements IStorage {
     today.setHours(0, 0, 0, 0);
     
     const todayResponses = responses.filter(
-      (response) => response.submittedAt >= today
+      (response) => response.submittedAt && response.submittedAt >= today
     ).length;
 
     return {
