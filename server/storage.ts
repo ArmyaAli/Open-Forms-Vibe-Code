@@ -80,6 +80,7 @@ export class MemStorage implements IStorage {
       title: form.title || "Untitled Form",
       description: form.description || null,
       fields: form.fields || [],
+      rows: form.rows || [{ id: nanoid(), order: 0, columns: 1 }],
       themeColor: form.themeColor || "#6366F1",
       isPublished: form.isPublished || false,
       shareId,

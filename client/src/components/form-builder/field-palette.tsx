@@ -160,13 +160,18 @@ export default function FieldPalette({ onAddField, currentForm, onUpdateForm }: 
                     ? "bg-slate-100 dark:bg-slate-800 opacity-50 cursor-not-allowed" 
                     : "bg-slate-50 hover:bg-slate-100 dark:bg-muted dark:hover:bg-accent cursor-move hover:scale-[1.02] hover:shadow-md active:scale-[0.98]"
                 }`}
-                onClick={() => !isAlreadyAdded && onAddField(field.type)}
+                onClick={(e) => {
+                  if (isAlreadyAdded) return;
+                  e.preventDefault();
+                  onAddField(field.type);
+                }}
                 onDragStart={(e) => {
                   if (isAlreadyAdded) {
                     e.preventDefault();
                     return;
                   }
                   e.dataTransfer.setData("text/plain", field.type);
+                  e.dataTransfer.setData("application/x-field-type", field.type);
                   e.dataTransfer.effectAllowed = "copy";
                   
                   // Create a custom drag image with animation
