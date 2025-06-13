@@ -461,6 +461,42 @@ export default function FormBuilder() {
           </div>
           <div className="flex items-center space-x-4">
             <ThemeToggle />
+            <Button 
+              onClick={() => window.open(`/form/${currentForm.shareId}`, '_blank')} 
+              variant="outline" 
+              size="sm" 
+              className="rounded-sm"
+              disabled={!currentForm.title.trim()}
+            >
+              <Eye className="mr-2" size={16} />
+              Live Preview
+            </Button>
+            <Button 
+              onClick={async () => {
+                if (!currentForm.title.trim()) return;
+                
+                const updatedForm = { 
+                  ...currentForm, 
+                  isPublished: !currentForm.isPublished 
+                };
+                
+                if (isEditing && formId) {
+                  await updateFormMutation.mutateAsync({ 
+                    id: parseInt(formId), 
+                    ...updatedForm 
+                  });
+                } else {
+                  await createFormMutation.mutateAsync(updatedForm);
+                }
+              }}
+              variant={currentForm.isPublished ? "secondary" : "default"}
+              size="sm" 
+              className="rounded-sm"
+              disabled={!currentForm.title.trim() || createFormMutation.isPending || updateFormMutation.isPending}
+            >
+              <Share className="mr-2" size={16} />
+              {currentForm.isPublished ? "Unpublish" : "Publish & Share"}
+            </Button>
             <Button onClick={() => setLocation("/forms")} variant="outline" size="sm" className="rounded-sm">
               <Plus className="mr-2" size={16} />
               New Form
