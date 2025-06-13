@@ -89,6 +89,9 @@ export const users = pgTable("users", {
   password: varchar("password", { length: 255 }).notNull(),
   firstName: varchar("first_name", { length: 100 }),
   lastName: varchar("last_name", { length: 100 }),
+  profilePicture: text("profile_picture"),
+  phoneNumber: varchar("phone_number", { length: 20 }),
+  address: text("address"),
   isEmailVerified: boolean("is_email_verified").default(false),
   lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -133,8 +136,17 @@ export const insertUserSchema = createInsertSchema(users).omit({
   updatedAt: true,
 });
 
+export const updateUserProfileSchema = z.object({
+  firstName: z.string().min(1, "First name is required"),
+  lastName: z.string().min(1, "Last name is required"),
+  profilePicture: z.string().optional(),
+  phoneNumber: z.string().optional(),
+  address: z.string().optional(),
+});
+
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 export type UserSession = typeof userSessions.$inferSelect;
 export type LoginData = z.infer<typeof loginSchema>;
 export type RegisterData = z.infer<typeof registerSchema>;
+export type UpdateUserProfile = z.infer<typeof updateUserProfileSchema>;

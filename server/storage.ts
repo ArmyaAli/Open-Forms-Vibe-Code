@@ -8,6 +8,7 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: any): Promise<User>;
   updateUserLastLogin(id: number): Promise<void>;
+  updateUserProfile(id: number, updates: any): Promise<User | undefined>;
   
   // Session methods
   createUserSession(userId: number, sessionId: string, ipAddress?: string, userAgent?: string): Promise<void>;

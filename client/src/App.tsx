@@ -12,6 +12,7 @@ import FormBuilder from "@/pages/form-builder";
 import MyForms from "@/pages/my-forms";
 import Responses from "@/pages/responses";
 import PublicForm from "@/pages/public-form";
+import Settings from "@/pages/settings";
 import NotFound from "@/pages/not-found";
 
 function useAuth() {
@@ -67,6 +68,7 @@ function Router() {
             <Route path="/builder" component={FormBuilder} />
             <Route path="/forms" component={MyForms} />
             <Route path="/responses" component={Responses} />
+            <Route path="/settings" component={Settings} />
           </>
         )}
         
