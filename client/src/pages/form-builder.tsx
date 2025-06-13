@@ -1,11 +1,16 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Save, Share, Eye, Box, List, BarChart } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -36,6 +41,7 @@ export default function FormBuilder() {
     isPublished: false,
   });
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [currentFormId, setCurrentFormId] = useState<number | null>(null);
   const [shareUrl, setShareUrl] = useState("");
 
@@ -235,6 +241,111 @@ export default function FormBuilder() {
     });
   };
 
+  const renderPreviewField = (field: FormField) => {
+    switch (field.type) {
+      case "text":
+      case "email":
+      case "number":
+        return (
+          <Input
+            type={field.type}
+            placeholder={field.placeholder}
+            className="w-full"
+            disabled
+          />
+        );
+      case "textarea":
+        return (
+          <Textarea
+            placeholder={field.placeholder}
+            className="w-full resize-none"
+            rows={3}
+            disabled
+          />
+        );
+      case "select":
+        return (
+          <Select disabled>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder={field.placeholder || "Select an option"} />
+            </SelectTrigger>
+            <SelectContent>
+              {field.options?.map((option, index) => (
+                <SelectItem key={index} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        );
+      case "radio":
+        return (
+          <RadioGroup disabled>
+            {field.options?.map((option, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <RadioGroupItem value={option} id={`${field.id}-${index}`} />
+                <Label htmlFor={`${field.id}-${index}`}>{option}</Label>
+              </div>
+            ))}
+          </RadioGroup>
+        );
+      case "checkbox":
+        return (
+          <div className="space-y-2">
+            {field.options?.map((option, index) => (
+              <div key={index} className="flex items-center space-x-2">
+                <Checkbox id={`${field.id}-${index}`} disabled />
+                <Label htmlFor={`${field.id}-${index}`}>{option}</Label>
+              </div>
+            ))}
+          </div>
+        );
+      case "date":
+        return (
+          <Input
+            type="date"
+            placeholder={field.placeholder}
+            className="w-full"
+            disabled
+          />
+        );
+      case "time":
+        return (
+          <Input
+            type="time"
+            placeholder={field.placeholder}
+            className="w-full"
+            disabled
+          />
+        );
+      case "range":
+        return (
+          <Input
+            type="range"
+            placeholder={field.placeholder}
+            className="w-full"
+            disabled
+          />
+        );
+      case "toggle":
+        return (
+          <div className="flex items-center space-x-2">
+            <Checkbox disabled />
+            <Label>{field.placeholder || "Toggle option"}</Label>
+          </div>
+        );
+      default:
+        return (
+          <Input
+            type="text"
+            placeholder={field.placeholder}
+            className="w-full"
+            disabled
+          />
+        );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-background">
       {/* Header */}
@@ -337,7 +448,12 @@ export default function FormBuilder() {
 
                 <div className="p-6 border-t border-slate-200 dark:border-slate-600 flex justify-between items-center">
                   <div className="flex space-x-3">
-                    <Button variant="outline" size="sm" className="rounded-sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="rounded-sm"
+                      onClick={() => setShowPreviewModal(true)}
+                    >
                       <Eye className="mr-2" size={16} />
                       Preview
                     </Button>
@@ -395,6 +511,57 @@ export default function FormBuilder() {
         onClose={() => setShowShareModal(false)}
         shareUrl={shareUrl}
       />
+
+      {/* Preview Modal */}
+      <Dialog open={showPreviewModal} onOpenChange={setShowPreviewModal}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Form Preview</DialogTitle>
+          </DialogHeader>
+          <div className="mt-4">
+            <Card className="shadow-sm">
+              <CardHeader 
+                className="text-white"
+                style={{ backgroundColor: currentForm.themeColor }}
+              >
+                <CardTitle className="text-xl font-bold">
+                  {currentForm.title || "Untitled Form"}
+                </CardTitle>
+                {currentForm.description && (
+                  <p className="opacity-90 mt-2">{currentForm.description}</p>
+                )}
+              </CardHeader>
+              <CardContent className="p-6 space-y-6">
+                {currentForm.fields.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-8">
+                    No fields added yet. Add some fields to see the preview.
+                  </p>
+                ) : (
+                  currentForm.fields.map((field) => (
+                    <div key={field.id} className="space-y-2">
+                      <Label className="text-sm font-medium">
+                        {field.label}
+                        {field.required && <span className="text-red-500 ml-1">*</span>}
+                      </Label>
+                      {renderPreviewField(field)}
+                    </div>
+                  ))
+                )}
+                
+                {currentForm.fields.length > 0 && (
+                  <Button 
+                    className="w-full mt-6"
+                    style={{ backgroundColor: currentForm.themeColor }}
+                    disabled
+                  >
+                    Submit
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
