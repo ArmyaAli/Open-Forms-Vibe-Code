@@ -64,21 +64,21 @@ export default function MyForms() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-background">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-50">
+      <header className="bg-white dark:bg-card border-b border-slate-200 dark:border-slate-600 px-6 py-4 sticky top-0 z-50">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-8">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary-500 rounded-lg flex items-center justify-center">
                 <Box className="text-white" size={16} />
               </div>
-              <h1 className="text-xl font-bold text-slate-900">FormCraft</h1>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">FormCraft</h1>
             </div>
-            <nav className="hidden md:flex space-x-6">
+            <nav className="hidden md:flex space-x-6 border-l border-slate-200 dark:border-slate-600 pl-6">
               <button
                 onClick={() => setLocation("/")}
-                className="text-sm font-medium text-slate-600 hover:text-slate-900 pb-2 flex items-center gap-2"
+                className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 pb-2 flex items-center gap-2"
               >
                 <Plus size={16} />
                 Builder
@@ -92,7 +92,7 @@ export default function MyForms() {
               </button>
               <button
                 onClick={() => setLocation("/responses")}
-                className="text-sm font-medium text-slate-600 hover:text-slate-900 pb-2 flex items-center gap-2"
+                className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 pb-2 flex items-center gap-2"
               >
                 <BarChart size={16} />
                 Responses
@@ -113,40 +113,40 @@ export default function MyForms() {
       <main className="p-6">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900">My Forms</h2>
-            <p className="text-slate-600">Manage and organize your forms</p>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">My Forms</h2>
+            <p className="text-slate-600 dark:text-slate-400">Manage and organize your forms</p>
           </div>
         </div>
 
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Card key={i} className="animate-pulse">
+              <Card key={i} className="animate-pulse border border-slate-200 dark:border-slate-600">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
-                    <div className="w-10 h-10 bg-slate-200 rounded-lg" />
+                    <div className="w-10 h-10 bg-slate-200 dark:bg-slate-700 rounded-lg" />
                     <div className="flex space-x-1">
-                      <div className="w-8 h-8 bg-slate-200 rounded-lg" />
-                      <div className="w-8 h-8 bg-slate-200 rounded-lg" />
-                      <div className="w-8 h-8 bg-slate-200 rounded-lg" />
+                      <div className="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded-lg" />
+                      <div className="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded-lg" />
+                      <div className="w-8 h-8 bg-slate-200 dark:bg-slate-700 rounded-lg" />
                     </div>
                   </div>
-                  <div className="h-6 bg-slate-200 rounded mb-2" />
-                  <div className="h-4 bg-slate-200 rounded mb-4" />
+                  <div className="h-6 bg-slate-200 dark:bg-slate-700 rounded mb-2" />
+                  <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded mb-4" />
                   <div className="flex items-center justify-between">
-                    <div className="h-4 bg-slate-200 rounded w-20" />
-                    <div className="h-4 bg-slate-200 rounded w-16" />
+                    <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-20" />
+                    <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-16" />
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
         ) : forms.length === 0 ? (
-          <Card className="text-center py-12">
+          <Card className="text-center py-12 border border-slate-200 dark:border-slate-600">
             <CardContent>
-              <FileText className="mx-auto h-12 w-12 text-slate-400 mb-4" />
-              <h3 className="text-lg font-semibold text-slate-900 mb-2">No forms yet</h3>
-              <p className="text-slate-600 mb-4">
+              <FileText className="mx-auto h-12 w-12 text-slate-400 dark:text-slate-500 mb-4" />
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">No forms yet</h3>
+              <p className="text-slate-600 dark:text-slate-400 mb-4">
                 Create your first form to start collecting responses
               </p>
               <Button onClick={() => setLocation("/")}>
@@ -158,7 +158,7 @@ export default function MyForms() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {forms.map((form) => (
-              <Card key={form.id} className="hover:shadow-lg transition-shadow">
+              <Card key={form.id} className="hover:shadow-lg transition-shadow border border-slate-200 dark:border-slate-600">
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="w-10 h-10 bg-gradient-to-r from-primary to-secondary-500 rounded-lg flex items-center justify-center">
@@ -171,7 +171,7 @@ export default function MyForms() {
                         className="h-8 w-8 p-0"
                         onClick={() => setLocation("/")}
                       >
-                        <Edit className="text-slate-600" size={14} />
+                        <Edit className="text-slate-600 dark:text-slate-400" size={14} />
                       </Button>
                       <Button
                         variant="ghost"
@@ -179,16 +179,16 @@ export default function MyForms() {
                         className="h-8 w-8 p-0"
                         onClick={() => handleShareForm(form)}
                       >
-                        <Share className="text-slate-600" size={14} />
+                        <Share className="text-slate-600 dark:text-slate-400" size={14} />
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="h-8 w-8 p-0 hover:bg-red-100"
+                        className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/30"
                         onClick={() => handleDeleteForm(form.id)}
                         disabled={deleteFormMutation.isPending}
                       >
-                        <Trash2 className="text-slate-600 hover:text-red-600" size={14} />
+                        <Trash2 className="text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400" size={14} />
                       </Button>
                     </div>
                   </div>
