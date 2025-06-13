@@ -52,6 +52,7 @@ export default function FormBuilder() {
   const [loadedFormData, setLoadedFormData] = useState<Form | null>(null);
   const [isPaletteCollapsed, setIsPaletteCollapsed] = useState(false);
   const [isPreviewCollapsed, setIsPreviewCollapsed] = useState(false);
+  const [showNewFormDialog, setShowNewFormDialog] = useState(false);
 
   const { data: user } = useQuery<User>({
     queryKey: ["/api/auth/user"],
@@ -236,6 +237,72 @@ export default function FormBuilder() {
     }
 
     publishFormMutation.mutate();
+  };
+
+  const handleNewForm = () => {
+    // Check if current form has unsaved changes
+    const hasChanges = currentForm.title !== "Untitled Form" || 
+                      currentForm.description !== "" || 
+                      currentForm.fields.length > 0 ||
+                      currentForm.rows.length > 0;
+
+    if (hasChanges) {
+      setShowNewFormDialog(true);
+    } else {
+      // No changes, directly create new form
+      createNewForm();
+    }
+  };
+
+  const createNewForm = () => {
+    // Reset to a fresh form
+    setCurrentForm({
+      title: "Untitled Form",
+      description: "",
+      fields: [],
+      rows: [],
+      themeColor: "#3b82f6",
+      isPublished: false,
+      shareId: nanoid(),
+    });
+    setCurrentFormId(null);
+    setLoadedFormData(null);
+    
+    // Clear URL parameters
+    window.history.pushState({}, "", "/form-builder");
+    
+    toast({
+      title: "New Form Created",
+      description: "Started with a fresh form.",
+    });
+  };
+
+  const handleConfirmNewForm = async () => {
+    try {
+      // Auto-save current form if it has content and a proper title
+      if (currentForm.title.trim() && currentForm.title !== "Untitled Form") {
+        if (currentFormId) {
+          await updateFormMutation.mutateAsync(currentForm);
+        } else {
+          await createFormMutation.mutateAsync(currentForm);
+        }
+        
+        toast({
+          title: "Form Saved",
+          description: "Your current form has been saved automatically.",
+        });
+      }
+      
+      // Create new form
+      createNewForm();
+      setShowNewFormDialog(false);
+    } catch (error) {
+      toast({
+        title: "Save Failed",
+        description: "Could not save the current form. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleAddField = (fieldType: string, rowId: string, columnIndex: number) => {
@@ -623,7 +690,7 @@ export default function FormBuilder() {
               <Share className="mr-2" size={16} />
               {currentForm.isPublished ? "Unpublish" : "Publish & Share"}
             </Button>
-            <Button onClick={() => setLocation("/forms")} variant="outline" size="sm" className="rounded-sm">
+            <Button onClick={handleNewForm} variant="outline" size="sm" className="rounded-sm">
               <Plus className="mr-2" size={16} />
               New Form
             </Button>
@@ -909,6 +976,46 @@ export default function FormBuilder() {
                 )}
               </CardContent>
             </Card>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* New Form Confirmation Dialog */}
+      <Dialog open={showNewFormDialog} onOpenChange={setShowNewFormDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create New Form?</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              You have unsaved changes in your current form. Would you like to save them before creating a new form?
+            </p>
+            <div className="flex justify-end space-x-2">
+              <Button
+                variant="outline"
+                onClick={() => setShowNewFormDialog(false)}
+                size="sm"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  createNewForm();
+                  setShowNewFormDialog(false);
+                }}
+                size="sm"
+              >
+                Discard Changes
+              </Button>
+              <Button
+                onClick={handleConfirmNewForm}
+                disabled={createFormMutation.isPending || updateFormMutation.isPending}
+                size="sm"
+              >
+                {createFormMutation.isPending || updateFormMutation.isPending ? "Saving..." : "Save & Continue"}
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
