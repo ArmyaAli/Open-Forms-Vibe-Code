@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -11,13 +11,14 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Separator } from "@/components/ui/separator";
 import { Eye, EyeOff, ArrowLeft } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { loginSchema, type LoginData } from "@shared/schema";
 
 export default function Login() {
   const [, setLocation] = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const queryClient = useQueryClient();
 
   const form = useForm<LoginData>({
     resolver: zodResolver(loginSchema),
@@ -36,7 +37,8 @@ export default function Login() {
       return response;
     },
     onSuccess: () => {
-      setLocation("/builder");
+      queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
+      setLocation("/");
     },
     onError: (error: any) => {
       setError(error.message || "Login failed. Please try again.");
