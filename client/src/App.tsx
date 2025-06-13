@@ -49,17 +49,10 @@ function Router() {
         }} 
       />
       <Switch>
-        {/* Public routes */}
+        {/* Public routes - always available */}
         <Route path="/f/:shareId" component={PublicForm} />
-        
-        {/* Authentication routes - only for non-authenticated users */}
-        {!isAuthenticated && (
-          <>
-            <Route path="/login" component={Login} />
-            <Route path="/register" component={Register} />
-            <Route path="/" component={Landing} />
-          </>
-        )}
+        <Route path="/login" component={Login} />
+        <Route path="/register" component={Register} />
         
         {/* Protected routes - only for authenticated users */}
         {isAuthenticated && (
@@ -70,6 +63,11 @@ function Router() {
             <Route path="/responses" component={Responses} />
             <Route path="/settings" component={Settings} />
           </>
+        )}
+        
+        {/* Landing page for non-authenticated users */}
+        {!isAuthenticated && (
+          <Route path="/" component={Landing} />
         )}
         
         <Route component={NotFound} />
