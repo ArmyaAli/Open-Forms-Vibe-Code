@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, AlertCircle, Loader2, Star, Upload } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
@@ -96,6 +98,24 @@ export default function PublicForm() {
           </div>
         );
 
+      case "phone":
+        return (
+          <div key={field.id} className="space-y-2">
+            <Label htmlFor={field.id}>
+              {field.label}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
+            </Label>
+            <Input
+              id={field.id}
+              type="tel"
+              placeholder={field.placeholder || "Enter phone number"}
+              value={formData[field.id] || ""}
+              onChange={(e) => handleInputChange(field.id, e.target.value)}
+              required={field.required}
+            />
+          </div>
+        );
+
       case "textarea":
         return (
           <div key={field.id} className="space-y-2">
@@ -110,6 +130,40 @@ export default function PublicForm() {
               onChange={(e) => handleInputChange(field.id, e.target.value)}
               required={field.required}
               rows={4}
+            />
+          </div>
+        );
+
+      case "date":
+        return (
+          <div key={field.id} className="space-y-2">
+            <Label htmlFor={field.id}>
+              {field.label}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
+            </Label>
+            <Input
+              id={field.id}
+              type="date"
+              value={formData[field.id] || ""}
+              onChange={(e) => handleInputChange(field.id, e.target.value)}
+              required={field.required}
+            />
+          </div>
+        );
+
+      case "time":
+        return (
+          <div key={field.id} className="space-y-2">
+            <Label htmlFor={field.id}>
+              {field.label}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
+            </Label>
+            <Input
+              id={field.id}
+              type="time"
+              value={formData[field.id] || ""}
+              onChange={(e) => handleInputChange(field.id, e.target.value)}
+              required={field.required}
             />
           </div>
         );
@@ -181,10 +235,146 @@ export default function PublicForm() {
                         handleInputChange(field.id, currentValues.filter((v: string) => v !== option));
                       }
                     }}
+                    className="rounded-full"
                   />
                   <Label htmlFor={`${field.id}-${option}`}>{option}</Label>
                 </div>
               ))}
+            </div>
+          </div>
+        );
+
+      case "rating":
+        return (
+          <div key={field.id} className="space-y-2">
+            <Label>
+              {field.label}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
+            </Label>
+            <div className="flex space-x-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star
+                  key={star}
+                  className={`w-6 h-6 cursor-pointer transition-colors ${
+                    (formData[field.id] || 0) >= star
+                      ? "text-yellow-400 fill-yellow-400"
+                      : "text-gray-300 hover:text-yellow-300"
+                  }`}
+                  onClick={() => handleInputChange(field.id, star)}
+                />
+              ))}
+            </div>
+          </div>
+        );
+
+      case "file":
+        return (
+          <div key={field.id} className="space-y-2">
+            <Label htmlFor={field.id}>
+              {field.label}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
+            </Label>
+            <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-sm p-6 text-center">
+              <Upload className="w-8 h-8 mx-auto mb-2 text-slate-400" />
+              <Input
+                id={field.id}
+                type="file"
+                onChange={(e) => handleInputChange(field.id, e.target.files?.[0])}
+                required={field.required}
+                className="hidden"
+              />
+              <label htmlFor={field.id} className="cursor-pointer">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Click to upload or drag and drop
+                </p>
+              </label>
+            </div>
+          </div>
+        );
+
+      case "address":
+        return (
+          <div key={field.id} className="space-y-2">
+            <Label>
+              {field.label}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
+            </Label>
+            <div className="space-y-3">
+              <Input
+                placeholder="Street Address"
+                value={formData[`${field.id}-street`] || ""}
+                onChange={(e) => handleInputChange(`${field.id}-street`, e.target.value)}
+                required={field.required}
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <Input
+                  placeholder="City"
+                  value={formData[`${field.id}-city`] || ""}
+                  onChange={(e) => handleInputChange(`${field.id}-city`, e.target.value)}
+                  required={field.required}
+                />
+                <Input
+                  placeholder="State"
+                  value={formData[`${field.id}-state`] || ""}
+                  onChange={(e) => handleInputChange(`${field.id}-state`, e.target.value)}
+                  required={field.required}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <Input
+                  placeholder="ZIP Code"
+                  value={formData[`${field.id}-zip`] || ""}
+                  onChange={(e) => handleInputChange(`${field.id}-zip`, e.target.value)}
+                  required={field.required}
+                />
+                <Input
+                  placeholder="Country"
+                  value={formData[`${field.id}-country`] || ""}
+                  onChange={(e) => handleInputChange(`${field.id}-country`, e.target.value)}
+                  required={field.required}
+                />
+              </div>
+            </div>
+          </div>
+        );
+
+      case "range":
+        return (
+          <div key={field.id} className="space-y-2">
+            <Label>
+              {field.label}
+              {field.required && <span className="text-red-500 ml-1">*</span>}
+            </Label>
+            <div className="space-y-2">
+              <Slider
+                value={[formData[field.id] || 50]}
+                onValueChange={(value) => handleInputChange(field.id, value[0])}
+                max={100}
+                step={1}
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-slate-500">
+                <span>0</span>
+                <span className="font-medium">{formData[field.id] || 50}</span>
+                <span>100</span>
+              </div>
+            </div>
+          </div>
+        );
+
+      case "toggle":
+        return (
+          <div key={field.id} className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id={field.id}
+                checked={formData[field.id] || false}
+                onCheckedChange={(checked) => handleInputChange(field.id, checked)}
+              />
+              <Label htmlFor={field.id}>
+                {field.label}
+                {field.required && <span className="text-red-500 ml-1">*</span>}
+              </Label>
             </div>
           </div>
         );

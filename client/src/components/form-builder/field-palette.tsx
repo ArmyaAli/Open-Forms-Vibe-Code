@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ColorPicker } from "@/components/ui/color-picker";
 import { 
   Type, 
   Mail, 
@@ -204,38 +205,10 @@ export default function FieldPalette({ onAddField, currentForm, onUpdateForm }: 
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label className="text-sm text-slate-700 dark:text-slate-300">Theme Color</Label>
-              <div className="flex space-x-1">
-                <div 
-                  className={`w-6 h-6 bg-indigo-500 rounded-full cursor-pointer border-2 transition-all ${
-                    currentForm?.themeColor === '#6366F1' ? 'border-indigo-700 scale-110' : 'border-transparent hover:border-indigo-600'
-                  }`}
-                  onClick={() => onUpdateForm({ themeColor: '#6366F1' })}
-                />
-                <div 
-                  className={`w-6 h-6 bg-blue-600 rounded-full cursor-pointer border-2 transition-all ${
-                    currentForm?.themeColor === '#2563eb' ? 'border-blue-800 scale-110' : 'border-transparent hover:border-blue-700'
-                  }`}
-                  onClick={() => onUpdateForm({ themeColor: '#2563eb' })}
-                />
-                <div 
-                  className={`w-6 h-6 bg-green-500 rounded-full cursor-pointer border-2 transition-all ${
-                    currentForm?.themeColor === '#22c55e' ? 'border-green-700 scale-110' : 'border-transparent hover:border-green-600'
-                  }`}
-                  onClick={() => onUpdateForm({ themeColor: '#22c55e' })}
-                />
-                <div 
-                  className={`w-6 h-6 bg-purple-500 rounded-full cursor-pointer border-2 transition-all ${
-                    currentForm?.themeColor === '#a855f7' ? 'border-purple-700 scale-110' : 'border-transparent hover:border-purple-600'
-                  }`}
-                  onClick={() => onUpdateForm({ themeColor: '#a855f7' })}
-                />
-                <div 
-                  className={`w-6 h-6 bg-red-500 rounded-full cursor-pointer border-2 transition-all ${
-                    currentForm?.themeColor === '#ef4444' ? 'border-red-700 scale-110' : 'border-transparent hover:border-red-600'
-                  }`}
-                  onClick={() => onUpdateForm({ themeColor: '#ef4444' })}
-                />
-              </div>
+              <ColorPicker
+                value={currentForm?.themeColor || '#6366F1'}
+                onChange={(color) => onUpdateForm({ themeColor: color })}
+              />
             </div>
           </div>
         </div>
