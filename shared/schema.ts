@@ -48,6 +48,8 @@ export const FormFieldSchema = z.object({
   placeholder: z.string().optional(),
   required: z.boolean().default(false),
   options: z.array(z.string()).optional(), // for select, radio, checkbox
+  column: z.number().min(0).max(3).optional().default(0), // 0-3 for columns 1-4
+  order: z.number().optional().default(0), // order within column
 });
 
 export const insertFormSchema = z.object({
@@ -56,6 +58,7 @@ export const insertFormSchema = z.object({
   fields: z.array(FormFieldSchema),
   themeColor: z.string().optional(),
   isPublished: z.boolean().optional(),
+  columnCount: z.number().min(1).max(4).optional().default(1),
 });
 
 export const insertFormResponseSchema = z.object({

@@ -34,12 +34,14 @@ export default function FormBuilder() {
     fields: FormField[];
     themeColor: string;
     isPublished: boolean;
+    columnCount: number;
   }>({
     title: "Untitled Form",
     description: "",
     fields: [],
     themeColor: "#6366F1",
     isPublished: false,
+    columnCount: 1,
   });
   const [showShareModal, setShowShareModal] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
@@ -190,7 +192,8 @@ export default function FormBuilder() {
     publishFormMutation.mutate();
   };
 
-  const handleAddField = (fieldType: string) => {
+  const handleAddField = (fieldType: string, column: number = 0) => {
+    const fieldsInColumn = currentForm.fields.filter(f => (f.column || 0) === column);
     const newField: FormField = {
       id: nanoid(),
       type: fieldType as any,
