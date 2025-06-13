@@ -80,7 +80,7 @@ export default function FieldPalette({ onAddField }: FieldPaletteProps) {
               <div
                 key={field.type}
                 draggable
-                className="bg-slate-50 hover:bg-slate-100 dark:bg-muted dark:hover:bg-accent border border-slate-200 dark:border-slate-600 rounded-sm p-3 cursor-move transition-all duration-200 hover:scale-105 hover:shadow-md active:scale-95"
+                className="bg-slate-50 hover:bg-slate-100 dark:bg-muted dark:hover:bg-accent border border-slate-200 dark:border-slate-600 rounded-sm p-3 cursor-move transition-all duration-200 hover:scale-[1.02] hover:shadow-md active:scale-[0.98]"
                 onClick={() => onAddField(field.type)}
                 onDragStart={(e) => {
                   e.dataTransfer.setData("text/plain", field.type);
@@ -91,8 +91,8 @@ export default function FieldPalette({ onAddField }: FieldPaletteProps) {
                   const rect = dragElement.getBoundingClientRect();
                   
                   // Add drag state styling
-                  dragElement.style.transform = "scale(0.95) rotate(2deg)";
-                  dragElement.style.opacity = "0.8";
+                  dragElement.style.transform = "scale(0.98) rotate(1deg)";
+                  dragElement.style.opacity = "0.9";
                   
                   // Create ghost element
                   const ghost = dragElement.cloneNode(true) as HTMLElement;

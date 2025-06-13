@@ -94,10 +94,10 @@ export default function FormCanvas({
       <div
         className={`relative border-2 border-dashed rounded-sm p-8 text-center transition-all duration-300 ${
           dragOver 
-            ? 'border-primary bg-primary/5 dark:bg-primary/10 text-primary scale-105 shadow-lg' 
+            ? 'border-primary bg-primary/5 dark:bg-primary/10 text-primary scale-[1.02] shadow-lg' 
             : dropAnimation
-            ? 'border-green-400 bg-green-50 dark:bg-green-900/20 text-green-600 scale-110 shadow-xl'
-            : 'border-slate-300 dark:border-slate-600 text-slate-400 dark:text-muted-foreground hover:border-primary/50 hover:text-primary hover:scale-[1.02]'
+            ? 'border-green-400 bg-green-50 dark:bg-green-900/20 text-green-600 scale-[1.03] shadow-xl'
+            : 'border-slate-300 dark:border-slate-600 text-slate-400 dark:text-muted-foreground hover:border-primary/50 hover:text-primary hover:scale-[1.01]'
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -105,7 +105,7 @@ export default function FormCanvas({
       >
         <Plus 
           className={`mx-auto mb-2 transition-all duration-300 ${
-            dragOver ? 'rotate-90 scale-125' : dropAnimation ? 'rotate-180 scale-150' : ''
+            dragOver ? 'rotate-90 scale-110' : dropAnimation ? 'rotate-180 scale-125' : ''
           }`} 
           size={24} 
         />
