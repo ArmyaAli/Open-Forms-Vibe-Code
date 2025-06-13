@@ -53,6 +53,7 @@ export default function MyForms() {
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [userHasChosenView, setUserHasChosenView] = useState(false);
 
   const { data: user } = useQuery<User>({
     queryKey: ["/api/auth/user"],
@@ -101,9 +102,9 @@ export default function MyForms() {
     deleteFormMutation.mutate(formId);
   };
 
-  // Automatically switch to list view when there are 5+ forms
-  const shouldUseListView = forms.length >= 5;
-  const effectiveViewMode = shouldUseListView && viewMode === 'grid' ? 'list' : viewMode;
+  // Automatically switch to list view when there are 5+ forms, but only if user hasn't explicitly chosen a view
+  const shouldAutoSwitch = forms.length >= 5 && !userHasChosenView && viewMode === 'grid';
+  const effectiveViewMode = shouldAutoSwitch ? 'list' : viewMode;
 
   const handleExportFormCSV = async (formId: number, formTitle: string) => {
     try {
@@ -441,7 +442,7 @@ export default function MyForms() {
           
           {forms.length > 0 && (
             <div className="flex items-center space-x-2">
-              {shouldUseListView && (
+              {shouldAutoSwitch && (
                 <Badge variant="secondary" className="text-xs">
                   Auto-switched to list view
                 </Badge>
@@ -456,15 +457,15 @@ export default function MyForms() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setViewMode('grid')}>
+                  <DropdownMenuItem onClick={() => { setViewMode('grid'); setUserHasChosenView(true); }}>
                     <Grid3X3 className="mr-2" size={16} />
                     Grid View
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setViewMode('list')}>
+                  <DropdownMenuItem onClick={() => { setViewMode('list'); setUserHasChosenView(true); }}>
                     <List className="mr-2" size={16} />
                     List View
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setViewMode('table')}>
+                  <DropdownMenuItem onClick={() => { setViewMode('table'); setUserHasChosenView(true); }}>
                     <Table className="mr-2" size={16} />
                     Table View
                   </DropdownMenuItem>
