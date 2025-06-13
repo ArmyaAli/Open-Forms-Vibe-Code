@@ -68,6 +68,23 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.id, id));
   }
 
+  async updateUserProfile(id: number, updates: any): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set({
+        firstName: updates.firstName,
+        lastName: updates.lastName,
+        profilePicture: updates.profilePicture,
+        phoneNumber: updates.phoneNumber,
+        address: updates.address,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id))
+      .returning();
+    
+    return user;
+  }
+
   // Session methods
   async createUserSession(userId: number, sessionId: string, ipAddress?: string, userAgent?: string): Promise<void> {
     const expiresAt = new Date();

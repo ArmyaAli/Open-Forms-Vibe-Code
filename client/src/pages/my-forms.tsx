@@ -4,6 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { UserProfileMenu } from "@/components/user-profile-menu";
 import { 
   Plus, 
   Box, 
@@ -18,7 +20,7 @@ import {
   Download
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Form } from "@shared/schema";
+import { Form, User } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
 import ShareModal from "@/components/form-builder/share-modal";
 import { useState } from "react";
@@ -28,6 +30,10 @@ export default function MyForms() {
   const { toast } = useToast();
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
+
+  const { data: user } = useQuery<User>({
+    queryKey: ["/api/auth/user"],
+  });
 
   const { data: forms = [], isLoading } = useQuery<Form[]>({
     queryKey: ["/api/forms"],
@@ -159,7 +165,8 @@ export default function MyForms() {
               <Plus className="mr-2" size={16} />
               Create New Form
             </Button>
-            <div className="w-8 h-8 bg-slate-300 rounded-full" />
+            <ThemeToggle />
+            {user && <UserProfileMenu user={user} />}
           </div>
         </div>
       </header>

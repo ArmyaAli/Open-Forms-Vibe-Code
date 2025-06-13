@@ -200,11 +200,48 @@ export function setupAuthRoutes(app: Express) {
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
+        profilePicture: user.profilePicture,
+        phoneNumber: user.phoneNumber,
+        address: user.address,
         lastLoginAt: user.lastLoginAt,
       });
     } catch (error) {
       console.error("User fetch error:", error);
       res.status(500).json({ error: "Failed to fetch user" });
+    }
+  });
+
+  // Update user profile
+  app.put("/api/auth/profile", requireAuth, async (req: Request, res: Response) => {
+    try {
+      const userId = req.session.userId!;
+      const { firstName, lastName, profilePicture, phoneNumber, address } = req.body;
+
+      const updatedUser = await storage.updateUserProfile(userId, {
+        firstName,
+        lastName,
+        profilePicture,
+        phoneNumber,
+        address,
+      });
+
+      if (!updatedUser) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      res.json({
+        id: updatedUser.id,
+        email: updatedUser.email,
+        firstName: updatedUser.firstName,
+        lastName: updatedUser.lastName,
+        profilePicture: updatedUser.profilePicture,
+        phoneNumber: updatedUser.phoneNumber,
+        address: updatedUser.address,
+        lastLoginAt: updatedUser.lastLoginAt,
+      });
+    } catch (error) {
+      console.error("Profile update error:", error);
+      res.status(500).json({ error: "Failed to update profile" });
     }
   });
 
