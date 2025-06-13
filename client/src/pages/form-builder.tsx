@@ -179,7 +179,7 @@ export default function FormBuilder() {
               </div>
               <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">FormCraft</h1>
             </div>
-            <nav className="hidden md:flex space-x-6">
+            <nav className="hidden md:flex space-x-6 border-l border-slate-200 dark:border-slate-600 pl-6">
               <button
                 onClick={() => setLocation("/")}
                 className="text-sm font-medium text-primary border-b-2 border-primary pb-2 flex items-center gap-2"

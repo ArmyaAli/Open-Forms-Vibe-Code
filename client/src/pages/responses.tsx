@@ -47,28 +47,28 @@ export default function Responses() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-background">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-50">
+      <header className="bg-white dark:bg-card border-b border-slate-200 dark:border-slate-600 px-6 py-4 sticky top-0 z-50">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-8">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary-500 rounded-lg flex items-center justify-center">
                 <Box className="text-white" size={16} />
               </div>
-              <h1 className="text-xl font-bold text-slate-900">FormCraft</h1>
+              <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">FormCraft</h1>
             </div>
-            <nav className="hidden md:flex space-x-6">
+            <nav className="hidden md:flex space-x-6 border-l border-slate-200 dark:border-slate-600 pl-6">
               <button
                 onClick={() => setLocation("/")}
-                className="text-sm font-medium text-slate-600 hover:text-slate-900 pb-2 flex items-center gap-2"
+                className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 pb-2 flex items-center gap-2"
               >
                 <Plus size={16} />
                 Builder
               </button>
               <button
                 onClick={() => setLocation("/forms")}
-                className="text-sm font-medium text-slate-600 hover:text-slate-900 pb-2 flex items-center gap-2"
+                className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 pb-2 flex items-center gap-2"
               >
                 <List size={16} />
                 My Forms
@@ -96,22 +96,22 @@ export default function Responses() {
       <main className="p-6">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900">Form Responses</h2>
-            <p className="text-slate-600">View and analyze form submissions</p>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Form Responses</h2>
+            <p className="text-slate-600 dark:text-slate-400">View and analyze form submissions</p>
           </div>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
+          <Card className="border border-slate-200 dark:border-slate-600">
             <CardContent className="p-6">
               <div className="flex items-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <FileText className="text-blue-600" size={24} />
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                  <FileText className="text-blue-600 dark:text-blue-400" size={24} />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm text-slate-600">Total Responses</p>
-                  <h3 className="text-2xl font-bold text-slate-900">
+                  <p className="text-sm text-slate-600 dark:text-slate-400">Total Responses</p>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                     {statsLoading ? "..." : stats?.totalResponses || 0}
                   </h3>
                 </div>
@@ -119,15 +119,15 @@ export default function Responses() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border border-slate-200 dark:border-slate-600">
             <CardContent className="p-6">
               <div className="flex items-center">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <Calendar className="text-green-600" size={24} />
+                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+                  <Calendar className="text-green-600 dark:text-green-400" size={24} />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm text-slate-600">Today</p>
-                  <h3 className="text-2xl font-bold text-slate-900">
+                  <p className="text-sm text-slate-600 dark:text-slate-400">Today</p>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                     {statsLoading ? "..." : stats?.todayResponses || 0}
                   </h3>
                 </div>
@@ -135,15 +135,15 @@ export default function Responses() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border border-slate-200 dark:border-slate-600">
             <CardContent className="p-6">
               <div className="flex items-center">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <TrendingUp className="text-purple-600" size={24} />
+                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="text-purple-600 dark:text-purple-400" size={24} />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm text-slate-600">Completion Rate</p>
-                  <h3 className="text-2xl font-bold text-slate-900">
+                  <p className="text-sm text-slate-600 dark:text-slate-400">Completion Rate</p>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                     {statsLoading ? "..." : `${stats?.completionRate || 0}%`}
                   </h3>
                 </div>
@@ -151,15 +151,15 @@ export default function Responses() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border border-slate-200 dark:border-slate-600">
             <CardContent className="p-6">
               <div className="flex items-center">
-                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <Clock className="text-orange-600" size={24} />
+                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
+                  <Clock className="text-orange-600 dark:text-orange-400" size={24} />
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm text-slate-600">Avg. Time</p>
-                  <h3 className="text-2xl font-bold text-slate-900">
+                  <p className="text-sm text-slate-600 dark:text-slate-400">Avg. Time</p>
+                  <h3 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                     {statsLoading ? "..." : stats?.averageTime || "0:00"}
                   </h3>
                 </div>
@@ -169,9 +169,9 @@ export default function Responses() {
         </div>
 
         {/* Responses Table */}
-        <Card>
+        <Card className="border border-slate-200 dark:border-slate-600">
           <CardHeader>
-            <CardTitle>Recent Responses</CardTitle>
+            <CardTitle className="text-slate-900 dark:text-slate-100">Recent Responses</CardTitle>
           </CardHeader>
           <CardContent>
             {responsesLoading ? (

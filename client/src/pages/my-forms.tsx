@@ -192,11 +192,11 @@ export default function MyForms() {
                       </Button>
                     </div>
                   </div>
-                  <h3 className="font-semibold text-slate-900 mb-2">{form.title}</h3>
-                  <p className="text-sm text-slate-600 mb-4 line-clamp-2">
+                  <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">{form.title}</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">
                     {form.description || "No description"}
                   </p>
-                  <div className="flex items-center justify-between text-sm text-slate-500 mb-4">
+                  <div className="flex items-center justify-between text-sm text-slate-500 dark:text-slate-400 mb-4">
                     <span className="flex items-center gap-1">
                       <Users size={14} />
                       0 responses
@@ -207,11 +207,11 @@ export default function MyForms() {
                     </span>
                   </div>
                 </CardContent>
-                <div className="bg-slate-50 px-6 py-3 rounded-b-xl">
+                <div className="bg-slate-50 dark:bg-slate-800 px-6 py-3 rounded-b-xl border-t border-slate-200 dark:border-slate-600">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2">
                       <div className={`w-2 h-2 rounded-full ${form.isPublished ? 'bg-green-500' : 'bg-yellow-500'}`} />
-                      <span className="text-xs text-slate-600">
+                      <span className="text-xs text-slate-600 dark:text-slate-400">
                         {form.isPublished ? 'Published' : 'Draft'}
                       </span>
                     </div>
