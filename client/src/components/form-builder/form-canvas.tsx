@@ -52,7 +52,7 @@ export default function FormCanvas({
         className={`border-2 border-dashed rounded-sm p-8 text-center transition-colors ${
           dragOver 
             ? 'border-primary bg-primary/5 dark:bg-primary/10 text-primary' 
-            : 'border-slate-300 dark:border-slate-700 text-slate-400 dark:text-slate-500 hover:border-primary/50 hover:text-primary'
+            : 'border-slate-300 dark:border-border text-slate-400 dark:text-muted-foreground hover:border-primary/50 hover:text-primary'
         }`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}

@@ -69,7 +69,7 @@ const fieldTypes = [
 
 export default function FieldPalette({ onAddField }: FieldPaletteProps) {
   return (
-    <aside className="w-80 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 h-full overflow-y-auto">
+    <aside className="w-80 bg-white dark:bg-background border-r border-slate-200 dark:border-border h-full overflow-y-auto">
       <div className="p-6">
         <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Form Elements</h2>
         
@@ -80,7 +80,7 @@ export default function FieldPalette({ onAddField }: FieldPaletteProps) {
               <div
                 key={field.type}
                 draggable
-                className="bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 rounded-sm p-3 cursor-move transition-all"
+                className="bg-slate-50 hover:bg-slate-100 dark:bg-muted dark:hover:bg-accent border border-slate-200 dark:border-border rounded-sm p-3 cursor-move transition-all"
                 onClick={() => onAddField(field.type)}
                 onDragStart={(e) => {
                   e.dataTransfer.setData("text/plain", field.type);
@@ -107,9 +107,9 @@ export default function FieldPalette({ onAddField }: FieldPaletteProps) {
             <div className="flex items-center justify-between">
               <Label className="text-sm text-slate-700 dark:text-slate-300">Theme Color</Label>
               <div className="flex space-x-1">
-                <div className="w-6 h-6 bg-primary rounded-sm cursor-pointer border-2 border-primary" />
-                <div className="w-6 h-6 bg-green-500 rounded-sm cursor-pointer border-2 border-transparent hover:border-green-600" />
-                <div className="w-6 h-6 bg-purple-500 rounded-sm cursor-pointer border-2 border-transparent hover:border-purple-600" />
+                <div className="w-6 h-6 bg-primary rounded-full cursor-pointer border-2 border-primary" />
+                <div className="w-6 h-6 bg-green-500 rounded-full cursor-pointer border-2 border-transparent hover:border-green-600" />
+                <div className="w-6 h-6 bg-purple-500 rounded-full cursor-pointer border-2 border-transparent hover:border-purple-600" />
               </div>
             </div>
           </div>

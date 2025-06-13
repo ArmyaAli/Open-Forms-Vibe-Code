@@ -168,9 +168,9 @@ export default function FormBuilder() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-background">
       {/* Header */}
-      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-4 sticky top-0 z-50">
+      <header className="bg-white dark:bg-card border-b border-slate-200 dark:border-border px-6 py-4 sticky top-0 z-50">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-8">
             <div className="flex items-center space-x-2">
@@ -209,7 +209,7 @@ export default function FormBuilder() {
               <Plus className="mr-2" size={16} />
               New Form
             </Button>
-            <div className="w-8 h-8 bg-slate-300 dark:bg-slate-600 rounded-sm" />
+            <div className="w-8 h-8 bg-slate-300 dark:bg-muted rounded-sm" />
           </div>
         </div>
       </header>
@@ -224,7 +224,7 @@ export default function FormBuilder() {
           <div className="flex-1 p-6">
             <div className="max-w-2xl mx-auto">
               <Card className="min-h-96 shadow-sm rounded-sm">
-                <div className="p-6 border-b border-slate-200 dark:border-slate-800">
+                <div className="p-6 border-b border-slate-200 dark:border-border">
                   <Input
                     type="text"
                     value={currentForm.title}
@@ -248,7 +248,7 @@ export default function FormBuilder() {
                   onAddField={handleAddField}
                 />
 
-                <div className="p-6 border-t border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                <div className="p-6 border-t border-slate-200 dark:border-border flex justify-between items-center">
                   <div className="flex space-x-3">
                     <Button variant="outline" size="sm" className="rounded-sm">
                       <Eye className="mr-2" size={16} />
