@@ -23,6 +23,8 @@ export async function setupVite(app: Express, server: Server) {
   const serverOptions: any = {
     middlewareMode: true,
     hmr: { server },
+    host: "0.0.0.0",
+    allowedHosts: ["2dd11bda-2222-4bf4-968a-7ecbca12fe8e-00-1hmds5zjw4ju3.janeway.replit.dev"],
   };
 
   const vite = await createViteServer({
