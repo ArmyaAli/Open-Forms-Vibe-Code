@@ -80,11 +80,41 @@ export default function FieldPalette({ onAddField }: FieldPaletteProps) {
               <div
                 key={field.type}
                 draggable
-                className="bg-slate-50 hover:bg-slate-100 dark:bg-muted dark:hover:bg-accent border border-slate-200 dark:border-slate-600 rounded-sm p-3 cursor-move transition-all"
+                className="bg-slate-50 hover:bg-slate-100 dark:bg-muted dark:hover:bg-accent border border-slate-200 dark:border-slate-600 rounded-sm p-3 cursor-move transition-all duration-200 hover:scale-105 hover:shadow-md active:scale-95"
                 onClick={() => onAddField(field.type)}
                 onDragStart={(e) => {
                   e.dataTransfer.setData("text/plain", field.type);
                   e.dataTransfer.effectAllowed = "copy";
+                  
+                  // Create a custom drag image with animation
+                  const dragElement = e.currentTarget as HTMLElement;
+                  const rect = dragElement.getBoundingClientRect();
+                  
+                  // Add drag state styling
+                  dragElement.style.transform = "scale(0.95) rotate(2deg)";
+                  dragElement.style.opacity = "0.8";
+                  
+                  // Create ghost element
+                  const ghost = dragElement.cloneNode(true) as HTMLElement;
+                  ghost.style.position = "absolute";
+                  ghost.style.top = "-1000px";
+                  ghost.style.transform = "scale(0.9) rotate(1deg)";
+                  ghost.style.opacity = "0.9";
+                  ghost.style.boxShadow = "0 10px 25px rgba(0, 0, 0, 0.3)";
+                  ghost.style.zIndex = "1000";
+                  document.body.appendChild(ghost);
+                  
+                  e.dataTransfer.setDragImage(ghost, rect.width / 2, rect.height / 2);
+                  
+                  // Clean up after drag
+                  setTimeout(() => {
+                    document.body.removeChild(ghost);
+                  }, 100);
+                }}
+                onDragEnd={(e) => {
+                  const dragElement = e.currentTarget as HTMLElement;
+                  dragElement.style.transform = "";
+                  dragElement.style.opacity = "";
                 }}
               >
                 <div className="flex items-center space-x-3">
