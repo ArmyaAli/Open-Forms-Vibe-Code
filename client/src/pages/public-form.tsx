@@ -30,7 +30,10 @@ export default function PublicForm() {
   const submitFormMutation = useMutation({
     mutationFn: async (responses: Record<string, any>) => {
       if (!form) throw new Error("Form not found");
-      await apiRequest("POST", `/api/forms/${form.id}/responses`, { responses });
+      await apiRequest(`/api/forms/${form.id}/responses`, {
+        method: "POST",
+        body: JSON.stringify({ responses }),
+      });
     },
     onSuccess: () => {
       setSubmitted(true);

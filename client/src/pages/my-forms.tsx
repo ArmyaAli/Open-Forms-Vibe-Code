@@ -34,7 +34,9 @@ export default function MyForms() {
 
   const deleteFormMutation = useMutation({
     mutationFn: async (formId: number) => {
-      await apiRequest("DELETE", `/api/forms/${formId}`);
+      await apiRequest(`/api/forms/${formId}`, {
+        method: "DELETE",
+      });
     },
     onSuccess: () => {
       toast({
