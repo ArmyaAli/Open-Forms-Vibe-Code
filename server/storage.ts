@@ -1,12 +1,20 @@
 import { forms, formResponses, type Form, type InsertForm, type FormResponse, type InsertFormResponse, users, type User, type InsertUser } from "@shared/schema";
 import { nanoid } from "nanoid";
-import { SQLiteStorage } from "./database";
+import { DatabaseStorage } from "./auth-storage";
 
 export interface IStorage {
-  // User methods (existing)
-  getUser(id: number): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
+  // User authentication methods
+  getUserById(id: number): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: any): Promise<User>;
+  updateUserLastLogin(id: number): Promise<void>;
+  
+  // Session methods
+  createUserSession(userId: number, sessionId: string, ipAddress?: string, userAgent?: string): Promise<void>;
+  getUserSession(sessionId: string): Promise<any>;
+  updateSessionActivity(sessionId: string): Promise<void>;
+  invalidateSession(sessionId: string): Promise<void>;
+  cleanupExpiredSessions(): Promise<void>;
   
   // Form methods
   createForm(form: any): Promise<Form>;
@@ -20,12 +28,6 @@ export interface IStorage {
   createFormResponse(response: any): Promise<FormResponse>;
   getFormResponses(formId: number): Promise<FormResponse[]>;
   getAllFormResponses(): Promise<FormResponse[]>;
-  getFormResponseStats(): Promise<{
-    totalResponses: number;
-    todayResponses: number;
-    completionRate: number;
-    averageTime: string;
-  }>;
 }
 
 export class MemStorage implements IStorage {
@@ -179,7 +181,7 @@ export class MemStorage implements IStorage {
 }
 
 // Use SQLite database for persistent storage
-export const storage = new SQLiteStorage();
+export const storage = new DatabaseStorage();
 
 // Keep MemStorage class for reference but use SQLite by default
 // export const storage = new MemStorage();
