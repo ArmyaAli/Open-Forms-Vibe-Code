@@ -274,7 +274,7 @@ export default function PublicForm() {
           
           <div className="bg-slate-50 px-8 py-4 text-center">
             <p className="text-xs text-slate-500">
-              Powered by <span className="font-medium text-primary">FormCraft</span>
+              Powered by <span className="font-medium text-primary">OpenForms</span>
             </p>
           </div>
         </Card>

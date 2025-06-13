@@ -103,7 +103,7 @@ export default function MyForms() {
             </nav>
           </div>
           <div className="flex items-center space-x-4">
-            <Button onClick={() => setLocation("/")} size="sm">
+            <Button onClick={() => setLocation("/builder")} size="sm">
               <Plus className="mr-2" size={16} />
               Create New Form
             </Button>
