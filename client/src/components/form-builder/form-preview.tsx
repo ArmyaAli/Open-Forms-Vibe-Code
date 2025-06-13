@@ -118,8 +118,7 @@ export default function FormPreview({ form }: FormPreviewProps) {
           <Button
             variant={viewMode === "mobile" ? "default" : "ghost"}
             size="sm"
-            className="rounded-sm"
-            className="h-6 w-6 p-0"
+            className="h-6 w-6 p-0 rounded-sm"
             onClick={() => setViewMode("mobile")}
           >
             <Smartphone size={14} />
@@ -127,7 +126,7 @@ export default function FormPreview({ form }: FormPreviewProps) {
           <Button
             variant={viewMode === "desktop" ? "default" : "ghost"}
             size="sm"
-            className="h-6 w-6 p-0"
+            className="h-6 w-6 p-0 rounded-sm"
             onClick={() => setViewMode("desktop")}
           >
             <Monitor size={14} />
@@ -135,10 +134,10 @@ export default function FormPreview({ form }: FormPreviewProps) {
         </div>
       </div>
       
-      <div className="bg-slate-100 rounded-lg p-4 max-h-96 overflow-y-auto">
-        <Card className="shadow-sm">
+      <div className="bg-slate-100 dark:bg-slate-700 rounded-sm p-4 max-h-96 overflow-y-auto">
+        <Card className="shadow-sm rounded-sm">
           <CardHeader 
-            className="p-4 text-white"
+            className="p-4 text-white rounded-t-sm"
             style={{ backgroundColor: form.themeColor }}
           >
             <CardTitle className="text-sm font-bold">
@@ -150,7 +149,7 @@ export default function FormPreview({ form }: FormPreviewProps) {
           </CardHeader>
           <CardContent className="p-4 space-y-3">
             {form.fields.length === 0 ? (
-              <p className="text-xs text-slate-500 text-center py-4">
+              <p className="text-xs text-slate-500 dark:text-slate-400 text-center py-4">
                 No fields added yet
               </p>
             ) : (
@@ -159,7 +158,7 @@ export default function FormPreview({ form }: FormPreviewProps) {
             
             {form.fields.length > 0 && (
               <Button 
-                className="w-full text-xs font-medium py-2"
+                className="w-full text-xs font-medium py-2 rounded-sm"
                 style={{ backgroundColor: form.themeColor }}
                 disabled
               >
