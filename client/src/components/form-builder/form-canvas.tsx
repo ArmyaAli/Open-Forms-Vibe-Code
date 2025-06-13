@@ -76,8 +76,12 @@ export default function FormCanvas({
       {fields.map((field, index) => (
         <div
           key={field.id}
-          className="animate-in slide-in-from-top-2 fade-in duration-300"
-          style={{ animationDelay: `${index * 50}ms` }}
+          className={`${
+            newFieldIds.has(field.id) 
+              ? 'field-entrance' 
+              : 'animate-in slide-in-from-top-2 fade-in duration-300'
+          }`}
+          style={{ animationDelay: newFieldIds.has(field.id) ? '0ms' : `${index * 50}ms` }}
         >
           <FormFieldPreview
             field={field}
