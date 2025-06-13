@@ -117,17 +117,26 @@ export function setupAuthRoutes(app: Express) {
   // Login endpoint
   app.post("/api/auth/login", async (req: Request, res: Response) => {
     try {
+      console.log("Login attempt - Body:", req.body);
       const validatedData = loginSchema.parse(req.body);
+      console.log("Validated data:", validatedData);
       
       // Find user
       const user = await storage.getUserByEmail(validatedData.email);
+      console.log("User lookup result:", user ? `Found user ${user.id}` : "No user found");
       if (!user) {
+        console.log("Login failed: User not found for email:", validatedData.email);
         return res.status(401).json({ error: "Invalid email or password" });
       }
 
       // Verify password
+      console.log("Comparing password for user:", user.email);
+      console.log("Stored hash:", user.password);
+      console.log("Input password:", validatedData.password);
       const isValidPassword = await bcrypt.compare(validatedData.password, user.password);
+      console.log("Password comparison result:", isValidPassword);
       if (!isValidPassword) {
+        console.log("Login failed: Password mismatch for user:", user.email);
         return res.status(401).json({ error: "Invalid email or password" });
       }
 
