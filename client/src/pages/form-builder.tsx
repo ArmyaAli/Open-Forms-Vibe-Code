@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, Save, Share, Eye, Box, List, BarChart } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { FormField, Form } from "@shared/schema";
 import FieldPalette from "@/components/form-builder/field-palette";
@@ -276,20 +277,31 @@ export default function FormBuilder() {
             <div className="max-w-2xl mx-auto">
               <Card className="min-h-96 shadow-sm rounded-sm border border-slate-200 dark:border-slate-600">
                 <div className="p-6 border-b border-slate-200 dark:border-slate-600">
-                  <Input
-                    type="text"
-                    value={currentForm.title}
-                    onChange={(e) => setCurrentForm(prev => ({ ...prev, title: e.target.value }))}
-                    className="text-2xl font-bold border-none p-0 focus-visible:ring-0 focus-visible:ring-offset-0 dark:text-slate-100"
-                    placeholder="Untitled Form"
-                  />
-                  <Textarea
-                    value={currentForm.description}
-                    onChange={(e) => setCurrentForm(prev => ({ ...prev, description: e.target.value }))}
-                    className="text-slate-600 dark:text-slate-400 border-none p-0 mt-2 resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                    placeholder="Add a description..."
-                    rows={2}
-                  />
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1">
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Form Title</span>
+                      <span className="text-red-500 text-sm">*</span>
+                    </div>
+                    <Input
+                      type="text"
+                      value={currentForm.title}
+                      onChange={(e) => setCurrentForm(prev => ({ ...prev, title: e.target.value }))}
+                      className={`text-2xl font-bold border-none p-0 focus-visible:ring-0 focus-visible:ring-offset-0 dark:text-slate-100 ${
+                        !currentForm.title.trim() ? 'placeholder:text-red-300 dark:placeholder:text-red-400' : ''
+                      }`}
+                      placeholder="Enter form title (required)"
+                    />
+                  </div>
+                  <div className="mt-4 space-y-1">
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Description</span>
+                    <Textarea
+                      value={currentForm.description}
+                      onChange={(e) => setCurrentForm(prev => ({ ...prev, description: e.target.value }))}
+                      className="text-slate-600 dark:text-slate-400 border-none p-0 resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                      placeholder="Add an optional description..."
+                      rows={2}
+                    />
+                  </div>
                 </div>
                 
                 <FormCanvas
@@ -306,26 +318,44 @@ export default function FormBuilder() {
                       <Eye className="mr-2" size={16} />
                       Preview
                     </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      className="rounded-sm"
-                      onClick={handleSaveForm}
-                      disabled={createFormMutation.isPending || updateFormMutation.isPending}
-                    >
-                      <Save className="mr-2" size={16} />
-                      {createFormMutation.isPending || updateFormMutation.isPending ? "Saving..." : "Save Draft"}
-                    </Button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          className="rounded-sm"
+                          onClick={handleSaveForm}
+                          disabled={createFormMutation.isPending || updateFormMutation.isPending || !currentForm.title.trim()}
+                        >
+                          <Save className="mr-2" size={16} />
+                          {createFormMutation.isPending || updateFormMutation.isPending ? "Saving..." : "Save Draft"}
+                        </Button>
+                      </TooltipTrigger>
+                      {!currentForm.title.trim() && (
+                        <TooltipContent>
+                          <p>Enter a form title to save</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
                   </div>
-                  <Button 
-                    onClick={handlePublishForm}
-                    disabled={publishFormMutation.isPending}
-                    size="sm"
-                    className="rounded-sm"
-                  >
-                    <Share className="mr-2" size={16} />
-                    {publishFormMutation.isPending ? "Publishing..." : "Publish & Share"}
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button 
+                        onClick={handlePublishForm}
+                        disabled={publishFormMutation.isPending || !currentForm.title.trim()}
+                        size="sm"
+                        className="rounded-sm"
+                      >
+                        <Share className="mr-2" size={16} />
+                        {publishFormMutation.isPending ? "Publishing..." : "Publish & Share"}
+                      </Button>
+                    </TooltipTrigger>
+                    {!currentForm.title.trim() && (
+                      <TooltipContent>
+                        <p>Enter a form title to publish</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
                 </div>
               </Card>
             </div>
