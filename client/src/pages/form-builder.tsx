@@ -509,23 +509,40 @@ export default function FormBuilder() {
       </header>
 
       {/* Main Content */}
-      <main className="flex h-[calc(100vh-73px)]">
-        {/* Sidebar */}
-        <FieldPalette 
-          onAddField={(fieldType) => {
-            // Add to first row, first column by default
-            const firstRow = currentForm.rows[0];
-            if (firstRow) {
-              handleAddField(fieldType, firstRow.id, 0);
-            }
-          }}
-          currentForm={currentForm}
-          onUpdateForm={(updates) => setCurrentForm(prev => ({ ...prev, ...updates }))}
-        />
+      <main className="flex flex-col lg:flex-row h-[calc(100vh-73px)]">
+        {/* Mobile/Tablet Field Palette - Top */}
+        <div className="lg:hidden">
+          <FieldPalette 
+            onAddField={(fieldType) => {
+              // Add to first row, first column by default
+              const firstRow = currentForm.rows[0];
+              if (firstRow) {
+                handleAddField(fieldType, firstRow.id, 0);
+              }
+            }}
+            currentForm={currentForm}
+            onUpdateForm={(updates) => setCurrentForm(prev => ({ ...prev, ...updates }))}
+          />
+        </div>
+
+        {/* Desktop Field Palette - Sidebar */}
+        <div className="hidden lg:block">
+          <FieldPalette 
+            onAddField={(fieldType) => {
+              // Add to first row, first column by default
+              const firstRow = currentForm.rows[0];
+              if (firstRow) {
+                handleAddField(fieldType, firstRow.id, 0);
+              }
+            }}
+            currentForm={currentForm}
+            onUpdateForm={(updates) => setCurrentForm(prev => ({ ...prev, ...updates }))}
+          />
+        </div>
 
         {/* Form Builder */}
-        <div className="flex-1 flex">
-          <div className="flex-1 p-6">
+        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+          <div className="flex-1 p-4 lg:p-6 overflow-y-auto">
             <div className="max-w-2xl mx-auto">
               <Card className="min-h-96 shadow-sm rounded-sm border border-slate-200 dark:border-slate-600">
                 <div className="p-6 border-b border-slate-200 dark:border-slate-600">

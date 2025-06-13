@@ -142,11 +142,11 @@ export default function FieldPalette({ onAddField, currentForm, onUpdateForm }: 
   const existingFieldTypes = currentForm?.fields?.map(field => field.type).filter(Boolean) || [];
   
   return (
-    <aside className="w-80 bg-white dark:bg-background border-r border-slate-200 dark:border-slate-600 h-full overflow-y-auto">
-      <div className="p-6">
+    <aside className="w-full lg:w-80 bg-white dark:bg-background border-r lg:border-r border-b lg:border-b-0 border-slate-200 dark:border-slate-600 h-auto lg:h-full overflow-y-auto">
+      <div className="p-4 lg:p-6">
         <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-4">Form Elements</h2>
         
-        <div className="space-y-3">
+        <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 lg:space-y-0">
           {fieldTypes.map((field) => {
             const IconComponent = field.icon;
             const isAlreadyAdded = existingFieldTypes.includes(field.type);

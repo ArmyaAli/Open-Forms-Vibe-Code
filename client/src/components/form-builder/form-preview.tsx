@@ -14,6 +14,7 @@ interface FormPreviewProps {
     title: string;
     description: string;
     fields: FormField[];
+    rows: Array<{ id: string; order?: number; columns?: number }>;
     themeColor: string;
   };
 }
@@ -111,7 +112,7 @@ export default function FormPreview({ form }: FormPreviewProps) {
   };
 
   return (
-    <div className="w-80 bg-white dark:bg-card border-l border-slate-200 dark:border-slate-600 p-6">
+    <div className="hidden lg:block w-80 bg-white dark:bg-card border-l border-slate-200 dark:border-slate-600 p-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-slate-900 dark:text-slate-100">Live Preview</h3>
         <div className="flex space-x-1">
@@ -135,7 +136,9 @@ export default function FormPreview({ form }: FormPreviewProps) {
       </div>
       
       <div className="bg-slate-100 dark:bg-muted rounded-sm p-4 max-h-96 overflow-y-auto">
-        <Card className="shadow-sm rounded-sm border border-slate-200 dark:border-slate-600">
+        <Card className={`shadow-sm rounded-sm border border-slate-200 dark:border-slate-600 transition-all duration-200 ${
+          viewMode === "mobile" ? "max-w-xs mx-auto" : "w-full"
+        }`}>
           <CardHeader 
             className="p-4 text-white rounded-t-sm"
             style={{ backgroundColor: form.themeColor }}
@@ -154,40 +157,49 @@ export default function FormPreview({ form }: FormPreviewProps) {
               </p>
             ) : (
               (() => {
+                // If no rows exist, render fields in a simple list (backward compatibility)
+                if (!form.rows || form.rows.length === 0) {
+                  return form.fields.map(renderPreviewField);
+                }
+
                 // Sort rows by order
-                const sortedRows = [...(form as any).rows].sort((a: any, b: any) => a.order - b.order);
+                const sortedRows = [...form.rows].sort((a, b) => (a.order || 0) - (b.order || 0));
                 
-                // Group fields by row
-                const fieldsByRow = form.fields.reduce((acc, field) => {
-                  if (!acc[(field as any).rowId]) acc[(field as any).rowId] = [];
-                  acc[(field as any).rowId].push(field);
-                  return acc;
-                }, {} as Record<string, FormField[]>);
-                
-                // Sort fields within each row by columnIndex
-                Object.keys(fieldsByRow).forEach(rowId => {
-                  fieldsByRow[rowId].sort((a, b) => (a as any).columnIndex - (b as any).columnIndex);
+                // Group fields by row and column
+                const fieldsByRow: Record<string, Record<number, FormField[]>> = {};
+                form.fields.forEach(field => {
+                  const fieldWithMeta = field as any;
+                  if (fieldWithMeta.rowId && fieldWithMeta.columnIndex !== undefined) {
+                    if (!fieldsByRow[fieldWithMeta.rowId]) {
+                      fieldsByRow[fieldWithMeta.rowId] = {};
+                    }
+                    if (!fieldsByRow[fieldWithMeta.rowId][fieldWithMeta.columnIndex]) {
+                      fieldsByRow[fieldWithMeta.rowId][fieldWithMeta.columnIndex] = [];
+                    }
+                    fieldsByRow[fieldWithMeta.rowId][fieldWithMeta.columnIndex].push(field);
+                  }
                 });
                 
-                return sortedRows.map((row: any) => {
-                  const rowFields = fieldsByRow[row.id] || [];
-                  
-                  return (
-                    <div key={row.id} className="space-y-2">
-                      <div className={`grid gap-2 grid-cols-${row.columns}`}>
-                        {Array.from({ length: row.columns }, (_, columnIndex) => {
-                          const columnsFields = rowFields.filter(field => (field as any).columnIndex === columnIndex);
-                          
-                          return (
-                            <div key={columnIndex} className="space-y-2">
-                              {columnsFields.map(renderPreviewField)}
-                            </div>
-                          );
-                        })}
-                      </div>
+                return sortedRows.map((row) => (
+                  <div key={row.id} className="space-y-2">
+                    <div 
+                      className="grid gap-2"
+                      style={{ 
+                        gridTemplateColumns: `repeat(${row.columns || 1}, minmax(0, 1fr))`,
+                      }}
+                    >
+                      {Array.from({ length: row.columns || 1 }, (_, columnIndex) => {
+                        const columnFields = fieldsByRow[row.id]?.[columnIndex] || [];
+                        
+                        return (
+                          <div key={columnIndex} className="space-y-2">
+                            {columnFields.map(renderPreviewField)}
+                          </div>
+                        );
+                      })}
                     </div>
-                  );
-                });
+                  </div>
+                ));
               })()
             )}
             
