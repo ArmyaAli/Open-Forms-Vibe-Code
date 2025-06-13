@@ -137,7 +137,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const stats = await storage.getFormResponseStats();
       res.json(stats);
     } catch (error) {
-      res.status(500).json({ error: "Failed to fetch stats" });
+      console.error("Stats endpoint error:", error);
+      res.status(500).json({ error: "Failed to fetch stats", details: error.message });
     }
   });
 

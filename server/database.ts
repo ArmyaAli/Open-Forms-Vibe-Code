@@ -256,18 +256,29 @@ export class SQLiteStorage implements IStorage {
     completionRate: number;
     averageTime: string;
   }> {
-    const totalStmt = this.db.prepare('SELECT COUNT(*) as count FROM form_responses');
-    const totalResult = totalStmt.get() as any;
-    
-    const todayStmt = this.db.prepare('SELECT COUNT(*) as count FROM form_responses WHERE DATE(submitted_at) = DATE("now")');
-    const todayResult = todayStmt.get() as any;
-    
-    return {
-      totalResponses: totalResult.count,
-      todayResponses: todayResult.count,
-      completionRate: 87, // Mock completion rate
-      averageTime: "2:34", // Mock average time
-    };
+    try {
+      const totalStmt = this.db.prepare('SELECT COUNT(*) as count FROM form_responses');
+      const totalResult = totalStmt.get() as any;
+      
+      const todayStmt = this.db.prepare('SELECT COUNT(*) as count FROM form_responses WHERE DATE(submitted_at) = DATE("now")');
+      const todayResult = todayStmt.get() as any;
+      
+      // Calculate completion rate based on actual data
+      const formsStmt = this.db.prepare('SELECT COUNT(*) as count FROM forms WHERE is_published = 1');
+      const formsResult = formsStmt.get() as any;
+      
+      const completionRate = formsResult.count > 0 ? Math.round((totalResult.count / formsResult.count) * 100) : 0;
+      
+      return {
+        totalResponses: totalResult.count || 0,
+        todayResponses: todayResult.count || 0,
+        completionRate: Math.min(completionRate, 100),
+        averageTime: "2:34", // Placeholder for average completion time
+      };
+    } catch (error) {
+      console.error("Database stats error:", error);
+      throw new Error(`Failed to calculate stats: ${error.message}`);
+    }
   }
 
   close() {
