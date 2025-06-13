@@ -28,19 +28,31 @@ import {
   FileText,
   Users,
   Calendar,
-  Download
+  Download,
+  Grid3X3,
+  Table,
+  MoreHorizontal
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { Form, User } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
 import ShareModal from "@/components/form-builder/share-modal";
 import { useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+type ViewMode = 'grid' | 'list' | 'table';
 
 export default function MyForms() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [shareModalOpen, setShareModalOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
 
   const { data: user } = useQuery<User>({
     queryKey: ["/api/auth/user"],
@@ -89,6 +101,10 @@ export default function MyForms() {
     deleteFormMutation.mutate(formId);
   };
 
+  // Automatically switch to list view when there are 5+ forms
+  const shouldUseListView = forms.length >= 5;
+  const effectiveViewMode = shouldUseListView && viewMode === 'grid' ? 'list' : viewMode;
+
   const handleExportFormCSV = async (formId: number, formTitle: string) => {
     try {
       const response = await fetch(`/api/forms/${formId}/responses/export/csv`, {
@@ -127,6 +143,238 @@ export default function MyForms() {
         description: "Could not export CSV. Please try again.",
         variant: "destructive",
       });
+    }
+  };
+
+  const renderActionButtons = (form: Form) => (
+    <div className="flex space-x-1">
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-8 w-8 p-0"
+        onClick={() => setLocation(`/builder?formId=${form.id}`)}
+      >
+        <Edit className="text-slate-600 dark:text-slate-400" size={14} />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-8 w-8 p-0"
+        onClick={() => handleShareForm(form)}
+      >
+        <Share className="text-slate-600 dark:text-slate-400" size={14} />
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-8 w-8 p-0"
+        onClick={() => handleExportFormCSV(form.id, form.title)}
+        title="Export CSV"
+      >
+        <Download className="text-slate-600 dark:text-slate-400" size={14} />
+      </Button>
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/30"
+            disabled={deleteFormMutation.isPending}
+          >
+            <Trash2 className="text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400" size={14} />
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Form</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{form.title}"? This action cannot be undone and will permanently remove the form and all its responses.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => handleDeleteForm(form.id)}
+              className="bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+
+  const renderFormsView = () => {
+    switch (effectiveViewMode) {
+      case 'grid':
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+            {forms.map((form) => (
+              <Card key={form.id} className="hover:shadow-lg transition-shadow border border-slate-200 dark:border-slate-600">
+                <CardContent className="p-6">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="w-10 h-10 bg-gradient-to-r from-primary to-secondary-500 rounded-lg flex items-center justify-center">
+                      <FileText className="text-white" size={20} />
+                    </div>
+                    {renderActionButtons(form)}
+                  </div>
+                  <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">{form.title}</h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">
+                    {form.description || "No description"}
+                  </p>
+                  <div className="flex items-center justify-between text-sm text-slate-500 dark:text-slate-400 mb-4">
+                    <span className="flex items-center gap-1">
+                      <Users size={14} />
+                      {getResponseCount(form.id)} responses
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Calendar size={14} />
+                      {formatDistanceToNow(new Date(form.updatedAt), { addSuffix: true })}
+                    </span>
+                  </div>
+                </CardContent>
+                <div className="bg-slate-50 dark:bg-slate-800 px-6 py-3 rounded-b-xl border-t border-slate-200 dark:border-slate-600">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className={`w-2 h-2 rounded-full ${form.isPublished ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                      <span className="text-xs text-slate-600 dark:text-slate-400">
+                        {form.isPublished ? 'Published' : 'Draft'}
+                      </span>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs text-primary hover:text-primary-700 h-auto p-0"
+                      onClick={() => setLocation("/responses")}
+                    >
+                      View Responses
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        );
+
+      case 'list':
+        return (
+          <div className="space-y-4">
+            {forms.map((form) => (
+              <Card key={form.id} className="hover:shadow-sm transition-shadow border border-slate-200 dark:border-slate-600">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4 flex-1 min-w-0">
+                      <div className="w-10 h-10 bg-gradient-to-r from-primary to-secondary-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <FileText className="text-white" size={20} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-3 mb-1">
+                          <h3 className="font-semibold text-slate-900 dark:text-slate-100 truncate">
+                            {form.title}
+                          </h3>
+                          <div className="flex items-center space-x-2">
+                            <div className={`w-2 h-2 rounded-full ${form.isPublished ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                            <span className="text-xs text-slate-600 dark:text-slate-400">
+                              {form.isPublished ? 'Published' : 'Draft'}
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 truncate">
+                          {form.description || "No description"}
+                        </p>
+                        <div className="flex items-center space-x-4 text-xs text-slate-500 dark:text-slate-400 mt-2">
+                          <span className="flex items-center gap-1">
+                            <Users size={12} />
+                            {getResponseCount(form.id)} responses
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Calendar size={12} />
+                            {formatDistanceToNow(new Date(form.updatedAt), { addSuffix: true })}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    {renderActionButtons(form)}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        );
+
+      case 'table':
+        return (
+          <Card className="border border-slate-200 dark:border-slate-600">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800">
+                    <th className="text-left p-4 font-medium text-slate-900 dark:text-slate-100">Form</th>
+                    <th className="text-left p-4 font-medium text-slate-900 dark:text-slate-100">Status</th>
+                    <th className="text-left p-4 font-medium text-slate-900 dark:text-slate-100">Responses</th>
+                    <th className="text-left p-4 font-medium text-slate-900 dark:text-slate-100">Updated</th>
+                    <th className="text-right p-4 font-medium text-slate-900 dark:text-slate-100">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {forms.map((form, index) => (
+                    <tr 
+                      key={form.id} 
+                      className={`border-b border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 ${
+                        index === forms.length - 1 ? 'border-b-0' : ''
+                      }`}
+                    >
+                      <td className="p-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <FileText className="text-white" size={16} />
+                          </div>
+                          <div className="min-w-0">
+                            <h3 className="font-medium text-slate-900 dark:text-slate-100 truncate">
+                              {form.title}
+                            </h3>
+                            <p className="text-sm text-slate-600 dark:text-slate-400 truncate">
+                              {form.description || "No description"}
+                            </p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center space-x-2">
+                          <div className={`w-2 h-2 rounded-full ${form.isPublished ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                          <span className="text-sm text-slate-600 dark:text-slate-400">
+                            {form.isPublished ? 'Published' : 'Draft'}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400">
+                          <Users size={14} />
+                          {getResponseCount(form.id)}
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400">
+                          <Calendar size={14} />
+                          {formatDistanceToNow(new Date(form.updatedAt), { addSuffix: true })}
+                        </div>
+                      </td>
+                      <td className="p-4">
+                        <div className="flex justify-end">
+                          {renderActionButtons(form)}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+        );
+
+      default:
+        return null;
     }
   };
 
@@ -190,6 +438,40 @@ export default function MyForms() {
             <h2 className="text-xl lg:text-2xl font-bold text-slate-900 dark:text-slate-100">My Forms</h2>
             <p className="text-sm lg:text-base text-slate-600 dark:text-slate-400">Manage and organize your forms</p>
           </div>
+          
+          {forms.length > 0 && (
+            <div className="flex items-center space-x-2">
+              {shouldUseListView && (
+                <Badge variant="secondary" className="text-xs">
+                  Auto-switched to list view
+                </Badge>
+              )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    {effectiveViewMode === 'grid' && <Grid3X3 className="mr-2" size={16} />}
+                    {effectiveViewMode === 'list' && <List className="mr-2" size={16} />}
+                    {effectiveViewMode === 'table' && <Table className="mr-2" size={16} />}
+                    View
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setViewMode('grid')}>
+                    <Grid3X3 className="mr-2" size={16} />
+                    Grid View
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setViewMode('list')}>
+                    <List className="mr-2" size={16} />
+                    List View
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setViewMode('table')}>
+                    <Table className="mr-2" size={16} />
+                    Table View
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
         </div>
 
         {isLoading ? (
@@ -230,107 +512,7 @@ export default function MyForms() {
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-            {forms.map((form) => (
-              <Card key={form.id} className="hover:shadow-lg transition-shadow border border-slate-200 dark:border-slate-600">
-                <CardContent className="p-6">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="w-10 h-10 bg-gradient-to-r from-primary to-secondary-500 rounded-lg flex items-center justify-center">
-                      <FileText className="text-white" size={20} />
-                    </div>
-                    <div className="flex space-x-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                        onClick={() => setLocation(`/builder?formId=${form.id}`)}
-                      >
-                        <Edit className="text-slate-600 dark:text-slate-400" size={14} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                        onClick={() => handleShareForm(form)}
-                      >
-                        <Share className="text-slate-600 dark:text-slate-400" size={14} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                        onClick={() => handleExportFormCSV(form.id, form.title)}
-                        title="Export CSV"
-                      >
-                        <Download className="text-slate-600 dark:text-slate-400" size={14} />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/30"
-                            disabled={deleteFormMutation.isPending}
-                          >
-                            <Trash2 className="text-slate-600 dark:text-slate-400 hover:text-red-600 dark:hover:text-red-400" size={14} />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Form</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to delete "{form.title}"? This action cannot be undone and will permanently remove the form and all its responses.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDeleteForm(form.id)}
-                              className="bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
-                            >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </div>
-                  <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">{form.title}</h3>
-                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 line-clamp-2">
-                    {form.description || "No description"}
-                  </p>
-                  <div className="flex items-center justify-between text-sm text-slate-500 dark:text-slate-400 mb-4">
-                    <span className="flex items-center gap-1">
-                      <Users size={14} />
-                      {getResponseCount(form.id)} responses
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Calendar size={14} />
-                      {formatDistanceToNow(new Date(form.updatedAt), { addSuffix: true })}
-                    </span>
-                  </div>
-                </CardContent>
-                <div className="bg-slate-50 dark:bg-slate-800 px-6 py-3 rounded-b-xl border-t border-slate-200 dark:border-slate-600">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2">
-                      <div className={`w-2 h-2 rounded-full ${form.isPublished ? 'bg-green-500' : 'bg-yellow-500'}`} />
-                      <span className="text-xs text-slate-600 dark:text-slate-400">
-                        {form.isPublished ? 'Published' : 'Draft'}
-                      </span>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-xs text-primary hover:text-primary-700 h-auto p-0"
-                      onClick={() => setLocation("/responses")}
-                    >
-                      View Responses
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
+          renderFormsView()
         )}
       </main>
 
