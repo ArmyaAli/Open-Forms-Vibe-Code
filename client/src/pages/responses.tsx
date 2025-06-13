@@ -135,6 +135,7 @@ export default function Responses() {
           title: response.formTitle,
           description: response.formDescription,
           fields: form.fields,
+          rows: form.rows || [],
           themeColor: form.themeColor || '#6366F1',
         },
         {

@@ -302,6 +302,7 @@ export default function FormBuilder() {
         title: currentForm.title,
         description: currentForm.description,
         fields: currentForm.fields,
+        rows: currentForm.rows,
         themeColor: currentForm.themeColor,
       });
       toast({
