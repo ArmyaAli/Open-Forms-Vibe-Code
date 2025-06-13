@@ -49,6 +49,7 @@ export default function FormBuilder() {
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [currentFormId, setCurrentFormId] = useState<number | null>(null);
   const [shareUrl, setShareUrl] = useState("");
+  const [loadedFormData, setLoadedFormData] = useState<Form | null>(null);
 
   const { data: user } = useQuery<User>({
     queryKey: ["/api/auth/user"],
@@ -65,6 +66,9 @@ export default function FormBuilder() {
       })
         .then(res => res.json())
         .then((form: Form) => {
+          // Store the original form data for metadata display
+          setLoadedFormData(form);
+          
           // Migrate form if it doesn't have rows
           const migratedForm = {
             title: form.title,
@@ -500,6 +504,40 @@ export default function FormBuilder() {
               </button>
             </nav>
           </div>
+          
+          {/* Form Information Section - Only show when editing existing form */}
+          {currentFormId && (
+            <div className="flex flex-col items-center justify-center px-4 md:px-6 border-l border-r border-slate-200 dark:border-slate-600 min-w-0">
+              <div className="text-center">
+                <div className="flex items-center gap-2 text-sm font-medium text-slate-900 dark:text-slate-100">
+                  <span className="truncate max-w-[150px] md:max-w-[200px]" title={currentForm.title}>
+                    {currentForm.title || "Untitled Form"}
+                  </span>
+                  <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                    currentForm.isPublished 
+                      ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200" 
+                      : "bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200"
+                  }`}>
+                    {currentForm.isPublished ? "Published" : "Draft"}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 md:gap-4 mt-1 text-xs text-slate-500 dark:text-slate-400">
+                  <span>ID: {currentFormId}</span>
+                  {currentForm.shareId && (
+                    <span className="truncate max-w-[80px] md:max-w-[100px]" title={currentForm.shareId}>
+                      Share: {currentForm.shareId}
+                    </span>
+                  )}
+                  {loadedFormData?.updatedAt && (
+                    <span className="hidden sm:inline">
+                      Updated: {new Date(loadedFormData.updatedAt).toLocaleDateString()}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="flex items-center space-x-4">
             <ThemeToggle />
             <Button 
