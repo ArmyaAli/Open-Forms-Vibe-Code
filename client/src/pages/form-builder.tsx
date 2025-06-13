@@ -220,7 +220,11 @@ export default function FormBuilder() {
       {/* Main Content */}
       <main className="flex h-[calc(100vh-73px)]">
         {/* Sidebar */}
-        <FieldPalette onAddField={handleAddField} />
+        <FieldPalette 
+          onAddField={handleAddField}
+          currentForm={currentForm}
+          onUpdateForm={(updates) => setCurrentForm(prev => ({ ...prev, ...updates }))}
+        />
 
         {/* Form Builder */}
         <div className="flex-1 flex">
