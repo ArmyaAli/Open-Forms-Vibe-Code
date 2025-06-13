@@ -220,7 +220,7 @@ export default function MyForms() {
               <p className="text-slate-600 dark:text-slate-400 mb-4">
                 Create your first form to start collecting responses
               </p>
-              <Button onClick={() => setLocation("/")}>
+              <Button onClick={() => setLocation("/builder")}>
                 <Plus className="mr-2" size={16} />
                 Create Your First Form
               </Button>
