@@ -229,15 +229,6 @@ export default function FormBuilder() {
       return;
     }
 
-    if (currentForm.title.trim() === "Untitled Form") {
-      toast({
-        title: "Custom Title Required",
-        description: "Please change the form title from 'Untitled Form' before publishing.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     publishFormMutation.mutate();
   };
 
