@@ -423,7 +423,17 @@ export default function PublicForm() {
 
     return sortedRows.map((row) => (
       <div key={row.id} className="space-y-4">
-        <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${row.columns || 1}, 1fr)` }}>
+        <div 
+          className={`grid gap-4 ${
+            (row.columns || 1) > 3 ? 'overflow-x-auto grid-flow-col auto-cols-fr' : ''
+          }`}
+          style={{ 
+            gridTemplateColumns: (row.columns || 1) <= 3 
+              ? `repeat(${row.columns || 1}, minmax(200px, 1fr))`
+              : `repeat(${row.columns || 1}, minmax(250px, 300px))`,
+            maxWidth: '100%'
+          }}
+        >
           {Array.from({ length: row.columns || 1 }, (_, columnIndex) => {
             const columnFields = fieldsByRow[row.id]?.[columnIndex] || [];
             

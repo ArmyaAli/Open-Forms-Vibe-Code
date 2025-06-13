@@ -426,7 +426,17 @@ export default function RowBasedCanvas({
                 </div>
 
                 {/* Row Columns */}
-                <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${row.columns}, 1fr)` }}>
+                <div 
+                  className={`grid gap-4 overflow-x-auto ${
+                    row.columns > 3 ? 'grid-flow-col auto-cols-fr' : ''
+                  }`}
+                  style={{ 
+                    gridTemplateColumns: row.columns <= 3 
+                      ? `repeat(${row.columns}, minmax(200px, 1fr))`
+                      : `repeat(${row.columns}, minmax(250px, 300px))`,
+                    maxWidth: '100%'
+                  }}
+                >
                   {Array.from({ length: row.columns }, (_, columnIndex) => {
                     const columnsFields = fieldsByRow[row.id]?.filter(f => f.columnIndex === columnIndex) || [];
                     
