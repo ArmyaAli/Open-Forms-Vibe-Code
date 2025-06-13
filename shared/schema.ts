@@ -131,8 +131,6 @@ export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-  lastLoginAt: true,
-  isEmailVerified: true,
 });
 
 export type User = typeof users.$inferSelect;
