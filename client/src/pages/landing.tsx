@@ -90,42 +90,43 @@ export default function Landing() {
 
   const plans = [
     {
-      name: "Starter",
+      name: "Free",
       price: "Free",
       description: "Perfect for getting started",
       features: [
-        "Up to 3 forms",
-        "100 responses/month",
-        "Basic templates",
+        "3 forms",
+        "150 responses/month",
+        "Basic form builder",
         "Email support"
       ],
       popular: false
     },
     {
-      name: "Professional",
-      price: "$19",
+      name: "Core",
+      price: "$20",
       period: "/month",
       description: "For growing businesses",
       features: [
-        "Unlimited forms",
+        "500 forms",
         "10,000 responses/month",
+        "Advanced form builder",
         "Premium templates",
-        "Advanced analytics",
-        "Priority support",
-        "Custom branding"
+        "Priority support"
       ],
       popular: true
     },
     {
-      name: "Enterprise",
+      name: "Premium",
       price: "$50",
       period: "/month",
-      description: "For large organizations",
+      description: "For power users & teams",
       features: [
-        "Everything in Professional",
+        "Unlimited forms",
         "Unlimited responses",
-        "API access",
-        "Dedicated support"
+        "Full API access",
+        "Advanced analytics",
+        "White-label options",
+        "24/7 priority support"
       ],
       popular: false
     }
