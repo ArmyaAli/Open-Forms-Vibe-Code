@@ -85,6 +85,23 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async updateUserSubscription(id: number, subscriptionData: any): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set({
+        subscriptionTier: subscriptionData.subscriptionTier,
+        stripeCustomerId: subscriptionData.stripeCustomerId,
+        stripeSubscriptionId: subscriptionData.stripeSubscriptionId,
+        subscriptionStatus: subscriptionData.subscriptionStatus,
+        subscriptionEndsAt: subscriptionData.subscriptionEndsAt,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id))
+      .returning();
+    
+    return user;
+  }
+
   // Session methods
   async createUserSession(userId: number, sessionId: string, ipAddress?: string, userAgent?: string): Promise<void> {
     const expiresAt = new Date();

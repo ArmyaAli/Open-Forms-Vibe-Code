@@ -123,6 +123,9 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
+// Subscription tiers enum
+export const SubscriptionTier = z.enum(['free', 'core', 'premium']);
+
 // Users table for authentication
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -134,6 +137,11 @@ export const users = pgTable("users", {
   phoneNumber: varchar("phone_number", { length: 20 }),
   address: text("address"),
   isEmailVerified: boolean("is_email_verified").default(false),
+  subscriptionTier: varchar("subscription_tier", { length: 20 }).default('free').notNull(),
+  stripeCustomerId: varchar("stripe_customer_id"),
+  stripeSubscriptionId: varchar("stripe_subscription_id"),
+  subscriptionStatus: varchar("subscription_status", { length: 20 }).default('active'),
+  subscriptionEndsAt: timestamp("subscription_ends_at"),
   lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -191,3 +199,32 @@ export type UserSession = typeof userSessions.$inferSelect;
 export type LoginData = z.infer<typeof loginSchema>;
 export type RegisterData = z.infer<typeof registerSchema>;
 export type UpdateUserProfile = z.infer<typeof updateUserProfileSchema>;
+export type SubscriptionTierType = z.infer<typeof SubscriptionTier>;
+
+// Subscription limits configuration
+export const SUBSCRIPTION_LIMITS = {
+  free: {
+    maxForms: 3,
+    maxResponses: 150,
+    hasApiAccess: false,
+    price: 0,
+    name: 'Free',
+    description: 'Perfect for getting started'
+  },
+  core: {
+    maxForms: 500,
+    maxResponses: 10000,
+    hasApiAccess: false,
+    price: 20,
+    name: 'Core',
+    description: 'For growing businesses'
+  },
+  premium: {
+    maxForms: -1, // -1 means unlimited
+    maxResponses: -1,
+    hasApiAccess: true,
+    price: 50,
+    name: 'Premium',
+    description: 'For enterprise users'
+  }
+} as const;
