@@ -847,8 +847,8 @@ export default function FormBuilder() {
                   themeColor={currentForm.themeColor}
                 />
 
-                <div className="p-6 border-t border-slate-200 dark:border-slate-600 flex justify-between items-center">
-                  <div className="flex space-x-3">
+                <div className="p-4 border-t border-slate-200 dark:border-slate-600">
+                  <div className="flex flex-wrap gap-2 justify-center">
                     <FormImportExport 
                       currentForm={currentForm}
                       onImportForm={handleImportForm}
@@ -857,19 +857,11 @@ export default function FormBuilder() {
                       variant="outline" 
                       size="sm" 
                       className="rounded-sm"
-                      onClick={() => setShowPreviewModal(true)}
-                    >
-                      <Eye className="mr-2" size={16} />
-                      Preview
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="rounded-sm"
                       onClick={handleExportPDF}
                     >
-                      <Download className="mr-2" size={16} />
-                      Export PDF
+                      <Download className="mr-1 sm:mr-2" size={16} />
+                      <span className="hidden sm:inline">Export PDF</span>
+                      <span className="sm:hidden">PDF</span>
                     </Button>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -880,8 +872,9 @@ export default function FormBuilder() {
                           onClick={handleSaveForm}
                           disabled={createFormMutation.isPending || updateFormMutation.isPending || !currentForm.title.trim()}
                         >
-                          <Save className="mr-2" size={16} />
-                          {createFormMutation.isPending || updateFormMutation.isPending ? "Saving..." : "Save Draft"}
+                          <Save className="mr-1 sm:mr-2" size={16} />
+                          <span className="hidden sm:inline">{createFormMutation.isPending || updateFormMutation.isPending ? "Saving..." : "Save Draft"}</span>
+                          <span className="sm:hidden">Save</span>
                         </Button>
                       </TooltipTrigger>
                       {!currentForm.title.trim() && (
@@ -891,24 +884,6 @@ export default function FormBuilder() {
                       )}
                     </Tooltip>
                   </div>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button 
-                        onClick={handlePublishForm}
-                        disabled={publishFormMutation.isPending || !currentForm.title.trim()}
-                        size="sm"
-                        className="rounded-sm"
-                      >
-                        <Share className="mr-2" size={16} />
-                        {publishFormMutation.isPending ? "Publishing..." : "Publish & Share"}
-                      </Button>
-                    </TooltipTrigger>
-                    {!currentForm.title.trim() && (
-                      <TooltipContent>
-                        <p>Enter a form title to publish</p>
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
                 </div>
               </Card>
             </div>

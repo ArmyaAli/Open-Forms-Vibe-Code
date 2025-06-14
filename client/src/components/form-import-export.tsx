@@ -192,13 +192,14 @@ export default function FormImportExport({ currentForm, onImportForm }: FormImpo
   };
 
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center gap-2">
       {/* Export Dialog */}
       <Dialog open={exportDialogOpen} onOpenChange={setExportDialogOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" size="sm">
-            <Download size={16} className="mr-2" />
-            Export JSON
+          <Button variant="outline" size="sm" className="rounded-sm">
+            <Download size={16} className="mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Export JSON</span>
+            <span className="sm:hidden">Export</span>
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-md">
@@ -274,9 +275,10 @@ export default function FormImportExport({ currentForm, onImportForm }: FormImpo
       {/* Import Dialog */}
       <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
         <DialogTrigger asChild>
-          <Button variant="outline" size="sm">
-            <Upload size={16} className="mr-2" />
-            Import JSON
+          <Button variant="outline" size="sm" className="rounded-sm">
+            <Upload size={16} className="mr-1 sm:mr-2" />
+            <span className="hidden sm:inline">Import JSON</span>
+            <span className="sm:hidden">Import</span>
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
