@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Save, Share, Eye, Box, List, BarChart, Download, ChevronRight, ChevronLeft } from "lucide-react";
+import { Plus, Save, Share, Eye, Box, List, BarChart, Download, ChevronRight, ChevronLeft, FileText } from "lucide-react";
 import { exportFormAsPDF } from "@/lib/pdf-export";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserProfileMenu } from "@/components/user-profile-menu";
@@ -599,6 +599,13 @@ export default function FormBuilder() {
               >
                 <BarChart size={16} />
                 Responses
+              </button>
+              <button
+                onClick={() => setLocation("/api-docs")}
+                className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 pb-2 flex items-center gap-2"
+              >
+                <FileText size={16} />
+                API Docs
               </button>
             </nav>
           </div>

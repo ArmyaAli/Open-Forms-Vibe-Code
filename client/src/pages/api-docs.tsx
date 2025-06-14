@@ -1,14 +1,24 @@
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ExternalLink, Copy, Code, Book, Zap, Settings, Database, Search, Users, Webhook, FileText, Share } from "lucide-react";
+import { ExternalLink, Copy, Code, Book, Zap, Settings, Database, Search, Users, Webhook, FileText, Share, Plus, Box, List, BarChart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { UserProfileMenu } from "@/components/user-profile-menu";
+import { User } from "@shared/schema";
 
 export default function ApiDocs() {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const [baseUrl, setBaseUrl] = useState('');
+
+  const { data: user } = useQuery<User>({
+    queryKey: ["/api/auth/user"],
+  });
 
   useEffect(() => {
     setBaseUrl(`${window.location.protocol}//${window.location.host}`);
@@ -152,30 +162,91 @@ curl -X POST '${baseUrl}/api/forms' \\
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-background">
       {/* Header */}
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-          OpenForms API Documentation
-        </h1>
-        <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-          Comprehensive REST API for form building, management, and response collection. 
-          Build custom integrations and automate your form workflows.
-        </p>
-        <div className="flex justify-center gap-4">
-          <Button 
-            onClick={() => window.open('/api/docs', '_blank')} 
-            className="flex items-center gap-2"
-          >
-            <Book className="h-4 w-4" />
-            Interactive Documentation
-            <ExternalLink className="h-4 w-4" />
-          </Button>
-          <Badge variant="secondary" className="px-4 py-2">
-            API Version 1.0.0
-          </Badge>
+      <header className="bg-white dark:bg-card border-b border-slate-200 dark:border-slate-600 px-4 lg:px-6 py-4 sticky top-0 z-50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4 lg:space-x-8">
+            <button 
+              onClick={() => window.location.href = "/"}
+              className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
+            >
+              <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary-500 rounded-lg flex items-center justify-center">
+                <Box className="text-white" size={16} />
+              </div>
+              <h1 className="text-lg lg:text-xl font-bold text-slate-900 dark:text-slate-100">Open Forms</h1>
+            </button>
+            <nav className="hidden md:flex space-x-6 border-l border-slate-200 dark:border-slate-600 pl-6">
+              <button
+                onClick={() => setLocation("/builder")}
+                className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 pb-2 flex items-center gap-2"
+              >
+                <Plus size={16} />
+                Builder
+              </button>
+              <button
+                onClick={() => setLocation("/forms")}
+                className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 pb-2 flex items-center gap-2"
+              >
+                <List size={16} />
+                My Forms
+              </button>
+              <button
+                onClick={() => setLocation("/responses")}
+                className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 pb-2 flex items-center gap-2"
+              >
+                <BarChart size={16} />
+                Responses
+              </button>
+              <button
+                onClick={() => setLocation("/api-docs")}
+                className="text-sm font-medium text-primary border-b-2 border-primary pb-2 flex items-center gap-2"
+              >
+                <FileText size={16} />
+                API Docs
+              </button>
+            </nav>
+          </div>
+          <div className="flex items-center space-x-2 lg:space-x-4">
+            <Button onClick={() => setLocation("/builder")} size="sm" className="hidden sm:flex">
+              <Plus className="mr-2" size={16} />
+              Create New Form
+            </Button>
+            <Button onClick={() => setLocation("/builder")} size="sm" className="sm:hidden">
+              <Plus size={16} />
+            </Button>
+            <ThemeToggle />
+            {user && <UserProfileMenu user={user} />}
+          </div>
         </div>
-      </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="p-4 lg:p-6">
+        <div className="max-w-7xl mx-auto space-y-8">
+          {/* Page Header */}
+          <div className="text-center space-y-4">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-white">
+              OpenForms API Documentation
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+              Comprehensive REST API for form building, management, and response collection. 
+              Build custom integrations and automate your form workflows.
+            </p>
+            <div className="flex justify-center gap-4">
+              <Button 
+                onClick={() => window.open('/api/docs', '_blank')} 
+                className="flex items-center gap-2"
+              >
+                <Book className="h-4 w-4" />
+                Interactive Documentation
+                <ExternalLink className="h-4 w-4" />
+              </Button>
+              <Badge variant="secondary" className="px-4 py-2">
+                API Version 1.0.0
+              </Badge>
+            </div>
+          </div>
 
       {/* Quick Start */}
       <Card>
@@ -205,7 +276,7 @@ curl -X POST '${baseUrl}/api/forms' \\
             <div className="p-4 border rounded-lg">
               <h3 className="font-semibold mb-2">3. Collect Responses</h3>
               <p className="text-sm text-gray-600 dark:text-gray-300">
-                Accept submissions via POST /api/forms/{id}/responses endpoint.
+                Accept submissions via POST /api/forms/[formId]/responses endpoint.
               </p>
             </div>
           </div>
@@ -392,6 +463,8 @@ curl -X POST '${baseUrl}/api/forms' \\
           </div>
         </CardContent>
       </Card>
+        </div>
+      </main>
     </div>
   );
 }

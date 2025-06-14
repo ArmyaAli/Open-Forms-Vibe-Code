@@ -416,6 +416,13 @@ export default function MyForms() {
                 <BarChart size={16} />
                 Responses
               </button>
+              <button
+                onClick={() => setLocation("/api-docs")}
+                className="text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 pb-2 flex items-center gap-2"
+              >
+                <FileText size={16} />
+                API Docs
+              </button>
             </nav>
           </div>
           <div className="flex items-center space-x-2 lg:space-x-4">
