@@ -83,6 +83,36 @@ export type InsertForm = z.infer<typeof insertFormSchema>;
 export type FormResponse = typeof formResponses.$inferSelect;
 export type InsertFormResponse = z.infer<typeof insertFormResponseSchema>;
 
+// Form serialization schemas
+export const SerializableFormSchema = z.object({
+  version: z.string().default("1.0.0"),
+  exportedAt: z.string(),
+  formData: z.object({
+    title: z.string(),
+    description: z.string().optional(),
+    fields: z.array(FormFieldSchema),
+    rows: z.array(FormRowSchema),
+    themeColor: z.string(),
+    metadata: z.object({
+      fieldCount: z.number(),
+      rowCount: z.number(),
+      complexity: z.enum(["simple", "moderate", "complex"]),
+    }),
+  }),
+});
+
+export const ImportFormSchema = z.object({
+  title: z.string().min(1, "Form title is required"),
+  description: z.string().optional(),
+  fields: z.array(FormFieldSchema),
+  rows: z.array(FormRowSchema),
+  themeColor: z.string().optional(),
+  replaceIds: z.boolean().default(true), // Whether to generate new IDs during import
+});
+
+export type SerializableForm = z.infer<typeof SerializableFormSchema>;
+export type ImportForm = z.infer<typeof ImportFormSchema>;
+
 // Session storage table for express-session
 export const sessions = pgTable(
   "sessions",

@@ -23,6 +23,7 @@ import FieldPalette from "@/components/form-builder/field-palette";
 import RowBasedCanvas from "@/components/form-builder/row-based-canvas";
 import FormPreview from "@/components/form-builder/form-preview";
 import ShareModal from "@/components/form-builder/share-modal";
+import FormImportExport from "@/components/form-import-export";
 import { nanoid } from "nanoid";
 
 export default function FormBuilder() {
@@ -408,6 +409,22 @@ export default function FormBuilder() {
         ...prev,
         rows: updatedRows,
       };
+    });
+  };
+
+  const handleImportForm = (formData: {
+    title: string;
+    description: string;
+    fields: FormField[];
+    rows: FormRow[];
+    themeColor: string;
+  }) => {
+    console.log('Importing form:', formData);
+    setCurrentForm(formData);
+    
+    toast({
+      title: "Form Imported Successfully",
+      description: `${formData.title} has been loaded with ${formData.fields.length} fields and ${formData.rows.length} rows.`,
     });
   };
 
