@@ -13,6 +13,7 @@ import MyForms from "@/pages/my-forms";
 import Responses from "@/pages/responses";
 import PublicForm from "@/pages/public-form";
 import Settings from "@/pages/settings";
+import ApiDocs from "@/pages/api-docs";
 import NotFound from "@/pages/not-found";
 
 function useAuth() {
@@ -62,6 +63,7 @@ function Router() {
             <Route path="/forms" component={MyForms} />
             <Route path="/responses" component={Responses} />
             <Route path="/settings" component={Settings} />
+            <Route path="/api-docs" component={ApiDocs} />
           </>
         )}
         

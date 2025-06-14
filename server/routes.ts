@@ -4,6 +4,8 @@ import { storage } from "./auth-storage";
 import { insertFormSchema, insertFormResponseSchema, FormFieldSchema } from "@shared/schema";
 import { setupSession, setupAuthRoutes, updateSessionActivity, requireAuth } from "./auth-routes";
 import { z } from "zod";
+import swaggerUi from "swagger-ui-express";
+import YAML from "yamljs";
 
 // CSV generation helpers
 function escapeCSVField(field: string): string {
@@ -76,6 +78,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Add session activity middleware to all routes
   app.use(updateSessionActivity);
+
+  // Load Swagger documentation
+  const swaggerDocument = YAML.load('./swagger.yaml');
+  
+  // Swagger UI setup with custom options
+  const swaggerOptions = {
+    customCss: `
+      .swagger-ui .topbar { display: none; }
+      .swagger-ui .info .title { color: #3b82f6; }
+      .swagger-ui .scheme-container { background: #f8fafc; padding: 20px; border-radius: 8px; }
+    `,
+    customSiteTitle: "OpenForms API Documentation",
+    customfavIcon: "/favicon.ico",
+    swaggerOptions: {
+      persistAuthorization: true,
+      displayRequestDuration: true,
+      filter: true,
+      showExtensions: true,
+      showCommonExtensions: true,
+      defaultModelsExpandDepth: 2,
+      defaultModelExpandDepth: 2,
+      docExpansion: 'list',
+      supportedSubmitMethods: ['get', 'post', 'put', 'delete', 'patch'],
+      tryItOutEnabled: true
+    }
+  };
+
+  // Serve Swagger documentation at /api/docs
+  app.use('/api/docs', swaggerUi.serve);
+  app.get('/api/docs', swaggerUi.setup(swaggerDocument, swaggerOptions));
 
   // Form routes (protected)
   app.post("/api/forms", requireAuth, async (req, res) => {

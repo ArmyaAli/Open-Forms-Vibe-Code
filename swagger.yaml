@@ -1,0 +1,1189 @@
+openapi: 3.0.0
+info:
+  title: OpenForms API
+  description: Comprehensive REST API for form building, management, and response collection
+  version: 1.0.0
+  contact:
+    name: OpenForms Support
+    url: https://openforms.ca
+servers:
+  - url: /api
+    description: Development server
+
+components:
+  securitySchemes:
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: connect.sid
+      description: Session-based authentication
+
+  schemas:
+    Form:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique form identifier
+        title:
+          type: string
+          description: Form title
+        description:
+          type: string
+          description: Form description
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/FormField'
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/FormRow'
+        themeColor:
+          type: string
+          description: Form theme color
+        shareId:
+          type: string
+          description: Public sharing identifier
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    FormField:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique field identifier
+        type:
+          type: string
+          enum: [text, email, number, phone, date, time, textarea, select, radio, checkbox, rating, file, address, range, toggle]
+          description: Field type
+        label:
+          type: string
+          description: Field label
+        placeholder:
+          type: string
+          description: Field placeholder text
+        required:
+          type: boolean
+          description: Whether field is required
+        rowId:
+          type: string
+          description: Parent row identifier
+        columnIndex:
+          type: integer
+          description: Column position in row
+        width:
+          type: integer
+          description: Field width (1-4)
+        options:
+          type: array
+          items:
+            type: string
+          description: Options for select/radio/checkbox fields
+
+    FormRow:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique row identifier
+        columns:
+          type: integer
+          minimum: 1
+          maximum: 4
+          description: Number of columns in row
+        order:
+          type: integer
+          description: Row order
+
+    FormResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Response identifier
+        formId:
+          type: integer
+          description: Associated form ID
+        responses:
+          type: object
+          description: Field responses as key-value pairs
+        submittedAt:
+          type: string
+          format: date-time
+        ipAddress:
+          type: string
+          description: Submitter IP address
+        userAgent:
+          type: string
+          description: Submitter user agent
+
+    ValidationError:
+      type: object
+      properties:
+        isValid:
+          type: boolean
+        errors:
+          type: object
+          additionalProperties:
+            type: string
+
+    Analytics:
+      type: object
+      properties:
+        totalResponses:
+          type: integer
+        todayResponses:
+          type: integer
+        weeklyResponses:
+          type: integer
+        averageCompletionTime:
+          type: string
+        fieldAnalytics:
+          type: array
+          items:
+            type: object
+            properties:
+              fieldId:
+                type: string
+              fieldLabel:
+                type: string
+              responseCount:
+                type: integer
+              completionRate:
+                type: number
+        responsesByDay:
+          type: object
+          additionalProperties:
+            type: integer
+
+    Template:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/FormField'
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/FormRow'
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+
+security:
+  - sessionAuth: []
+
+paths:
+  # Core Form Management
+  /forms:
+    get:
+      summary: Get all forms
+      tags: [Forms]
+      security:
+        - sessionAuth: []
+      responses:
+        200:
+          description: List of forms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Form'
+        401:
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create a new form
+      tags: [Forms]
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title]
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormField'
+                rows:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormRow'
+                themeColor:
+                  type: string
+      responses:
+        201:
+          description: Form created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Form'
+        400:
+          description: Invalid form data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /forms/{id}:
+    get:
+      summary: Get form by ID
+      tags: [Forms]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Form details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Form'
+        404:
+          description: Form not found
+
+    put:
+      summary: Update form
+      tags: [Forms]
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormField'
+                themeColor:
+                  type: string
+      responses:
+        200:
+          description: Form updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Form'
+        404:
+          description: Form not found
+
+    delete:
+      summary: Delete form
+      tags: [Forms]
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Form deleted successfully
+        404:
+          description: Form not found
+
+  /forms/share/{shareId}:
+    get:
+      summary: Get form by share ID
+      tags: [Forms]
+      parameters:
+        - name: shareId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Form details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Form'
+        404:
+          description: Form not found
+
+  # Field Management
+  /forms/{id}/fields:
+    post:
+      summary: Add field to form
+      tags: [Field Management]
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FormField'
+      responses:
+        200:
+          description: Field added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  field:
+                    $ref: '#/components/schemas/FormField'
+                  form:
+                    $ref: '#/components/schemas/Form'
+
+  /forms/{id}/fields/{fieldId}:
+    put:
+      summary: Update form field
+      tags: [Field Management]
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: fieldId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FormField'
+      responses:
+        200:
+          description: Field updated successfully
+
+    delete:
+      summary: Delete form field
+      tags: [Field Management]
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: fieldId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Field deleted successfully
+
+  # Row Management
+  /forms/{id}/rows:
+    post:
+      summary: Add row to form
+      tags: [Row Management]
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FormRow'
+      responses:
+        200:
+          description: Row added successfully
+
+  /forms/{id}/rows/{rowId}:
+    delete:
+      summary: Delete form row
+      tags: [Row Management]
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: rowId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Row deleted successfully
+
+  # Form Responses
+  /forms/{id}/responses:
+    get:
+      summary: Get form responses
+      tags: [Responses]
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Form responses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FormResponse'
+
+    post:
+      summary: Submit form response
+      tags: [Responses]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [responses]
+              properties:
+                responses:
+                  type: object
+                  description: Field responses as key-value pairs
+                  example:
+                    field_1: "John Doe"
+                    field_2: "john@example.com"
+                    field_3: ["Option 1", "Option 2"]
+      responses:
+        200:
+          description: Response submitted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormResponse'
+        400:
+          description: Invalid response data
+
+  /responses:
+    get:
+      summary: Get all responses
+      tags: [Responses]
+      security:
+        - sessionAuth: []
+      responses:
+        200:
+          description: All form responses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FormResponse'
+
+  /responses/stats:
+    get:
+      summary: Get response statistics
+      tags: [Responses]
+      security:
+        - sessionAuth: []
+      responses:
+        200:
+          description: Response statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalResponses:
+                    type: integer
+                  todayResponses:
+                    type: integer
+                  completionRate:
+                    type: number
+                  averageTime:
+                    type: string
+
+  # Advanced Features
+  /forms/{id}/duplicate:
+    post:
+      summary: Duplicate form
+      tags: [Advanced Features]
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Form duplicated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Form'
+
+  /forms/{id}/validate:
+    post:
+      summary: Validate form responses
+      tags: [Advanced Features]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                responses:
+                  type: object
+                  description: Field responses to validate
+      responses:
+        200:
+          description: Validation results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationError'
+
+  /forms/{id}/analytics:
+    get:
+      summary: Get form analytics
+      tags: [Analytics]
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Form analytics data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analytics'
+
+  # Export & Import
+  /forms/{id}/export:
+    get:
+      summary: Export form as JSON
+      tags: [Export & Import]
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: Form exported as JSON file
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /forms/import:
+    post:
+      summary: Import form from JSON
+      tags: [Export & Import]
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, fields]
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                fields:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormField'
+                rows:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FormRow'
+                themeColor:
+                  type: string
+      responses:
+        200:
+          description: Form imported successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Form'
+
+  /responses/export/csv:
+    get:
+      summary: Export all responses as CSV
+      tags: [Export & Import]
+      security:
+        - sessionAuth: []
+      responses:
+        200:
+          description: CSV file download
+          content:
+            text/csv:
+              schema:
+                type: string
+
+  /forms/{id}/responses/export/csv:
+    get:
+      summary: Export form responses as CSV
+      tags: [Export & Import]
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: CSV file download
+          content:
+            text/csv:
+              schema:
+                type: string
+
+  # Templates
+  /templates:
+    get:
+      summary: Get all templates
+      tags: [Templates]
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [all, contact, survey, registration, custom]
+      responses:
+        200:
+          description: Template list with categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  templates:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Template'
+                  categories:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        name:
+                          type: string
+                        description:
+                          type: string
+
+  /forms/{id}/template:
+    post:
+      summary: Create template from form
+      tags: [Templates]
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+      responses:
+        200:
+          description: Template created successfully
+
+  /templates/{id}/create-form:
+    post:
+      summary: Create form from template
+      tags: [Templates]
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+      responses:
+        200:
+          description: Form created from template
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Form'
+
+  # Search & Filtering
+  /forms/search:
+    get:
+      summary: Search and filter forms
+      tags: [Search & Filtering]
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: q
+          in: query
+          description: Search query
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Filter by category
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          description: Sort field
+          schema:
+            type: string
+            enum: [title, created, updated]
+        - name: order
+          in: query
+          description: Sort order
+          schema:
+            type: string
+            enum: [asc, desc]
+      responses:
+        200:
+          description: Filtered forms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Form'
+
+  # User Management
+  /user/forms:
+    get:
+      summary: Get user's forms with pagination
+      tags: [User Management]
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          description: User forms with pagination
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  forms:
+                    type: array
+                    items:
+                      allOf:
+                        - $ref: '#/components/schemas/Form'
+                        - type: object
+                          properties:
+                            responseCount:
+                              type: integer
+                            lastResponse:
+                              type: string
+                              format: date-time
+                  pagination:
+                    type: object
+                    properties:
+                      currentPage:
+                        type: integer
+                      totalPages:
+                        type: integer
+                      totalItems:
+                        type: integer
+                      itemsPerPage:
+                        type: integer
+
+  /user/stats:
+    get:
+      summary: Get user statistics
+      tags: [User Management]
+      security:
+        - sessionAuth: []
+      responses:
+        200:
+          description: User statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalForms:
+                    type: integer
+                  totalResponses:
+                    type: integer
+                  responsesThisMonth:
+                    type: integer
+                  responsesThisWeek:
+                    type: integer
+                  averageResponsesPerForm:
+                    type: integer
+                  topPerformingForms:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        title:
+                          type: string
+                        responseCount:
+                          type: integer
+                  responsesByDay:
+                    type: object
+                    additionalProperties:
+                      type: integer
+
+  # Webhooks
+  /forms/{id}/webhook:
+    post:
+      summary: Configure webhook for form
+      tags: [Webhooks]
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url, events]
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  description: Webhook endpoint URL
+                events:
+                  type: array
+                  items:
+                    type: string
+                    enum: [submission, update, delete]
+                  description: Events to trigger webhook
+      responses:
+        200:
+          description: Webhook configured successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  formId:
+                    type: integer
+                  url:
+                    type: string
+                  events:
+                    type: array
+                    items:
+                      type: string
+                  active:
+                    type: boolean
+                  secret:
+                    type: string
+
+  /forms/{id}/webhook/test:
+    post:
+      summary: Test webhook endpoint
+      tags: [Webhooks]
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url:
+                  type: string
+                  format: uri
+      responses:
+        200:
+          description: Test webhook sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  payload:
+                    type: object
+
+  # Bulk Operations
+  /forms/bulk/delete:
+    post:
+      summary: Bulk delete forms
+      tags: [Bulk Operations]
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [formIds]
+              properties:
+                formIds:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        200:
+          description: Bulk operation results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        formId:
+                          type: integer
+                        success:
+                          type: boolean
+                        error:
+                          type: string
+
+  # Sharing & Collaboration
+  /forms/{id}/sharing:
+    put:
+      summary: Update form sharing settings
+      tags: [Sharing & Collaboration]
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                isPublic:
+                  type: boolean
+                allowAnonymous:
+                  type: boolean
+                requirePassword:
+                  type: boolean
+                password:
+                  type: string
+      responses:
+        200:
+          description: Sharing settings updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  formId:
+                    type: integer
+                  sharingSettings:
+                    type: object
+                  shareUrl:
+                    type: string
+
+  /forms/{id}/regenerate-share-id:
+    post:
+      summary: Regenerate form share ID
+      tags: [Sharing & Collaboration]
+      security:
+        - sessionAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: New share ID generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  shareId:
+                    type: string
+                  shareUrl:
+                    type: string
+
+tags:
+  - name: Forms
+    description: Core form management operations
+  - name: Field Management
+    description: Individual field operations
+  - name: Row Management
+    description: Form row layout management
+  - name: Responses
+    description: Form response collection and retrieval
+  - name: Advanced Features
+    description: Form duplication, validation, and analytics
+  - name: Analytics
+    description: Form and response analytics
+  - name: Export & Import
+    description: Data export and import functionality
+  - name: Templates
+    description: Form template management
+  - name: Search & Filtering
+    description: Form search and filtering capabilities
+  - name: User Management
+    description: User-specific form and statistics management
+  - name: Webhooks
+    description: Webhook configuration and testing
+  - name: Bulk Operations
+    description: Bulk operations on multiple forms
+  - name: Sharing & Collaboration
+    description: Form sharing and collaboration features
