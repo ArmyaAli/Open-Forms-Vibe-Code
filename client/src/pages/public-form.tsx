@@ -193,15 +193,13 @@ export default function PublicForm() {
               {field.label}
               {field.required && <span className="text-red-500 ml-1">*</span>}
             </Label>
-            <Input
+            <input
               id={field.id}
               type="time"
-              placeholder={field.placeholder || "HH:MM"}
               value={formData[field.id] || ""}
               onChange={(e) => handleInputChange(field.id, e.target.value)}
               required={field.required}
-              step="60"
-              className="w-full"
+              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
             />
           </div>
         );

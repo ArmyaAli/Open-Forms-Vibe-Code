@@ -146,9 +146,6 @@ const fieldTypes = [
 export default function FieldPalette({ onAddField, currentForm, onUpdateForm, onToggleCollapse }: FieldPaletteProps) {
   const [isExpanded, setIsExpanded] = useState(true);
   
-  // Get list of field types already added to the form
-  const existingFieldTypes = currentForm?.fields?.map(field => field.type).filter(Boolean) || [];
-  
   return (
     <aside className="w-full lg:w-80 bg-white dark:bg-background border-r lg:border-r border-b lg:border-b-0 border-slate-200 dark:border-slate-600 h-auto lg:h-full overflow-y-auto">
       <div className="p-4 lg:p-6">
@@ -184,27 +181,17 @@ export default function FieldPalette({ onAddField, currentForm, onUpdateForm, on
           <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 lg:space-y-0">
             {fieldTypes.map((field) => {
             const IconComponent = field.icon;
-            const isAlreadyAdded = existingFieldTypes.includes(field.type);
             
             return (
               <div
                 key={field.type}
-                draggable={!isAlreadyAdded}
-                className={`border border-slate-200 dark:border-slate-600 rounded-sm p-3 transition-all duration-200 ${
-                  isAlreadyAdded 
-                    ? "bg-slate-100 dark:bg-slate-800 opacity-50 cursor-not-allowed" 
-                    : "bg-slate-50 hover:bg-slate-100 dark:bg-muted dark:hover:bg-accent cursor-move hover:scale-[1.02] hover:shadow-md active:scale-[0.98]"
-                }`}
+                draggable={true}
+                className="border border-slate-200 dark:border-slate-600 rounded-sm p-3 transition-all duration-200 bg-slate-50 hover:bg-slate-100 dark:bg-muted dark:hover:bg-accent cursor-move hover:scale-[1.02] hover:shadow-md active:scale-[0.98]"
                 onClick={(e) => {
-                  if (isAlreadyAdded) return;
                   e.preventDefault();
                   onAddField(field.type);
                 }}
                 onDragStart={(e) => {
-                  if (isAlreadyAdded) {
-                    e.preventDefault();
-                    return;
-                  }
                   console.log('Drag start for field type:', field.type);
                   e.dataTransfer.setData("application/x-field-type", field.type);
                   e.dataTransfer.effectAllowed = "copy";
@@ -245,11 +232,11 @@ export default function FieldPalette({ onAddField, currentForm, onUpdateForm, on
                     <IconComponent size={16} />
                   </div>
                   <div>
-                    <h3 className={`font-medium ${isAlreadyAdded ? "text-slate-500 dark:text-slate-500" : "text-slate-900 dark:text-slate-100"}`}>
+                    <h3 className="font-medium text-slate-900 dark:text-slate-100">
                       {field.label}
                     </h3>
                     <p className="text-xs text-slate-500 dark:text-slate-400">
-                      {isAlreadyAdded ? "Already added" : field.description}
+                      {field.description}
                     </p>
                   </div>
                 </div>
