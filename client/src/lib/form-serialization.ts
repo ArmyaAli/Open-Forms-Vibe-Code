@@ -97,23 +97,52 @@ export function deserializeForm(
     if (replaceIds) {
       const oldToNewIds: Record<string, string> = {};
       
-      // Generate new row IDs
-      rows = rows.map((row: FormRow) => {
+      // Generate new row IDs and ensure they have required properties
+      rows = rows.map((row: any) => {
         const newId = nanoid();
         oldToNewIds[row.id] = newId;
-        return { ...row, id: newId };
+        return { 
+          id: newId,
+          order: row.order || 0,
+          columns: row.columns || 1,
+        };
       });
 
       // Generate new field IDs and update row references
-      fields = fields.map((field: FormField) => {
+      fields = fields.map((field: any) => {
         const newFieldId = nanoid();
         const newRowId = field.rowId ? oldToNewIds[field.rowId] : undefined;
         return {
-          ...field,
           id: newFieldId,
+          type: field.type,
+          label: field.label || "",
+          placeholder: field.placeholder,
+          required: field.required || false,
+          options: field.options,
           rowId: newRowId,
+          columnIndex: field.columnIndex,
+          width: field.width || 1,
         };
       });
+    } else {
+      // Ensure all required properties are present even without ID replacement
+      rows = rows.map((row: any) => ({
+        id: row.id || nanoid(),
+        order: row.order || 0,
+        columns: row.columns || 1,
+      }));
+
+      fields = fields.map((field: any) => ({
+        id: field.id || nanoid(),
+        type: field.type,
+        label: field.label || "",
+        placeholder: field.placeholder,
+        required: field.required || false,
+        options: field.options,
+        rowId: field.rowId,
+        columnIndex: field.columnIndex,
+        width: field.width || 1,
+      }));
     }
 
     const importForm: ImportForm = {
@@ -122,7 +151,6 @@ export function deserializeForm(
       fields,
       rows,
       themeColor: themeColor || "#6366F1",
-      replaceIds,
     };
 
     // Validate the import form

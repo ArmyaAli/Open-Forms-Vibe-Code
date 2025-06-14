@@ -420,7 +420,15 @@ export default function FormBuilder() {
     themeColor: string;
   }) => {
     console.log('Importing form:', formData);
-    setCurrentForm(formData);
+    
+    // Ensure all required properties are present for the current form structure
+    const updatedFormData = {
+      ...formData,
+      isPublished: false,
+      shareId: nanoid(),
+    };
+    
+    setCurrentForm(updatedFormData);
     
     toast({
       title: "Form Imported Successfully",
@@ -820,6 +828,10 @@ export default function FormBuilder() {
 
                 <div className="p-6 border-t border-slate-200 dark:border-slate-600 flex justify-between items-center">
                   <div className="flex space-x-3">
+                    <FormImportExport 
+                      currentForm={currentForm}
+                      onImportForm={handleImportForm}
+                    />
                     <Button 
                       variant="outline" 
                       size="sm" 

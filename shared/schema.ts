@@ -107,7 +107,6 @@ export const ImportFormSchema = z.object({
   fields: z.array(FormFieldSchema),
   rows: z.array(FormRowSchema),
   themeColor: z.string().optional(),
-  replaceIds: z.boolean().default(true), // Whether to generate new IDs during import
 });
 
 export type SerializableForm = z.infer<typeof SerializableFormSchema>;
