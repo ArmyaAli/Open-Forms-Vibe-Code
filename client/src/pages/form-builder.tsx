@@ -306,6 +306,8 @@ export default function FormBuilder() {
   };
 
   const handleAddField = (fieldType: string, rowId: string, columnIndex: number) => {
+    console.log('handleAddField called:', { fieldType, rowId, columnIndex });
+    
     const newField: FormField = {
       id: nanoid(),
       type: fieldType as any,
@@ -319,6 +321,8 @@ export default function FormBuilder() {
         ? ["Option 1", "Option 2", "Option 3"] 
         : undefined,
     };
+
+    console.log('Adding new field:', newField);
 
     setCurrentForm(prev => ({
       ...prev,

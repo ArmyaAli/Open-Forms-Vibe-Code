@@ -123,15 +123,21 @@ export default function RowBasedCanvas({
     const fieldType = e.dataTransfer.getData("application/x-field-type");
     const fieldId = e.dataTransfer.getData("application/x-field-id") || e.dataTransfer.getData("text/plain");
     
+    console.log('Drop event:', { fieldType, fieldId, rowId, columnIndex });
+    
     if (fieldType && !fieldId) {
       // Adding new field from palette
+      console.log('Adding new field:', fieldType, 'to row:', rowId, 'column:', columnIndex);
       onAddField(fieldType, rowId, columnIndex);
     } else if (fieldId) {
       // Moving existing field
       const currentField = fields.find(f => f.id === fieldId);
+      console.log('Moving field:', fieldId, 'from', currentField?.rowId, currentField?.columnIndex, 'to', rowId, columnIndex);
       if (currentField && (currentField.rowId !== rowId || currentField.columnIndex !== columnIndex)) {
         onUpdateField(fieldId, { rowId, columnIndex });
       }
+    } else {
+      console.log('No valid drop data found');
     }
     
     setDragOverRow(null);
@@ -401,7 +407,10 @@ export default function RowBasedCanvas({
                   </div>
 
                   {/* Row Columns */}
-                  <div className={`grid gap-3 grid-cols-${row.columns}`}>
+                  <div 
+                    className="grid gap-3"
+                    style={{ gridTemplateColumns: `repeat(${row.columns}, 1fr)` }}
+                  >
                     {Array.from({ length: row.columns }, (_, columnIndex) => {
                       const columnFields = rowFields.filter(f => f.columnIndex === columnIndex);
                       const isDropTarget = dragOverRow === row.id && dragOverColumn === columnIndex;
@@ -409,18 +418,21 @@ export default function RowBasedCanvas({
                       return (
                         <div
                           key={`${row.id}-${columnIndex}`}
-                          className={`min-h-[100px] border-2 border-dashed rounded-lg p-3 transition-colors ${
+                          className={`min-h-[100px] border-2 border-dashed rounded-lg p-3 transition-all duration-200 ${
                             isDropTarget 
-                              ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20' 
-                              : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500'
+                              ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20 scale-[1.02] shadow-lg' 
+                              : 'border-slate-200 dark:border-slate-600 hover:border-slate-300 dark:hover:border-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800/50'
                           }`}
                           onDragOver={(e) => handleColumnDragOver(e, row.id, columnIndex)}
                           onDragLeave={handleColumnDragLeave}
                           onDrop={(e) => handleColumnDrop(e, row.id, columnIndex)}
                         >
                           {columnFields.length === 0 ? (
-                            <div className="text-center text-slate-400 dark:text-slate-500 text-sm py-8">
-                              Drop a field here or click to add
+                            <div className="flex flex-col items-center justify-center h-full text-center text-slate-400 dark:text-slate-500 text-sm py-8">
+                              <div className="mb-2 opacity-60">
+                                {isDropTarget ? "🎯 Drop here" : "📄 Empty"}
+                              </div>
+                              <div>Drop a field here or click to add</div>
                             </div>
                           ) : (
                             <div className="space-y-3">
