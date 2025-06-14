@@ -682,6 +682,16 @@ export default function FormBuilder() {
             </Button>
             <Button 
               onClick={async () => {
+                // Validate title before publishing
+                if (!currentForm.isPublished && (currentForm.title === "Untitled Form" || !currentForm.title.trim())) {
+                  toast({
+                    title: "Cannot Publish Form",
+                    description: "Please give your form a proper title before publishing.",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+                
                 if (!currentForm.title.trim()) return;
                 
                 const updatedForm = { 
