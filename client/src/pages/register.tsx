@@ -71,7 +71,7 @@ export default function Register() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setLocation("/")}
+                onClick={() => window.location.href = "/"}
                 className="text-slate-600 dark:text-slate-300"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
