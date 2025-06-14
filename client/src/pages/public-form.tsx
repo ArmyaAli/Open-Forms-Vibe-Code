@@ -196,9 +196,12 @@ export default function PublicForm() {
             <Input
               id={field.id}
               type="time"
+              placeholder={field.placeholder || "HH:MM"}
               value={formData[field.id] || ""}
               onChange={(e) => handleInputChange(field.id, e.target.value)}
               required={field.required}
+              step="60"
+              className="w-full"
             />
           </div>
         );

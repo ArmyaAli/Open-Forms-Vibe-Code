@@ -101,36 +101,25 @@ export default function FormImportExport({ currentForm, onImportForm }: FormImpo
     const file = event.target.files?.[0];
     if (!file) return;
 
-    console.log('File selected:', file.name, file.type);
-
     try {
       setIsProcessing(true);
       setImportPreview(null);
       setImportValidation(null);
 
-      console.log('Reading JSON file...');
       const jsonData = await readJsonFile(file);
-      console.log('JSON data loaded:', jsonData);
       
       // Store the file data for later use
       setSelectedFileData(jsonData);
       
-      console.log('Validating compatibility...');
       const validation = validateFormCompatibility(jsonData);
-      console.log('Validation result:', validation);
-      
       setImportValidation(validation);
       
       if (validation.canImport) {
-        console.log('Deserializing form for preview...');
         const previewData = deserializeForm(jsonData, { 
           ...importOptions, 
           replaceIds: false // Don't replace IDs for preview
         });
-        console.log('Preview data generated:', previewData);
         setImportPreview(previewData);
-      } else {
-        console.log('Cannot import form:', validation.issues);
       }
       
     } catch (error) {
@@ -152,26 +141,14 @@ export default function FormImportExport({ currentForm, onImportForm }: FormImpo
   };
 
   const handleImportForm = async () => {
-    console.log('Import button clicked');
-    console.log('importPreview:', importPreview);
-    console.log('selectedFileData:', selectedFileData);
-    
     if (!importPreview || !selectedFileData) {
-      console.log('Import blocked: Missing preview or file data');
-      console.log('importPreview exists:', !!importPreview);
-      console.log('selectedFileData exists:', !!selectedFileData);
       return;
     }
-
-    console.log('Starting form import...');
 
     try {
       setIsProcessing(true);
       
-      console.log('Using stored file data for import');
-      
       const formData = deserializeForm(selectedFileData, importOptions);
-      console.log('Deserialized form data:', formData);
       
       const finalFormData = {
         title: formData.title,
@@ -180,9 +157,6 @@ export default function FormImportExport({ currentForm, onImportForm }: FormImpo
         rows: formData.rows,
         themeColor: importOptions.preserveTheme ? currentForm.themeColor : formData.themeColor,
       };
-      
-      console.log('Final form data to import:', finalFormData);
-      console.log('Calling onImportForm...');
       
       onImportForm(finalFormData);
       
