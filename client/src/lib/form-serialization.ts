@@ -203,23 +203,34 @@ export function downloadFormAsJson(
  */
 export function readJsonFile(file: File): Promise<any> {
   return new Promise((resolve, reject) => {
-    if (file.type !== "application/json" && !file.name.endsWith(".json")) {
+    // More lenient file type checking - some systems don't set proper MIME types
+    if (!file.name.endsWith(".json") && file.type !== "application/json" && file.type !== "text/plain") {
+      console.log('File validation failed:', { name: file.name, type: file.type });
       reject(new Error("Please select a valid JSON file"));
       return;
     }
+
+    console.log('File passed validation:', { name: file.name, type: file.type, size: file.size });
 
     const reader = new FileReader();
     
     reader.onload = (event) => {
       try {
-        const jsonData = JSON.parse(event.target?.result as string);
+        const content = event.target?.result as string;
+        console.log('File content read, length:', content.length);
+        console.log('First 200 chars:', content.substring(0, 200));
+        
+        const jsonData = JSON.parse(content);
+        console.log('JSON parsed successfully');
         resolve(jsonData);
       } catch (error) {
+        console.error('JSON parse error:', error);
         reject(new Error("Invalid JSON file format"));
       }
     };
     
     reader.onerror = () => {
+      console.error('FileReader error');
       reject(new Error("Failed to read file"));
     };
     
@@ -240,12 +251,19 @@ export function validateFormCompatibility(jsonData: any): {
   let isValid = true;
   let canImport = true;
 
+  console.log('Validating form compatibility for:', jsonData);
+
   try {
     // Check if it's a valid serialized form
+    console.log('Attempting schema validation...');
     SerializableFormSchema.parse(jsonData);
+    console.log('Schema validation passed');
     
     const version = jsonData.version || "unknown";
     const formData = jsonData.formData || jsonData;
+    
+    console.log('Version:', version);
+    console.log('Form data:', formData);
 
     // Check for required fields
     if (!formData.title) {
@@ -285,13 +303,17 @@ export function validateFormCompatibility(jsonData: any): {
       });
     }
 
-    return {
+    const result = {
       isValid,
       version,
       issues,
       canImport: canImport && issues.length === 0,
     };
+    
+    console.log('Validation result:', result);
+    return result;
   } catch (error) {
+    console.error('Schema validation error:', error);
     return {
       isValid: false,
       version: "unknown",

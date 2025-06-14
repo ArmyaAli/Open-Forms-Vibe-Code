@@ -100,25 +100,37 @@ export default function FormImportExport({ currentForm, onImportForm }: FormImpo
     const file = event.target.files?.[0];
     if (!file) return;
 
+    console.log('File selected:', file.name, file.type);
+
     try {
       setIsProcessing(true);
       setImportPreview(null);
       setImportValidation(null);
 
+      console.log('Reading JSON file...');
       const jsonData = await readJsonFile(file);
+      console.log('JSON data loaded:', jsonData);
+      
+      console.log('Validating compatibility...');
       const validation = validateFormCompatibility(jsonData);
+      console.log('Validation result:', validation);
       
       setImportValidation(validation);
       
       if (validation.canImport) {
+        console.log('Deserializing form for preview...');
         const previewData = deserializeForm(jsonData, { 
           ...importOptions, 
           replaceIds: false // Don't replace IDs for preview
         });
+        console.log('Preview data generated:', previewData);
         setImportPreview(previewData);
+      } else {
+        console.log('Cannot import form:', validation.issues);
       }
       
     } catch (error) {
+      console.error('File select error:', error);
       toast({
         title: "Import Failed",
         description: error instanceof Error ? error.message : "Failed to read file",
@@ -136,14 +148,24 @@ export default function FormImportExport({ currentForm, onImportForm }: FormImpo
   };
 
   const handleImportForm = async () => {
-    if (!importPreview || !fileInputRef.current?.files?.[0]) return;
+    if (!importPreview || !fileInputRef.current?.files?.[0]) {
+      console.log('Import blocked: Missing preview or file');
+      return;
+    }
+
+    console.log('Starting form import...');
 
     try {
       setIsProcessing(true);
       
       const file = fileInputRef.current.files[0];
+      console.log('Re-reading file for import:', file.name);
+      
       const jsonData = await readJsonFile(file);
+      console.log('JSON data for import:', jsonData);
+      
       const formData = deserializeForm(jsonData, importOptions);
+      console.log('Deserialized form data:', formData);
       
       const finalFormData = {
         title: formData.title,
@@ -152,6 +174,9 @@ export default function FormImportExport({ currentForm, onImportForm }: FormImpo
         rows: formData.rows,
         themeColor: importOptions.preserveTheme ? currentForm.themeColor : formData.themeColor,
       };
+      
+      console.log('Final form data to import:', finalFormData);
+      console.log('Calling onImportForm...');
       
       onImportForm(finalFormData);
       
@@ -165,6 +190,7 @@ export default function FormImportExport({ currentForm, onImportForm }: FormImpo
       setImportValidation(null);
       
     } catch (error) {
+      console.error('Import form error:', error);
       toast({
         title: "Import Failed",
         description: error instanceof Error ? error.message : "Failed to import form",
