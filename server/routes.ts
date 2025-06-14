@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./auth-storage";
 import { insertFormSchema, insertFormResponseSchema, FormFieldSchema } from "@shared/schema";
 import { setupSession, setupAuthRoutes, updateSessionActivity, requireAuth } from "./auth-routes";
+import { SubscriptionService } from "./subscription-service";
 import { z } from "zod";
 import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
@@ -79,6 +80,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Add session activity middleware to all routes
   app.use(updateSessionActivity);
 
+  // Subscription enforcement middleware
+  const requirePremiumForAPI = async (req: any, res: any, next: any) => {
+    try {
+      const userId = req.session?.userId;
+      if (!userId) {
+        return res.status(401).json({ error: "Authentication required" });
+      }
+
+      const hasApiAccess = await SubscriptionService.checkApiAccess(userId);
+      if (!hasApiAccess) {
+        return res.status(403).json({ 
+          error: "API access requires Premium subscription",
+          upgrade: true
+        });
+      }
+      next();
+    } catch (error) {
+      res.status(500).json({ error: "Subscription check failed" });
+    }
+  };
+
   // Load Swagger documentation
   const swaggerDocument = YAML.load('./swagger.yaml');
   
@@ -105,13 +127,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   };
 
-  // Serve Swagger documentation at /api/docs
-  app.use('/api/docs', swaggerUi.serve);
-  app.get('/api/docs', swaggerUi.setup(swaggerDocument, swaggerOptions));
+  // Serve Swagger documentation at /api/docs (Premium only)
+  app.use('/api/docs', requirePremiumForAPI, swaggerUi.serve);
+  app.get('/api/docs', requirePremiumForAPI, swaggerUi.setup(swaggerDocument, swaggerOptions));
 
   // Form routes (protected)
   app.post("/api/forms", requireAuth, async (req, res) => {
     try {
+      const userId = req.session?.userId;
+      
+      // Check form creation limits
+      const formLimits = await SubscriptionService.checkFormLimit(userId);
+      if (!formLimits.canCreate) {
+        return res.status(403).json({
+          error: `Form limit reached. Your plan allows ${formLimits.limit} forms, you have ${formLimits.currentCount}.`,
+          limit: formLimits.limit,
+          current: formLimits.currentCount,
+          upgrade: true
+        });
+      }
+
       const validatedData = insertFormSchema.parse(req.body);
       const form = await storage.createForm(validatedData);
       res.json(form);
@@ -759,6 +794,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Form from template error:", error);
       res.status(500).json({ error: "Failed to create form from template" });
+    }
+  });
+
+  // SUBSCRIPTION MANAGEMENT API
+  
+  // Get user's subscription info
+  app.get("/api/subscription", requireAuth, async (req, res) => {
+    try {
+      const userId = req.session?.userId;
+      const user = await storage.getUserById(userId);
+      
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const subscriptionInfo = SubscriptionService.getSubscriptionInfo(user.subscriptionTier as any);
+      const formLimits = await SubscriptionService.checkFormLimit(userId);
+      
+      res.json({
+        ...subscriptionInfo,
+        usage: {
+          forms: {
+            current: formLimits.currentCount,
+            limit: formLimits.limit
+          }
+        },
+        stripeCustomerId: user.stripeCustomerId,
+        subscriptionStatus: user.subscriptionStatus
+      });
+    } catch (error) {
+      console.error("Subscription info error:", error);
+      res.status(500).json({ error: "Failed to fetch subscription info" });
+    }
+  });
+
+  // Get subscription tiers and pricing
+  app.get("/api/subscription/tiers", async (req, res) => {
+    try {
+      const tiers = ['free', 'core', 'premium'].map(tier => 
+        SubscriptionService.getSubscriptionInfo(tier as any)
+      );
+      res.json({ tiers });
+    } catch (error) {
+      console.error("Subscription tiers error:", error);
+      res.status(500).json({ error: "Failed to fetch subscription tiers" });
+    }
+  });
+
+  // Upgrade user to premium (for testing - will be replaced with Stripe later)
+  app.post("/api/subscription/upgrade-premium", requireAuth, async (req, res) => {
+    try {
+      const userId = req.session?.userId;
+      const updatedUser = await SubscriptionService.upgradeUserToPremium(userId);
+      
+      if (!updatedUser) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      res.json({ 
+        message: "Successfully upgraded to Premium", 
+        subscription: SubscriptionService.getSubscriptionInfo(updatedUser.subscriptionTier as any)
+      });
+    } catch (error) {
+      console.error("Premium upgrade error:", error);
+      res.status(500).json({ error: "Failed to upgrade to premium" });
     }
   });
 
