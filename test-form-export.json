@@ -1,0 +1,74 @@
+{
+  "version": "1.0.0",
+  "exportedAt": "2025-01-15T18:35:00.000Z",
+  "formData": {
+    "title": "Sample Contact Form",
+    "description": "A sample form for testing import functionality",
+    "fields": [
+      {
+        "id": "field1",
+        "type": "text",
+        "label": "Full Name",
+        "placeholder": "Enter your full name",
+        "required": true,
+        "rowId": "row1",
+        "columnIndex": 0,
+        "width": 1
+      },
+      {
+        "id": "field2", 
+        "type": "email",
+        "label": "Email Address",
+        "placeholder": "Enter your email",
+        "required": true,
+        "rowId": "row1",
+        "columnIndex": 1,
+        "width": 1
+      },
+      {
+        "id": "field3",
+        "type": "select",
+        "label": "Department",
+        "placeholder": "Select department",
+        "required": false,
+        "options": ["Sales", "Support", "Marketing", "Engineering"],
+        "rowId": "row2",
+        "columnIndex": 0,
+        "width": 1
+      },
+      {
+        "id": "field4",
+        "type": "textarea",
+        "label": "Message",
+        "placeholder": "Enter your message",
+        "required": true,
+        "rowId": "row3",
+        "columnIndex": 0,
+        "width": 1
+      }
+    ],
+    "rows": [
+      {
+        "id": "row1",
+        "order": 0,
+        "columns": 2
+      },
+      {
+        "id": "row2", 
+        "order": 1,
+        "columns": 1
+      },
+      {
+        "id": "row3",
+        "order": 2,
+        "columns": 1
+      }
+    ],
+    "themeColor": "#8B5CF6",
+    "metadata": {
+      "fieldCount": 4,
+      "rowCount": 3,
+      "complexity": "moderate"
+    }
+  }
+}

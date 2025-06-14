@@ -269,8 +269,8 @@ export default function FormBuilder() {
     setCurrentFormId(null);
     setLoadedFormData(null);
     
-    // Clear URL parameters
-    window.history.pushState({}, "", "/form-builder");
+    // Clear URL parameters and navigate to builder route
+    window.history.pushState({}, "", "/builder");
     
     toast({
       title: "New Form Created",
