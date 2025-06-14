@@ -16,44 +16,149 @@ interface PDFResponseData extends PDFFormData {
 
 export const exportFormAsPDF = (form: PDFFormData) => {
   const pdf = new jsPDF();
-  let yPosition = 20;
+  let yPosition = 25;
   const pageWidth = pdf.internal.pageSize.getWidth();
-  const margin = 20;
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const margin = 25;
   const contentWidth = pageWidth - (margin * 2);
 
   // Helper function to check if we need a new page
   const checkNewPage = (requiredHeight: number) => {
-    if (yPosition + requiredHeight > pdf.internal.pageSize.getHeight() - 20) {
+    if (yPosition + requiredHeight > pageHeight - 30) {
       pdf.addPage();
-      yPosition = 20;
+      yPosition = 25;
+      addPageBorder();
     }
   };
 
-  // Title
-  pdf.setFontSize(20);
-  pdf.setFont(undefined, 'bold');
-  pdf.text(form.title || 'Untitled Form', margin, yPosition);
-  yPosition += 15;
+  // Add border around the entire page
+  const addPageBorder = () => {
+    pdf.setDrawColor(100, 100, 100);
+    pdf.setLineWidth(0.5);
+    pdf.rect(15, 15, pageWidth - 30, pageHeight - 30);
+  };
 
-  // Description
+  addPageBorder();
+
+  // Header section with logo placeholder and title
+  pdf.setFillColor(240, 248, 255); // Light blue background
+  pdf.rect(margin, yPosition, contentWidth, 35, 'F');
+  
+  // Title in header
+  pdf.setFontSize(18);
+  pdf.setFont(undefined, 'bold');
+  pdf.setTextColor(50, 50, 50);
+  pdf.text(form.title || 'Form', margin + 10, yPosition + 15);
+  
+  // Add logo placeholder area (top right)
+  pdf.setDrawColor(180, 180, 180);
+  pdf.setLineWidth(0.3);
+  pdf.rect(pageWidth - margin - 50, yPosition + 5, 40, 25);
+  pdf.setFontSize(8);
+  pdf.setTextColor(120, 120, 120);
+  pdf.text('LOGO', pageWidth - margin - 30, yPosition + 20);
+  
+  yPosition += 50;
+
+  // Description if provided
   if (form.description) {
-    pdf.setFontSize(12);
+    pdf.setFontSize(10);
     pdf.setFont(undefined, 'normal');
-    const descriptionLines = pdf.splitTextToSize(form.description, contentWidth);
-    checkNewPage(descriptionLines.length * 7);
-    pdf.text(descriptionLines, margin, yPosition);
-    yPosition += descriptionLines.length * 7 + 10;
+    pdf.setTextColor(80, 80, 80);
+    const descriptionLines = pdf.splitTextToSize(form.description, contentWidth - 20);
+    checkNewPage(descriptionLines.length * 5 + 15);
+    pdf.text(descriptionLines, margin + 10, yPosition);
+    yPosition += descriptionLines.length * 5 + 20;
   }
 
-  // Draw a line separator
-  pdf.setDrawColor(200, 200, 200);
-  pdf.line(margin, yPosition, pageWidth - margin, yPosition);
-  yPosition += 15;
+  // Section counter
+  let sectionNumber = 1;
 
-  // Helper function to render field input
-  const renderFieldInput = (field: FormField, x: number, y: number, width: number): number => {
+  // Render section with professional styling
+  const renderSection = (sectionTitle: string, fields: FormField[]) => {
+    // Section header with background
+    checkNewPage(25);
+    pdf.setFillColor(235, 245, 255);
+    pdf.rect(margin, yPosition, contentWidth, 20, 'F');
+    
+    // Section number circle
+    pdf.setFillColor(70, 130, 180);
+    pdf.circle(margin + 10, yPosition + 10, 8, 'F');
+    pdf.setTextColor(255, 255, 255);
+    pdf.setFontSize(10);
+    pdf.setFont(undefined, 'bold');
+    pdf.text(sectionNumber.toString(), margin + 7, yPosition + 13);
+    
+    // Section title
+    pdf.setTextColor(70, 130, 180);
+    pdf.setFontSize(12);
+    pdf.text(sectionTitle, margin + 25, yPosition + 13);
+    
+    yPosition += 30;
+    sectionNumber++;
+    
+    // Render fields in organized rows
+    fields.forEach(field => {
+      checkNewPage(35);
+      renderFormField(field);
+      yPosition += 10; // Space between fields
+    });
+    
+    yPosition += 15; // Space after section
+  };
+
+  // Enhanced field rendering function
+  const renderFormField = (field: FormField) => {
+    pdf.setTextColor(60, 60, 60);
     pdf.setFont(undefined, 'normal');
-    pdf.setDrawColor(100, 100, 100);
+    pdf.setFontSize(10);
+    
+    // Field label with better styling
+    pdf.setFont(undefined, 'bold');
+    pdf.text(field.label || field.type, margin + 10, yPosition);
+    
+    // Required indicator
+    if (field.required) {
+      pdf.setTextColor(180, 50, 50);
+      pdf.text('*', margin + 10 + pdf.getTextWidth(field.label || field.type) + 2, yPosition);
+      pdf.setTextColor(60, 60, 60);
+    }
+    
+    yPosition += 8;
+    
+    // Field input area with better styling
+    pdf.setFont(undefined, 'normal');
+    pdf.setDrawColor(180, 180, 180);
+    pdf.setLineWidth(0.3);
+    
+    const fieldWidth = contentWidth - 20;
+    const fieldHeight = getFieldHeight(field.type);
+    
+    // Light background for input fields
+    pdf.setFillColor(252, 252, 252);
+    pdf.rect(margin + 10, yPosition, fieldWidth, fieldHeight, 'FD');
+    
+    // Add field-specific elements
+    renderFieldContent(field, margin + 10, yPosition, fieldWidth);
+    
+    yPosition += fieldHeight + 5;
+  };
+
+  // Get appropriate height for different field types
+  const getFieldHeight = (fieldType: string): number => {
+    switch (fieldType) {
+      case 'textarea': return 25;
+      case 'radio':
+      case 'checkbox': return 20;
+      case 'select': return 12;
+      default: return 12;
+    }
+  };
+
+  // Render field-specific content
+  const renderFieldContent = (field: FormField, x: number, y: number, width: number) => {
+    pdf.setTextColor(120, 120, 120);
+    pdf.setFontSize(9);
     
     switch (field.type) {
       case 'text':
@@ -61,327 +166,167 @@ export const exportFormAsPDF = (form: PDFFormData) => {
       case 'number':
       case 'date':
       case 'time':
-        pdf.rect(x, y, width, 8);
         if (field.placeholder) {
-          pdf.setFontSize(10);
-          pdf.setTextColor(150, 150, 150);
-          pdf.text(field.placeholder, x + 2, y + 6);
-          pdf.setTextColor(0, 0, 0);
+          pdf.text(field.placeholder, x + 3, y + 8);
         }
-        return 20;
-
+        break;
+        
       case 'textarea':
-        pdf.rect(x, y, width, 24);
         if (field.placeholder) {
-          pdf.setFontSize(10);
-          pdf.setTextColor(150, 150, 150);
-          pdf.text(field.placeholder, x + 2, y + 8);
-          pdf.setTextColor(0, 0, 0);
+          pdf.text(field.placeholder, x + 3, y + 8);
         }
-        return 36;
-
+        // Add lines for writing
+        for (let i = 1; i < 4; i++) {
+          pdf.setDrawColor(220, 220, 220);
+          pdf.line(x + 3, y + (i * 6), x + width - 3, y + (i * 6));
+        }
+        break;
+        
       case 'select':
-        pdf.rect(x, y, width, 8);
-        pdf.text(field.placeholder || 'Select an option ▼', x + 2, y + 6);
-        if (field.options && field.options.length > 0) {
-          pdf.setFontSize(10);
-          pdf.setTextColor(100, 100, 100);
-          const optionsText = pdf.splitTextToSize(`Options: ${field.options.join(', ')}`, width - 10);
-          pdf.text(optionsText, x + 5, y + 18);
-          pdf.setTextColor(0, 0, 0);
-          return 20 + optionsText.length * 7;
-        }
-        return 25;
-
+        pdf.text(field.placeholder || 'Please select...', x + 3, y + 8);
+        // Dropdown arrow
+        pdf.text('▼', x + width - 15, y + 8);
+        break;
+        
       case 'radio':
-        let radioHeight = 0;
-        field.options?.forEach((option) => {
-          pdf.circle(x + 3, y + radioHeight + 3, 2);
-          pdf.text(option, x + 10, y + radioHeight + 5);
-          radioHeight += 12;
+        field.options?.forEach((option, index) => {
+          const optionY = y + 4 + (index * 12);
+          // Radio button circle
+          pdf.setDrawColor(150, 150, 150);
+          pdf.circle(x + 8, optionY, 2);
+          pdf.setTextColor(80, 80, 80);
+          pdf.text(option, x + 15, optionY + 2);
         });
-        return radioHeight + 8;
-
+        break;
+        
       case 'checkbox':
-        let checkboxHeight = 0;
-        field.options?.forEach((option) => {
-          pdf.rect(x, y + checkboxHeight, 6, 6);
-          pdf.text(option, x + 10, y + checkboxHeight + 5);
-          checkboxHeight += 12;
+        field.options?.forEach((option, index) => {
+          const optionY = y + 4 + (index * 12);
+          // Checkbox square
+          pdf.setDrawColor(150, 150, 150);
+          pdf.rect(x + 5, optionY - 2, 4, 4);
+          pdf.setTextColor(80, 80, 80);
+          pdf.text(option, x + 15, optionY + 2);
         });
-        return checkboxHeight + 8;
-
-      case 'toggle':
-        pdf.rect(x, y, 20, 8);
-        pdf.text(field.placeholder || 'Toggle option', x + 25, y + 6);
-        return 20;
-
-      case 'range':
-        pdf.line(x, y + 4, x + width - 20, y + 4);
-        pdf.circle(x + 50, y + 4, 2);
-        return 20;
-
-      default:
-        pdf.rect(x, y, width, 8);
-        return 20;
+        break;
     }
   };
 
-  // Render fields using row-based layout
-  if (form.rows && form.rows.length > 0) {
-    // Sort rows by order
-    const sortedRows = [...form.rows].sort((a, b) => a.order - b.order);
+  // Organize fields into logical sections
+  const organizeFieldsIntoSections = () => {
+    const sections = [];
+    let currentSection = { title: 'Form Fields', fields: [] as FormField[] };
     
-    // Group fields by row
-    const fieldsByRow = form.fields.reduce((acc, field) => {
-      const rowId = (field as any).rowId;
-      if (!acc[rowId]) acc[rowId] = [];
-      acc[rowId].push(field);
-      return acc;
-    }, {} as Record<string, FormField[]>);
-    
-    // Sort fields within each row by columnIndex
-    Object.keys(fieldsByRow).forEach(rowId => {
-      fieldsByRow[rowId].sort((a, b) => ((a as any).columnIndex || 0) - ((b as any).columnIndex || 0));
+    form.fields.forEach(field => {
+      currentSection.fields.push(field);
     });
     
-    sortedRows.forEach((row) => {
-      const rowFields = fieldsByRow[row.id] || [];
-      if (rowFields.length === 0) return;
-      
-      checkNewPage(50); // Minimum space for a row
-      
-      // Calculate column width
-      const columnWidth = (contentWidth - (row.columns - 1) * 10) / row.columns;
-      
-      // Render fields in columns
-      const startY = yPosition;
-      let maxRowHeight = 0;
-      
-      for (let columnIndex = 0; columnIndex < row.columns; columnIndex++) {
-        const columnFields = rowFields.filter(field => ((field as any).columnIndex || 0) === columnIndex);
-        const columnX = margin + (columnWidth + 10) * columnIndex;
-        let columnY = startY;
-        
-        columnFields.forEach((field) => {
-          // Field label
-          pdf.setFontSize(12);
-          pdf.setFont(undefined, 'bold');
-          const labelText = `${field.label}${field.required ? ' *' : ''}`;
-          const labelLines = pdf.splitTextToSize(labelText, columnWidth);
-          pdf.text(labelLines, columnX, columnY);
-          columnY += labelLines.length * 7 + 5;
-          
-          // Field input area
-          const fieldHeight = renderFieldInput(field, columnX, columnY, columnWidth);
-          columnY += fieldHeight + 10;
-        });
-        
-        maxRowHeight = Math.max(maxRowHeight, columnY - startY);
-      }
-      
-      yPosition += maxRowHeight + 15; // Space between rows
-    });
-  } else {
-    // Fallback: render fields sequentially if no rows defined
-    form.fields.forEach((field, index) => {
-      checkNewPage(40);
-      
-      pdf.setFontSize(12);
-      pdf.setFont(undefined, 'bold');
-      const labelText = `${index + 1}. ${field.label}${field.required ? ' *' : ''}`;
-      pdf.text(labelText, margin, yPosition);
-      yPosition += 15;
-      
-      const fieldHeight = renderFieldInput(field, margin, yPosition, contentWidth);
-      yPosition += fieldHeight + 15;
-    });
-  }
+    if (currentSection.fields.length > 0) {
+      sections.push(currentSection);
+    }
+    
+    return sections;
+  };
 
-  // Footer
-  const footerY = pdf.internal.pageSize.getHeight() - 15;
-  pdf.setFontSize(8);
-  pdf.setTextColor(100, 100, 100);
-  pdf.text('Generated by Open Forms', margin, footerY);
-  pdf.text(new Date().toLocaleDateString(), pageWidth - margin - 30, footerY);
+  // Render all sections
+  const sections = organizeFieldsIntoSections();
+  sections.forEach((section) => {
+    renderSection(section.title, section.fields);
+  });
 
-  // Download the PDF
-  const fileName = `${form.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_form.pdf`;
-  pdf.save(fileName);
+  // Add footer
+  const addFooter = () => {
+    const footerY = pageHeight - 20;
+    pdf.setDrawColor(200, 200, 200);
+    pdf.line(margin, footerY - 5, pageWidth - margin, footerY - 5);
+    
+    pdf.setFontSize(8);
+    pdf.setTextColor(120, 120, 120);
+    pdf.text('Generated by OpenForms', margin, footerY);
+    
+    const currentDate = new Date().toLocaleDateString();
+    const dateText = `Date: ${currentDate}`;
+    pdf.text(dateText, pageWidth - margin - pdf.getTextWidth(dateText), footerY);
+  };
+
+  addFooter();
+
+  // Save the PDF
+  pdf.save(`${form.title || 'form'}.pdf`);
 };
 
 export const exportResponseAsPDF = (form: PDFFormData, response: FormResponse) => {
   const pdf = new jsPDF();
-  let yPosition = 20;
+  let yPosition = 25;
   const pageWidth = pdf.internal.pageSize.getWidth();
-  const margin = 20;
+  const pageHeight = pdf.internal.pageSize.getHeight();
+  const margin = 25;
   const contentWidth = pageWidth - (margin * 2);
 
   // Helper function to check if we need a new page
   const checkNewPage = (requiredHeight: number) => {
-    if (yPosition + requiredHeight > pdf.internal.pageSize.getHeight() - 20) {
+    if (yPosition + requiredHeight > pageHeight - 30) {
       pdf.addPage();
-      yPosition = 20;
+      yPosition = 25;
     }
   };
 
-  // Title
-  pdf.setFontSize(20);
+  // Add border around the entire page
+  pdf.setDrawColor(100, 100, 100);
+  pdf.setLineWidth(0.5);
+  pdf.rect(15, 15, pageWidth - 30, pageHeight - 30);
+
+  // Header section
+  pdf.setFillColor(240, 248, 255);
+  pdf.rect(margin, yPosition, contentWidth, 35, 'F');
+  
+  pdf.setFontSize(18);
   pdf.setFont(undefined, 'bold');
-  pdf.text(form.title || 'Untitled Form', margin, yPosition);
-  yPosition += 10;
-
-  // Submission info
+  pdf.setTextColor(50, 50, 50);
+  pdf.text(`${form.title || 'Form'} - Response`, margin + 10, yPosition + 15);
+  
   pdf.setFontSize(10);
-  pdf.setFont(undefined, 'normal');
-  pdf.setTextColor(100, 100, 100);
-  pdf.text(`Submitted: ${new Date(response.submittedAt).toLocaleString()}`, margin, yPosition);
-  yPosition += 15;
-  pdf.setTextColor(0, 0, 0);
+  pdf.setTextColor(80, 80, 80);
+  pdf.text(`Submitted: ${new Date(response.submittedAt).toLocaleString()}`, margin + 10, yPosition + 28);
+  
+  yPosition += 50;
 
-  // Description
-  if (form.description) {
-    pdf.setFontSize(12);
-    const descriptionLines = pdf.splitTextToSize(form.description, contentWidth);
-    checkNewPage(descriptionLines.length * 7);
-    pdf.text(descriptionLines, margin, yPosition);
-    yPosition += descriptionLines.length * 7 + 10;
-  }
-
-  // Draw a line separator
-  pdf.setDrawColor(200, 200, 200);
-  pdf.line(margin, yPosition, pageWidth - margin, yPosition);
-  yPosition += 15;
-
-  // Helper function to render a field response
-  const renderFieldResponse = (field: FormField, x: number, y: number, width: number): number => {
+  // Response data
+  form.fields.forEach(field => {
+    checkNewPage(35);
+    
     // Field label
-    pdf.setFontSize(12);
     pdf.setFont(undefined, 'bold');
-    const labelText = `${field.label}${field.required ? ' *' : ''}`;
-    const labelLines = pdf.splitTextToSize(labelText, width);
-    pdf.text(labelLines, x, y);
-    let currentY = y + labelLines.length * 7 + 5;
-
+    pdf.setFontSize(11);
+    pdf.setTextColor(60, 60, 60);
+    pdf.text(field.label || field.type, margin + 10, yPosition);
+    yPosition += 8;
+    
     // Response value
     pdf.setFont(undefined, 'normal');
-    const responseValue = response.responses[field.id];
+    pdf.setFontSize(10);
+    pdf.setTextColor(80, 80, 80);
     
-    if (responseValue !== undefined && responseValue !== null && responseValue !== '') {
-      pdf.setFontSize(11);
-      
-      switch (field.type) {
-        case 'checkbox':
-          // Handle array responses for checkboxes
-          if (Array.isArray(responseValue)) {
-            const selectedOptions = responseValue.join(', ');
-            const responseLines = pdf.splitTextToSize(selectedOptions, width - 10);
-            pdf.text(responseLines, x + 5, currentY);
-            currentY += responseLines.length * 7;
-          } else {
-            pdf.text(String(responseValue), x + 5, currentY);
-            currentY += 7;
-          }
-          break;
-          
-        case 'textarea':
-          // Handle multi-line text
-          const textLines = pdf.splitTextToSize(String(responseValue), width - 10);
-          pdf.text(textLines, x + 5, currentY);
-          currentY += textLines.length * 7;
-          break;
-
-        case 'rating':
-          // Show rating as stars
-          const rating = Number(responseValue) || 0;
-          pdf.text(`${'★'.repeat(rating)}${'☆'.repeat(5 - rating)} (${rating}/5)`, x + 5, currentY);
-          currentY += 7;
-          break;
-          
-        default:
-          // Handle single-line responses
-          const responseLines = pdf.splitTextToSize(String(responseValue), width - 10);
-          pdf.text(responseLines, x + 5, currentY);
-          currentY += responseLines.length * 7;
-          break;
-      }
-    } else {
-      // No response provided
-      pdf.setFontSize(10);
-      pdf.setTextColor(150, 150, 150);
-      pdf.text('(No response)', x + 5, currentY);
-      pdf.setTextColor(0, 0, 0);
-      currentY += 7;
-    }
-
-    return currentY - y + 10; // Return height used
-  };
-
-  // Render fields with row-based layout if available
-  if (form.rows && form.rows.length > 0) {
-    // Sort rows by order
-    const sortedRows = [...form.rows].sort((a, b) => a.order - b.order);
+    const responseValue = response.responses[field.id!] || 'No response';
+    const valueText = Array.isArray(responseValue) ? responseValue.join(', ') : String(responseValue);
     
-    // Group fields by row
-    const fieldsByRow = form.fields.reduce((acc, field) => {
-      const rowId = (field as any).rowId;
-      if (rowId) {
-        if (!acc[rowId]) acc[rowId] = [];
-        acc[rowId].push(field);
-      }
-      return acc;
-    }, {} as Record<string, FormField[]>);
+    // Background for response
+    pdf.setFillColor(248, 248, 248);
+    const responseHeight = 15;
+    pdf.rect(margin + 10, yPosition, contentWidth - 20, responseHeight, 'F');
     
-    // Sort fields within each row by columnIndex
-    Object.keys(fieldsByRow).forEach(rowId => {
-      fieldsByRow[rowId].sort((a, b) => ((a as any).columnIndex || 0) - ((b as any).columnIndex || 0));
-    });
-    
-    sortedRows.forEach((row) => {
-      const rowFields = fieldsByRow[row.id] || [];
-      if (rowFields.length === 0) return;
-      
-      checkNewPage(60); // Minimum space for a row
-      
-      // Calculate column width
-      const columnWidth = (contentWidth - (row.columns - 1) * 10) / row.columns;
-      
-      // Render fields in columns
-      const startY = yPosition;
-      let maxRowHeight = 0;
-      
-      for (let columnIndex = 0; columnIndex < row.columns; columnIndex++) {
-        const columnFields = rowFields.filter(field => ((field as any).columnIndex || 0) === columnIndex);
-        const columnX = margin + (columnWidth + 10) * columnIndex;
-        let columnY = startY;
-        
-        columnFields.forEach((field) => {
-          const fieldHeight = renderFieldResponse(field, columnX, columnY, columnWidth);
-          columnY += fieldHeight + 10;
-        });
-        
-        maxRowHeight = Math.max(maxRowHeight, columnY - startY);
-      }
-      
-      yPosition += maxRowHeight + 15; // Space between rows
-    });
-  } else {
-    // Fallback: render fields sequentially if no rows defined
-    form.fields.forEach((field) => {
-      checkNewPage(40);
-      const fieldHeight = renderFieldResponse(field, margin, yPosition, contentWidth);
-      yPosition += fieldHeight + 15;
-    });
-  }
+    pdf.text(valueText, margin + 15, yPosition + 10);
+    yPosition += responseHeight + 10;
+  });
 
   // Footer
-  const footerY = pdf.internal.pageSize.getHeight() - 15;
+  const footerY = pageHeight - 20;
+  pdf.setDrawColor(200, 200, 200);
+  pdf.line(margin, footerY - 5, pageWidth - margin, footerY - 5);
+  
   pdf.setFontSize(8);
-  pdf.setTextColor(100, 100, 100);
-  pdf.text('Generated by Open Forms', margin, footerY);
-  pdf.text(new Date().toLocaleDateString(), pageWidth - margin - 30, footerY);
+  pdf.setTextColor(120, 120, 120);
+  pdf.text('Generated by OpenForms', margin, footerY);
 
-  // Download the PDF
-  const fileName = `${form.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_response_${response.id}.pdf`;
-  pdf.save(fileName);
+  pdf.save(`${form.title || 'form'}-response.pdf`);
 };
