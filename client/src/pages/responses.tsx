@@ -182,7 +182,7 @@ export default function Responses() {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4 lg:space-x-8">
             <button 
-              onClick={() => setLocation("/")}
+              onClick={() => window.location.href = "/"}
               className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
             >
               <div className="w-8 h-8 bg-gradient-to-r from-primary to-secondary-500 rounded-lg flex items-center justify-center">
