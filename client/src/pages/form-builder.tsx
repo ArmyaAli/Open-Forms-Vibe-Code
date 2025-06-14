@@ -733,7 +733,7 @@ export default function FormBuilder() {
               variant={currentForm.isPublished ? "secondary" : "default"}
               size="sm" 
               className="rounded-sm whitespace-nowrap"
-              disabled={!currentForm.title.trim() || createFormMutation.isPending || updateFormMutation.isPending}
+              disabled={currentForm.title === "Untitled Form" || !currentForm.title.trim() || createFormMutation.isPending || updateFormMutation.isPending}
             >
               <Share className="mr-1 sm:mr-2" size={16} />
               <span className="hidden sm:inline">{currentForm.isPublished ? "Unpublish" : "Publish & Share"}</span>
