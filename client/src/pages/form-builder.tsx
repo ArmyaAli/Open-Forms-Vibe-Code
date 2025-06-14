@@ -636,11 +636,19 @@ export default function FormBuilder() {
             </div>
           )}
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4 overflow-x-auto">
             <ThemeToggle />
             <Button 
               onClick={async () => {
-                if (!currentForm.title.trim()) return;
+                // Validate title before previewing
+                if (currentForm.title === "Untitled Form" || !currentForm.title.trim()) {
+                  toast({
+                    title: "Cannot Preview Form",
+                    description: "Please give your form a proper title before previewing.",
+                    variant: "destructive",
+                  });
+                  return;
+                }
                 
                 // Save form first if not saved
                 if (!currentFormId) {
@@ -674,11 +682,12 @@ export default function FormBuilder() {
               }} 
               variant="outline" 
               size="sm" 
-              className="rounded-sm"
-              disabled={!currentForm.title.trim() || createFormMutation.isPending || updateFormMutation.isPending}
+              className="rounded-sm whitespace-nowrap"
+              disabled={currentForm.title === "Untitled Form" || !currentForm.title.trim() || createFormMutation.isPending || updateFormMutation.isPending}
             >
-              <Eye className="mr-2" size={16} />
-              {createFormMutation.isPending || updateFormMutation.isPending ? "Saving..." : "Live Preview"}
+              <Eye className="mr-1 sm:mr-2" size={16} />
+              <span className="hidden sm:inline">{createFormMutation.isPending || updateFormMutation.isPending ? "Saving..." : "Live Preview"}</span>
+              <span className="sm:hidden">Preview</span>
             </Button>
             <Button 
               onClick={async () => {
@@ -723,15 +732,17 @@ export default function FormBuilder() {
               }}
               variant={currentForm.isPublished ? "secondary" : "default"}
               size="sm" 
-              className="rounded-sm"
+              className="rounded-sm whitespace-nowrap"
               disabled={!currentForm.title.trim() || createFormMutation.isPending || updateFormMutation.isPending}
             >
-              <Share className="mr-2" size={16} />
-              {currentForm.isPublished ? "Unpublish" : "Publish & Share"}
+              <Share className="mr-1 sm:mr-2" size={16} />
+              <span className="hidden sm:inline">{currentForm.isPublished ? "Unpublish" : "Publish & Share"}</span>
+              <span className="sm:hidden">{currentForm.isPublished ? "Unpublish" : "Publish"}</span>
             </Button>
-            <Button onClick={handleNewForm} variant="outline" size="sm" className="rounded-sm">
-              <Plus className="mr-2" size={16} />
-              New Form
+            <Button onClick={handleNewForm} variant="outline" size="sm" className="rounded-sm whitespace-nowrap">
+              <Plus className="mr-1 sm:mr-2" size={16} />
+              <span className="hidden sm:inline">New Form</span>
+              <span className="sm:hidden">New</span>
             </Button>
             {user && <UserProfileMenu user={user} />}
           </div>
