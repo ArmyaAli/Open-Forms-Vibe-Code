@@ -10,8 +10,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Camera, Save, Box, List, BarChart } from "lucide-react";
+import { ArrowLeft, Camera, Save, Box, List, BarChart, Crown, Zap, Check } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { UserProfileMenu } from "@/components/user-profile-menu";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -24,6 +26,30 @@ export default function Settings() {
 
   const { data: user, isLoading } = useQuery<User>({
     queryKey: ["/api/auth/user"],
+  });
+
+  const { data: subscription, isLoading: subscriptionLoading } = useQuery({
+    queryKey: ["/api/subscription"],
+    enabled: !!user,
+  });
+
+  const upgradeMutation = useMutation({
+    mutationFn: async () => await apiRequest("POST", "/api/subscription/upgrade-premium", {}),
+    onSuccess: () => {
+      toast({
+        title: "Upgraded to Premium!",
+        description: "You now have access to all Premium features.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/subscription"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Upgrade Failed",
+        description: error.message || "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    },
   });
 
   const form = useForm<UpdateUserProfile>({
@@ -285,6 +311,178 @@ export default function Settings() {
                   </div>
                 </form>
               </Form>
+            </CardContent>
+          </Card>
+
+          {/* Subscription Management */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <Crown className="h-5 w-5" />
+                    Subscription Plan
+                  </CardTitle>
+                  <CardDescription>
+                    Manage your subscription and billing
+                  </CardDescription>
+                </div>
+                {subscription && (
+                  <Badge 
+                    variant={subscription.tier === 'premium' ? 'default' : subscription.tier === 'core' ? 'secondary' : 'outline'}
+                    className="capitalize"
+                  >
+                    {subscription.tier}
+                  </Badge>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              {subscriptionLoading ? (
+                <div className="space-y-4">
+                  <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+                  <div className="h-20 bg-slate-200 dark:bg-slate-700 rounded animate-pulse" />
+                </div>
+              ) : subscription ? (
+                <div className="space-y-6">
+                  {/* Current Plan */}
+                  <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="font-semibold text-lg capitalize">{subscription.name}</h3>
+                        <p className="text-slate-600 dark:text-slate-400">{subscription.description}</p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold">
+                          ${subscription.price}
+                          <span className="text-sm font-normal text-slate-500">/month</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Usage Stats */}
+                    <div className="space-y-4">
+                      <div>
+                        <div className="flex justify-between text-sm mb-2">
+                          <span>Forms Used</span>
+                          <span>
+                            {subscription.usage?.forms?.current || 0} / {subscription.usage?.forms?.limit === -1 ? '∞' : subscription.usage?.forms?.limit || 0}
+                          </span>
+                        </div>
+                        <Progress 
+                          value={
+                            subscription.usage?.forms?.limit === -1 
+                              ? 0 
+                              : ((subscription.usage?.forms?.current || 0) / (subscription.usage?.forms?.limit || 1)) * 100
+                          }
+                          className="h-2"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Features */}
+                    <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                      <h4 className="font-medium mb-3">Plan Features</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div className="flex items-center text-sm">
+                          <Check className="h-4 w-4 text-green-500 mr-2" />
+                          {subscription.features?.forms}
+                        </div>
+                        <div className="flex items-center text-sm">
+                          <Check className="h-4 w-4 text-green-500 mr-2" />
+                          {subscription.features?.responses}
+                        </div>
+                        {subscription.features?.apiAccess !== 'No API access' && (
+                          <div className="flex items-center text-sm">
+                            <Check className="h-4 w-4 text-green-500 mr-2" />
+                            {subscription.features?.apiAccess}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Upgrade Options */}
+                  {subscription.tier !== 'premium' && (
+                    <div className="space-y-4">
+                      <h4 className="font-medium">Upgrade Your Plan</h4>
+                      
+                      {subscription.tier === 'free' && (
+                        <div className="p-4 border border-blue-200 dark:border-blue-800 rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h5 className="font-medium">Core Plan</h5>
+                              <p className="text-sm text-slate-600 dark:text-slate-400">
+                                500 forms, 10k responses/month
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <div className="font-bold">$20/month</div>
+                              <Button size="sm" variant="outline">
+                                Coming Soon
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="p-4 border border-purple-200 dark:border-purple-800 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h5 className="font-medium flex items-center gap-2">
+                              <Crown className="h-4 w-4 text-purple-500" />
+                              Premium Plan
+                            </h5>
+                            <p className="text-sm text-slate-600 dark:text-slate-400">
+                              Unlimited forms, unlimited responses, full API access
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold">$50/month</div>
+                            <Button 
+                              size="sm" 
+                              onClick={() => upgradeMutation.mutate()}
+                              disabled={upgradeMutation.isPending}
+                              className="bg-purple-600 hover:bg-purple-700"
+                            >
+                              {upgradeMutation.isPending ? (
+                                <>
+                                  <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2" />
+                                  Upgrading...
+                                </>
+                              ) : (
+                                <>
+                                  <Zap className="h-4 w-4 mr-1" />
+                                  Upgrade Now
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Premium Benefits */}
+                  {subscription.tier === 'premium' && (
+                    <div className="p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Crown className="h-5 w-5 text-purple-500" />
+                        <h4 className="font-medium">Premium Active</h4>
+                      </div>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                        You have access to all Premium features including unlimited forms, responses, and full API access.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-slate-500 dark:text-slate-400">
+                    Unable to load subscription information
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
