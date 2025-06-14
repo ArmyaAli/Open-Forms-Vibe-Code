@@ -229,8 +229,8 @@ curl -X POST '${baseUrl}/api/forms' \\
               </CardHeader>
               <CardContent>
                 <div className="space-y-1">
-                  {category.endpoints.slice(0, 3).map((endpoint) => (
-                    <div key={endpoint} className="text-xs font-mono bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                  {category.endpoints.slice(0, 3).map((endpoint, index) => (
+                    <div key={`${category.name}-${index}`} className="text-xs font-mono bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
                       {endpoint}
                     </div>
                   ))}
