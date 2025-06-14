@@ -508,9 +508,10 @@ export default function FieldPalette({ onAddField, currentForm, onUpdateForm, on
   const [isExpanded, setIsExpanded] = useState(true);
   
   return (
-    <aside className="w-full lg:w-80 bg-white dark:bg-background border-r lg:border-r border-b lg:border-b-0 border-slate-200 dark:border-slate-600 h-auto lg:h-full overflow-y-auto">
-      <div className="p-4 lg:p-6">
-        <div className="flex items-center justify-between mb-4">
+    <aside className="w-full lg:w-80 bg-white dark:bg-background border-r lg:border-r border-b lg:border-b-0 border-slate-200 dark:border-slate-600 h-auto lg:h-full flex flex-col">
+      {/* Fixed Header */}
+      <div className="flex-shrink-0 p-4 lg:p-6 border-b border-slate-200 dark:border-slate-600">
+        <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Form Elements</h2>
           <div className="flex items-center gap-1">
             <Button
@@ -537,8 +538,11 @@ export default function FieldPalette({ onAddField, currentForm, onUpdateForm, on
             </Button>
           </div>
         </div>
+      </div>
         
-        {isExpanded && (
+      {/* Scrollable Content */}
+      {isExpanded && (
+        <div className="flex-1 overflow-y-auto p-4 lg:p-6">
           <div className="grid grid-cols-2 lg:grid-cols-1 gap-3 lg:space-y-0">
             {fieldTypes.map((field) => {
             const IconComponent = field.icon;
@@ -605,9 +609,8 @@ export default function FieldPalette({ onAddField, currentForm, onUpdateForm, on
             );
           })}
           </div>
-        )}
-
-        {isExpanded && (
+          
+          {/* Form Settings Section */}
           <div className="mt-8">
             <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">Form Settings</h3>
             <div className="space-y-3">
@@ -620,8 +623,8 @@ export default function FieldPalette({ onAddField, currentForm, onUpdateForm, on
               </div>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </aside>
   );
 }
